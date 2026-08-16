@@ -1,0 +1,25 @@
+# Datos persistentes de bases de datos y cachés (se restauran con backups, no con git)
+postgres/data/
+pgadmin/data/
+redis/data/
+
+# Datos de n8n (incluye sqlite + clave de cifrado interna)
+projects/*/n8n/data/
+projects/*/n8n/*/data/
+
+# Uploads de aplicaciones (contenido de usuario, no código)
+projects/*/api/uploads/
+
+# Credenciales de túneles Cloudflare (privadas)
+cloudflared/*/config/
+
+# Backups locales (van cifrados a Google Drive, no a git)
+backups/
+
+# Secretos en texto plano — solo se versiona la version cifrada .env.age
+**/.env
+!**/.env.age
+
+# Varios
+node_modules/
+*.log

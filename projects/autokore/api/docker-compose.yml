@@ -1,0 +1,37 @@
+services:
+  autokore-api:
+    image: node:20-alpine
+    container_name: autokore-api
+    restart: unless-stopped
+    working_dir: /app
+    command: sh -c "npm install && node src/index.js"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=autokore
+      - DB_USER=postgres
+      - DB_PASS=postgres_secure_2025
+      - CORS_ORIGIN=https://autokore.space,https://demo.autokore.space
+    volumes:
+      - ./src:/app/src
+      - ./package.json:/app/package.json
+      - ./uploads:/app/uploads
+    expose:
+      - "3000"
+    networks:
+      - autokore-network
+      - autokore-backend-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+networks:
+  autokore-network:
+    external: true
+  autokore-backend-network:
+    external: true

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Productos — Lilop Admin</title>
+  <link rel="stylesheet" href="/assets/css/tokens.css"/>
+  <link rel="stylesheet" href="/assets/css/admin.css?v=2"/>
+  <link rel="stylesheet" href="/assets/css/responsive.css"/>
+</head>
+<body>
+
+<div class="admin-layout">
+  <aside class="admin-sidebar" id="adminSidebar"></aside>
+  <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
+  <header class="admin-topbar" id="adminTopbar"></header>
+
+  <main class="admin-content">
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--s-6);flex-wrap:wrap;gap:var(--s-4);">
+      <div>
+        <h2 style="font-family:var(--font-display);font-size:var(--text-xl);font-weight:var(--weight-semibold);">Gestión de Productos</h2>
+        <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-top:4px;" id="productosCount"></p>
+      </div>
+      <button class="btn btn--primary" id="btnNuevoProducto">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nuevo producto
+      </button>
+    </div>
+
+    <!-- Filtros -->
+    <div class="admin-panel" style="margin-bottom:var(--s-6);">
+      <div class="admin-panel__body" style="padding:var(--s-4) var(--s-6);">
+        <div style="display:flex;gap:var(--s-4);flex-wrap:wrap;align-items:center;">
+          <div style="position:relative;flex:1;min-width:200px;">
+            <svg style="position:absolute;left:12px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--color-text-light);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+            <input type="search" class="form-input" id="searchProductos" placeholder="Buscar productos..." style="padding-left:36px;"/>
+          </div>
+          <select class="form-input" id="filterCategoria" style="max-width:180px;">
+            <option value="">Todas las categorías</option>
+            <option value="sabanas">Sábanas</option>
+            <option value="edredones">Edredones</option>
+            <option value="almohadas">Almohadas</option>
+            <option value="cubrecamas">Cubrecamas</option>
+            <option value="fundas">Fundas</option>
+            <option value="toallas">Toallas</option>
+            <option value="protectores">Protectores</option>
+            <option value="decoracion">Decoración</option>
+          </select>
+          <select class="form-input" id="filterEstadoP" style="max-width:160px;">
+            <option value="">Todos</option>
+            <option value="active">Activos</option>
+            <option value="inactive">Inactivos</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grid de productos -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:var(--s-5);" id="productosGrid"></div>
+    <div class="pagination" id="productosPagination" style="background:var(--color-white);border:1px solid var(--color-border);border-radius:var(--r-xl);margin-top:var(--s-4);padding:var(--s-4) var(--s-6);"></div>
+
+  </main>
+</div>
+
+<!-- Modal Producto -->
+<div class="modal-overlay" id="modalProducto" role="dialog" aria-modal="true">
+  <div class="modal modal--lg">
+    <div class="modal__header">
+      <h3 class="modal__title" id="modalProductoTitle">Nuevo producto</h3>
+      <button class="modal__close" data-modal-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal__body" id="modalProductoBody"></div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost btn--sm" data-modal-close>Cancelar</button>
+      <button class="btn btn--primary btn--sm" id="btnGuardarProducto">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="admin-toasts" id="adminToasts"></div>
+
+<script src="/assets/js/admin-auth.js"></script>
+<script src="/assets/js/admin-store.js"></script>
+<script src="/assets/js/admin-layout.js?v=11"></script>
+<script src="/assets/js/admin-ui.js"></script>
+<script src="/assets/js/pages/productos.js"></script>
+
+</body>
+</html>

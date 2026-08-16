@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Catálogo Lilop — Sábanas, edredones, almohadas, cubrecamas, toallas y más. Ropa de cama premium bajo pedido. Entrega en todo Colombia." />
+  <title>Catálogo — Lilop</title>
+
+  <link rel="stylesheet" href="/assets/css/tokens.css" />
+  <link rel="stylesheet" href="/assets/css/global.css" />
+  <link rel="stylesheet" href="/assets/css/components.css" />
+  <link rel="stylesheet" href="/assets/css/pages/home.css" />
+  <link rel="stylesheet" href="/assets/css/pages/catalogo.css" />
+</head>
+<body>
+
+  <!-- Componentes globales -->
+  <lilop-navbar></lilop-navbar>
+  <lilop-cart></lilop-cart>
+  <lilop-toast></lilop-toast>
+  <div class="overlay" id="mainOverlay" aria-hidden="true"></div>
+
+  <!-- ── DRAWER DE FILTROS (móvil) ──────────────────────── -->
+  <div class="filters-drawer" id="filtersDrawer" role="dialog" aria-modal="true" aria-label="Filtros de productos" aria-hidden="true">
+    <div class="filters-drawer__header">
+      <h2 class="filters-drawer__title">Filtros</h2>
+      <button class="filters-drawer__close" id="filtersDrawerClose" aria-label="Cerrar filtros">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <!-- Contenido inyectado por catalogo.js -->
+    <div id="filtersDrawerBody"></div>
+    <div class="filters-drawer__footer">
+      <button class="btn btn--primary btn--full" id="filtersDrawerApply">
+        Ver resultados
+      </button>
+    </div>
+  </div>
+
+  <!-- ── HEADER DEL CATÁLOGO ────────────────────────────── -->
+  <section class="catalog-hero">
+    <div class="container">
+      <div class="catalog-hero__inner">
+        <div>
+          <nav class="catalog-hero__breadcrumb" aria-label="Ruta de navegación">
+            <a href="/index.html">Inicio</a>
+            <span aria-hidden="true">›</span>
+            <span id="breadcrumbCurrent" aria-current="page">Catálogo</span>
+          </nav>
+          <h1 class="catalog-hero__title" id="catalogTitle">Todos los productos</h1>
+          <p class="catalog-hero__count" id="catalogCount" aria-live="polite">
+            Cargando productos…
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── LAYOUT PRINCIPAL ───────────────────────────────── -->
+  <div class="container">
+    <div class="catalog-layout">
+
+      <!-- SIDEBAR FILTROS (desktop) -->
+      <aside class="filters-sidebar" id="filtersSidebar" aria-label="Filtros de productos">
+        <div class="filters-sidebar__header">
+          <h2 class="filters-sidebar__title">Filtros</h2>
+          <button class="filters-sidebar__reset" id="filtersReset" aria-label="Limpiar todos los filtros">
+            Limpiar todo
+          </button>
+        </div>
+
+        <!-- Filtro: Categoría -->
+        <div class="filter-group">
+          <button class="filter-group__toggle" aria-expanded="true" aria-controls="filterCategory">
+            Categoría
+            <svg class="filter-group__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+          <div class="filter-group__body" id="filterCategory">
+            <label class="filter-option">
+              <input type="checkbox" name="category" value="sabanas" />
+              <span>Sábanas</span>
+              <span class="filter-option__count" data-cat="sabanas"></span>
+            </label>
+            <label class="filter-option">
+              <input type="checkbox" name="category" value="edredones" />
+              <span>Edredones</span>
+              <span class="filter-option__count" data-cat="edredones"></span>
+            </label>
+            <label class="filter-option">
+              <input type="checkbox" name="category" value="almohadas" />
+              <span>Almohadas</span>
+              <span class="filter-option__count" data-cat="almohadas"></span>
+            </label>
+            <label class="filter-option">
+              <input type="checkbox" name="category" value="cubrecamas" />
+              <span>Cubrecamas</span>
+              <span class="filter-option__count" data-cat="cubrecamas"></span>
+            </label>
+            <label class="filter-option">
+              <input type="checkbox" name="category" value="fundas" />
+              <span>Fundas</span>
+              <span class="filter-option__count" data-cat="fundas"></span>
+            </label>
+            <label class="filter-option">
+              <input type="checkbox" name="category" value="toallas" />
+              <span>Toallas</span>
+              <span class="filter-option__count" data-cat="toallas"></span>
+            </label>
+            <label class="filter-option">
+              <input type="checkbox" name="category" value="protectores" />
+              <span>Protectores</span>
+              <span class="filter-option__count" data-cat="protectores"></span>
+            </label>
+            <label class="filter-option">
+              <input type="checkbox" name="category" value="decoracion" />
+              <span>Decoración</span>
+              <span class="filter-option__count" data-cat="decoracion"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Filtro: Precio -->
+        <div class="filter-group">
+          <button class="filter-group__toggle" aria-expanded="true" aria-controls="filterPrice">
+            Precio
+            <svg class="filter-group__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+          <div class="filter-group__body" id="filterPrice">
+            <div class="filter-price">
+              <div class="filter-price__range">
+                <input
+                  type="number"
+                  class="filter-price__input"
+                  id="priceMin"
+                  placeholder="Mínimo"
+                  min="0"
+                  aria-label="Precio mínimo"
+                />
+                <input
+                  type="number"
+                  class="filter-price__input"
+                  id="priceMax"
+                  placeholder="Máximo"
+                  min="0"
+                  aria-label="Precio máximo"
+                />
+              </div>
+              <button class="filter-price__apply" id="priceApply" aria-label="Aplicar filtro de precio">
+                Aplicar precio
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filtro: Disponibilidad -->
+        <div class="filter-group">
+          <button class="filter-group__toggle" aria-expanded="true" aria-controls="filterStock">
+            Disponibilidad
+            <svg class="filter-group__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+          <div class="filter-group__body" id="filterStock">
+            <label class="filter-option">
+              <input type="checkbox" name="stock" value="available" checked />
+              <span>Disponibles</span>
+            </label>
+            <label class="filter-option">
+              <input type="checkbox" name="stock" value="featured" />
+              <span>Solo destacados</span>
+            </label>
+          </div>
+        </div>
+
+      </aside>
+
+      <!-- CONTENIDO PRINCIPAL -->
+      <div class="catalog-main">
+
+        <!-- Toolbar: búsqueda + orden + toggle filtros móvil -->
+        <div class="catalog-toolbar">
+
+          <button class="catalog-filter-toggle" id="filterToggle" aria-label="Abrir filtros" aria-expanded="false" aria-controls="filtersDrawer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <line x1="4" y1="6" x2="20" y2="6"/>
+              <line x1="8" y1="12" x2="16" y2="12"/>
+              <line x1="11" y1="18" x2="13" y2="18"/>
+            </svg>
+            Filtros
+            <span class="catalog-filter-toggle__count" id="activeFiltersCount" aria-live="polite"></span>
+          </button>
+
+          <div class="catalog-search">
+            <svg class="catalog-search__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <circle cx="11" cy="11" r="7"/>
+              <path d="M21 21l-4.35-4.35" stroke-linecap="round"/>
+            </svg>
+            <input
+              type="search"
+              class="catalog-search__input"
+              id="catalogSearch"
+              placeholder="Buscar productos..."
+              autocomplete="off"
+              aria-label="Buscar en el catálogo"
+            />
+            <button
+              class="catalog-search__clear"
+              id="searchClear"
+              aria-label="Limpiar búsqueda"
+            >✕</button>
+          </div>
+
+          <div class="catalog-sort">
+            <label for="catalogSortSelect" class="catalog-sort__label">Ordenar:</label>
+            <select
+              class="catalog-sort__select"
+              id="catalogSortSelect"
+              aria-label="Ordenar productos por"
+            >
+              <option value="relevance">Relevancia</option>
+              <option value="price-asc">Precio: menor a mayor</option>
+              <option value="price-desc">Precio: mayor a menor</option>
+              <option value="rating">Mejor valorados</option>
+              <option value="newest">Más nuevos</option>
+            </select>
+          </div>
+
+        </div>
+
+        <!-- Chips de filtros activos -->
+        <div class="active-filters" id="activeFilters" aria-label="Filtros activos" role="list"></div>
+
+        <!-- Grilla de productos — inyectada por catalogo.js -->
+        <div class="catalog-grid" id="catalogGrid" role="list" aria-label="Productos">
+          <!-- Skeletons de carga inicial -->
+          <div class="product-card product-card--skeleton" aria-hidden="true"><div class="product-card__img-wrap"></div><div class="product-card__info"><div class="product-card__category" style="width:60%;height:12px;"></div><div class="product-card__name" style="width:80%;height:16px;margin-top:4px;"></div><div class="product-card__price-current" style="width:40%;height:20px;margin-top:8px;"></div></div></div>
+          <div class="product-card product-card--skeleton" aria-hidden="true"><div class="product-card__img-wrap"></div><div class="product-card__info"><div class="product-card__category" style="width:60%;height:12px;"></div><div class="product-card__name" style="width:80%;height:16px;margin-top:4px;"></div><div class="product-card__price-current" style="width:40%;height:20px;margin-top:8px;"></div></div></div>
+          <div class="product-card product-card--skeleton" aria-hidden="true"><div class="product-card__img-wrap"></div><div class="product-card__info"><div class="product-card__category" style="width:60%;height:12px;"></div><div class="product-card__name" style="width:80%;height:16px;margin-top:4px;"></div><div class="product-card__price-current" style="width:40%;height:20px;margin-top:8px;"></div></div></div>
+          <div class="product-card product-card--skeleton" aria-hidden="true"><div class="product-card__img-wrap"></div><div class="product-card__info"><div class="product-card__category" style="width:60%;height:12px;"></div><div class="product-card__name" style="width:80%;height:16px;margin-top:4px;"></div><div class="product-card__price-current" style="width:40%;height:20px;margin-top:8px;"></div></div></div>
+          <div class="product-card product-card--skeleton" aria-hidden="true"><div class="product-card__img-wrap"></div><div class="product-card__info"><div class="product-card__category" style="width:60%;height:12px;"></div><div class="product-card__name" style="width:80%;height:16px;margin-top:4px;"></div><div class="product-card__price-current" style="width:40%;height:20px;margin-top:8px;"></div></div></div>
+          <div class="product-card product-card--skeleton" aria-hidden="true"><div class="product-card__img-wrap"></div><div class="product-card__info"><div class="product-card__category" style="width:60%;height:12px;"></div><div class="product-card__name" style="width:80%;height:16px;margin-top:4px;"></div><div class="product-card__price-current" style="width:40%;height:20px;margin-top:8px;"></div></div></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <lilop-footer></lilop-footer>
+
+  <!-- Scripts -->
+  <script src="/assets/js/store.js"></script>
+  <script src="/assets/js/router.js"></script>
+  <script src="/assets/js/components/navbar.js"></script>
+  <script src="/assets/js/components/footer.js"></script>
+  <script src="/assets/js/components/cart.js"></script>
+  <script src="/assets/js/components/toast.js"></script>
+  <script src="/assets/js/pages/catalogo.js"></script>
+
+</body>
+</html>

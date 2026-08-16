@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Iniciar sesión — Lilop Admin</title>
+  <link rel="stylesheet" href="/assets/css/tokens.css"/>
+  <link rel="stylesheet" href="/assets/css/admin.css"/>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap');
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-body);
+      background: var(--grad-bg);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--s-6);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .login-wrap {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      gap: var(--s-6);
+    }
+
+    .login-logo {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--s-3);
+    }
+
+    .login-logo__icon {
+      width: 56px;
+      height: 56px;
+      border-radius: var(--r-xl);
+      background: var(--grad-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .login-logo__icon svg { width: 26px; height: 26px; color: white; }
+
+    .login-logo__title {
+      font-family: var(--font-display);
+      font-size: var(--text-2xl);
+      font-weight: var(--weight-bold);
+      color: var(--color-text);
+      line-height: 1;
+    }
+
+    .login-logo__sub {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+      font-weight: var(--weight-regular);
+    }
+
+    .login-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--r-2xl);
+      padding: var(--s-8);
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      flex-direction: column;
+      gap: var(--s-5);
+    }
+
+    .login-card__title {
+      font-family: var(--font-display);
+      font-size: var(--text-xl);
+      font-weight: var(--weight-semibold);
+      color: var(--color-text);
+    }
+
+    .login-card__sub {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+      margin-top: calc(-1 * var(--s-3));
+      font-weight: var(--weight-light);
+    }
+
+    .form-group { display: flex; flex-direction: column; gap: var(--s-2); }
+
+    .form-label {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-semibold);
+      color: var(--color-text);
+    }
+
+    .form-input {
+      padding: 12px 14px;
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--r-md);
+      font-family: var(--font-body);
+      font-size: var(--text-base);
+      color: var(--color-text);
+      background: var(--color-fog);
+      transition: all 250ms cubic-bezier(0.25,0.46,0.45,0.94);
+      width: 100%;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--color-violet);
+      background: white;
+      box-shadow: 0 0 0 3px rgba(196,176,245,0.6);
+    }
+
+    .form-input--error { border-color: var(--color-error); }
+
+    .form-input-wrap {
+      position: relative;
+    }
+
+    .form-input-wrap .form-input {
+      padding-right: 44px;
+    }
+
+    .form-input-eye {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--color-text-muted);
+      border-radius: var(--r-sm);
+      transition: color 150ms;
+    }
+
+    .form-input-eye:hover { color: var(--color-violet); }
+    .form-input-eye svg { width: 18px; height: 18px; }
+
+    .login-error {
+      background: var(--color-error-bg);
+      border: 1px solid rgba(239,68,68,0.2);
+      border-radius: var(--r-md);
+      padding: var(--s-3) var(--s-4);
+      font-size: var(--text-sm);
+      color: var(--color-error);
+      display: none;
+      align-items: center;
+      gap: var(--s-2);
+    }
+
+    .login-error.is-visible { display: flex; }
+    .login-error svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.35);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+
+    .btn--primary.is-loading .spinner    { display: block; }
+    .btn--primary.is-loading .btn-text   { display: none; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .login-footer {
+      text-align: center;
+      font-size: var(--text-xs);
+      color: var(--color-text-light);
+    }
+
+    .login-footer a {
+      color: var(--color-violet);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-wrap">
+    <div class="login-logo">
+      <div class="login-logo__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+      </div>
+      <div>
+        <p class="login-logo__title">Lilop</p>
+        <p class="login-logo__sub">Panel de administración</p>
+      </div>
+    </div>
+
+    <div class="login-card">
+      <div>
+        <h1 class="login-card__title">Iniciar sesión</h1>
+        <p class="login-card__sub">Accede al panel de gestión</p>
+      </div>
+
+      <div class="login-error" id="loginError" role="alert">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span id="loginErrorMsg">Usuario o contraseña incorrectos</span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="loginUser">Correo electrónico</label>
+        <input
+          type="email"
+          class="form-input"
+          id="loginUser"
+          placeholder="admin@lilop.store"
+          autocomplete="email"
+          aria-required="true"
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="loginPass">Contraseña</label>
+        <div class="form-input-wrap">
+          <input
+            type="password"
+            class="form-input"
+            id="loginPass"
+            placeholder="••••••••"
+            autocomplete="current-password"
+            aria-required="true"
+          />
+          <button class="form-input-eye" id="togglePass" type="button" aria-label="Mostrar contraseña">
+            <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <button class="btn btn--primary btn--full" id="loginBtn" type="button">
+        <span class="spinner" aria-hidden="true"></span>
+        <span class="btn-text" style="display:flex;align-items:center;gap:8px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3"/>
+          </svg>
+          Entrar al panel
+        </span>
+      </button>
+    </div>
+
+    <p class="login-footer">
+      <a href="https://lilop.store" target="_blank">← Volver al sitio</a>
+    </p>
+  </div>
+
+  <script src="/assets/js/admin-auth.js?v=3"></script>
+  <script>
+    'use strict';
+
+    /* Si ya hay sesión activa, ir al dashboard */
+    if (window.AdminAuth.getSession()) {
+      window.location.href = '/index.html';
+    }
+
+    const btn      = document.getElementById('loginBtn');
+    const userEl   = document.getElementById('loginUser');
+    const passEl   = document.getElementById('loginPass');
+    const errorEl  = document.getElementById('loginError');
+    const errorMsg = document.getElementById('loginErrorMsg');
+    const toggleEl = document.getElementById('togglePass');
+
+    /* Mostrar / ocultar contraseña */
+    toggleEl.addEventListener('click', () => {
+      const isPass = passEl.type === 'password';
+      passEl.type = isPass ? 'text' : 'password';
+      document.getElementById('eyeIcon').innerHTML = isPass
+        ? '<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24M1 1l22 22"/>'
+        : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+    });
+
+    /* Login */
+    async function doLogin() {
+      const user = userEl.value.trim();
+      const pass = passEl.value;
+
+      if (!user || !pass) {
+        errorMsg.textContent = 'Completa todos los campos';
+        errorEl.classList.add('is-visible');
+        return;
+      }
+
+      btn.classList.add('is-loading');
+      btn.disabled = true;
+      errorEl.classList.remove('is-visible');
+
+      const result = await window.AdminAuth.login(user, pass);
+
+      if (result.ok) {
+        window.location.href = '/index.html';
+      } else {
+        errorMsg.textContent = result.error;
+        errorEl.classList.add('is-visible');
+        passEl.value = '';
+        passEl.classList.add('form-input--error');
+        btn.classList.remove('is-loading');
+        btn.disabled = false;
+        passEl.focus();
+      }
+    }
+
+    btn.addEventListener('click', doLogin);
+    passEl.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+    userEl.addEventListener('keydown', e => { if (e.key === 'Enter') passEl.focus(); });
+    passEl.addEventListener('input', () => passEl.classList.remove('form-input--error'));
+  </script>
+
+</body>
+</html>

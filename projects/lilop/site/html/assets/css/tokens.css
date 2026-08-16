@@ -1,0 +1,138 @@
+/* ============================================================
+   Lilop — tokens.css
+   Design System: Lavender Sky
+   Fuente única de verdad para colores, tipografía y espaciado.
+   NUNCA usar valores hardcodeados en otros archivos CSS.
+   ============================================================ */
+ 
+:root {
+ 
+  /* ─── COLORES: LILA / VIOLETA ─────────────────────────── */
+  --color-deep:       #1a0a3d;   /* fondo oscuro, texto sobre claro */
+  --color-violet:     #6c3fc4;   /* primario principal               */
+  --color-lavender:   #a07ee0;   /* primario medio                   */
+  --color-lilac:      #c4b0f5;   /* bordes activos, hover            */
+  --color-soft:       #e8deff;   /* fondos de tarjetas               */
+  --color-fog:        #f5f2ff;   /* fondo general del sitio          */
+  --color-mist:       #ede8ff;   /* fondo de secciones alternas      */
+ 
+  /* ─── COLORES: AZUL ───────────────────────────────────── */
+  --color-blue-deep:  #1a5fa0;   /* azul oscuro                      */
+  --color-azure:      #3a9fd6;   /* acento azul principal            */
+  --color-sky:        #7ab8e8;   /* azul medio                       */
+  --color-ice:        #c2e4f8;   /* azul claro                       */
+  --color-mist-blue:  #eaf4ff;   /* fondo azul muy suave             */
+ 
+  /* ─── COLORES: NEUTROS ────────────────────────────────── */
+  --color-white:      #ffffff;
+  --color-text:       #1a0a3d;   /* texto principal                  */
+  --color-text-muted: #5a4a7a;   /* texto secundario                 */
+  --color-text-light: #9080b0;   /* texto terciario, placeholders    */
+  --color-border:     rgba(196, 176, 245, 0.35);  /* bordes generales */
+  --color-border-active: #c4b0f5;                 /* bordes en focus  */
+ 
+  /* ─── COLORES: SEMÁNTICOS ─────────────────────────────── */
+  --color-success:    #22c55e;
+  --color-success-bg: #dcfce7;
+  --color-warning:    #f59e0b;
+  --color-warning-bg: #fef3c7;
+  --color-error:      #ef4444;
+  --color-error-bg:   #fee2e2;
+  --color-info:       #3a9fd6;
+  --color-info-bg:    #eaf4ff;
+ 
+  /* ─── GRADIENTES ──────────────────────────────────────── */
+  --grad-primary: linear-gradient(135deg, #6c3fc4 0%, #3a9fd6 100%);
+  --grad-soft:    linear-gradient(135deg, #a07ee0 0%, #7ab8e8 100%);
+  --grad-dark:    linear-gradient(135deg, #1a0a3d 0%, #6c3fc4 100%);
+  --grad-bg:      linear-gradient(180deg, #f5f2ff 0%, #eaf4ff 100%);
+  --grad-card:    linear-gradient(135deg, #ede8ff 0%, #eaf4ff 100%);
+ 
+  /* ─── TIPOGRAFÍA: FAMILIAS ────────────────────────────── */
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body:    'Outfit', system-ui, sans-serif;
+  --font-mono:    'Courier New', monospace;
+ 
+  /* ─── TIPOGRAFÍA: TAMAÑOS ─────────────────────────────── */
+  --text-xs:    11px;
+  --text-sm:    13px;
+  --text-base:  15px;
+  --text-md:    17px;
+  --text-lg:    20px;
+  --text-xl:    24px;
+  --text-2xl:   32px;
+  --text-3xl:   44px;
+  --text-4xl:   56px;
+  --text-5xl:   72px;
+ 
+  /* ─── TIPOGRAFÍA: PESOS ───────────────────────────────── */
+  --weight-light:   300;
+  --weight-regular: 400;
+  --weight-medium:  500;
+  --weight-semibold:600;
+  --weight-bold:    700;
+ 
+  /* ─── TIPOGRAFÍA: ALTURA DE LÍNEA ────────────────────── */
+  --leading-tight:  1.15;
+  --leading-snug:   1.35;
+  --leading-normal: 1.6;
+  --leading-relaxed:1.75;
+ 
+  /* ─── ESPACIADO ───────────────────────────────────────── */
+  --s-1:   4px;
+  --s-2:   8px;
+  --s-3:   12px;
+  --s-4:   16px;
+  --s-5:   20px;
+  --s-6:   24px;
+  --s-8:   32px;
+  --s-10:  40px;
+  --s-12:  48px;
+  --s-16:  64px;
+  --s-20:  80px;
+  --s-24:  96px;
+  --s-32: 128px;
+ 
+  /* ─── BORDER RADIUS ───────────────────────────────────── */
+  --r-xs:   4px;
+  --r-sm:   8px;
+  --r-md:   12px;
+  --r-lg:   16px;
+  --r-xl:   20px;
+  --r-2xl:  28px;
+  --r-pill: 100px;
+ 
+  /* ─── SOMBRAS ─────────────────────────────────────────── */
+  --shadow-xs: 0 1px 4px rgba(108, 63, 196, 0.06);
+  --shadow-sm: 0 2px 10px rgba(108, 63, 196, 0.08);
+  --shadow-md: 0 4px 20px rgba(108, 63, 196, 0.12);
+  --shadow-lg: 0 8px 36px rgba(108, 63, 196, 0.16);
+  --shadow-xl: 0 16px 56px rgba(108, 63, 196, 0.20);
+  --shadow-focus: 0 0 0 3px rgba(196, 176, 245, 0.6);
+  --shadow-focus-error: 0 0 0 3px rgba(239, 68, 68, 0.25);
+ 
+  /* ─── TRANSICIONES ────────────────────────────────────── */
+  --ease:         cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-out:     cubic-bezier(0.0, 0.0, 0.2, 1);
+  --ease-spring:  cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration-fast:   150ms;
+  --duration-base:   250ms;
+  --duration-slow:   400ms;
+ 
+  /* ─── LAYOUT ──────────────────────────────────────────── */
+  --container-max:  1200px;
+  --container-wide: 1400px;
+  --navbar-h:       68px;
+  --topbar-h:       40px;
+  --sidebar-w:      260px;
+ 
+  /* ─── Z-INDEX ─────────────────────────────────────────── */
+  --z-base:     1;
+  --z-dropdown: 10;
+  --z-sticky:   20;
+  --z-fixed:    30;
+  --z-overlay:  40;
+  --z-drawer:   50;
+  --z-modal:    60;
+  --z-toast:    70;
+}

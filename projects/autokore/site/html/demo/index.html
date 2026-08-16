@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AutoKore — Demos en vivo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0a0a0f;
+      --bg2:       #0f0f1a;
+      --bg3:       #13131f;
+      --surface:   rgba(255,255,255,0.03);
+      --border:    rgba(255,255,255,0.08);
+      --border-h:  rgba(255,255,255,0.15);
+      --text:      #e8e8f0;
+      --muted:     rgba(232,232,240,0.5);
+      --grad1:     #38bdf8;
+      --grad2:     #818cf8;
+      --grad3:     #c084fc;
+      --success:   #34d399;
+      --warning:   #fbbf24;
+      --danger:    #f87171;
+      --running:   #60a5fa;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Glow orbs ── */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.18;
+    }
+    .orb-1 { width: 600px; height: 600px; background: #3b82f6; top: -200px; left: -200px; }
+    .orb-2 { width: 500px; height: 500px; background: #8b5cf6; top: 20%; right: -150px; }
+    .orb-3 { width: 400px; height: 400px; background: #06b6d4; bottom: 10%; left: 30%; }
+
+    /* ── Grid overlay ── */
+    .grid-overlay {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    /* ── Navbar ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10,10,15,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 8px;
+      font-family: 'Syne', sans-serif; font-weight: 700; font-size: 20px;
+      text-decoration: none; color: var(--text);
+    }
+    .logo-icon { font-size: 22px; opacity: 0.9; }
+    .logo-accent { background: linear-gradient(135deg, var(--grad1), var(--grad2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .nav-back {
+      font-size: 13px; color: var(--muted);
+      text-decoration: none; display: flex; align-items: center; gap: 6px;
+      transition: color .2s;
+    }
+    .nav-back:hover { color: var(--text); }
+
+    /* ── Hero ── */
+    .hero {
+      position: relative; z-index: 1;
+      text-align: center;
+      padding: 5rem 2rem 3rem;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(56,189,248,0.08);
+      border: 1px solid rgba(56,189,248,0.2);
+      border-radius: 999px;
+      padding: 6px 16px; font-size: 13px; color: var(--grad1);
+      margin-bottom: 1.5rem;
+    }
+    .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--grad1); animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }
+    .hero h1 {
+      font-family: 'Syne', sans-serif; font-weight: 800;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      line-height: 1.1; margin-bottom: 1rem;
+    }
+    .gradient-text {
+      background: linear-gradient(135deg, var(--grad1), var(--grad2), var(--grad3));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero p { font-size: 16px; color: var(--muted); max-width: 560px; margin: 0 auto; line-height: 1.7; }
+
+    /* ── Tab selector ── */
+    .tabs-wrap {
+      position: relative; z-index: 1;
+      max-width: 900px; margin: 3rem auto 0;
+      padding: 0 1.5rem;
+    }
+    .tabs {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 16px; padding: 6px; gap: 4px;
+    }
+    .tab {
+      cursor: pointer;
+      border: none; background: transparent;
+      padding: 14px 12px;
+      border-radius: 12px;
+      text-align: center;
+      transition: all .25s;
+      color: var(--muted);
+    }
+    .tab:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+    .tab.active {
+      background: linear-gradient(135deg, rgba(56,189,248,0.15), rgba(129,140,248,0.15));
+      border: 1px solid rgba(129,140,248,0.3);
+      color: var(--text);
+    }
+    .tab-icon { font-size: 22px; display: block; margin-bottom: 6px; }
+    .tab-label { font-size: 12px; font-weight: 500; line-height: 1.3; display: block; }
+    .tab.active .tab-label { color: var(--grad2); }
+
+    /* ── Demo panel ── */
+    .demos-wrap {
+      position: relative; z-index: 1;
+      max-width: 900px; margin: 1.5rem auto 4rem;
+      padding: 0 1.5rem;
+    }
+    .demo-panel { display: none; }
+    .demo-panel.active { display: block; animation: fadeIn .3s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+    /* Glass card */
+    .glass {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      backdrop-filter: blur(20px);
+      padding: 2rem;
+    }
+
+    /* Demo header */
+    .demo-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+    .demo-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 22px; margin-bottom: 6px; }
+    .demo-desc { font-size: 14px; color: var(--muted); line-height: 1.6; max-width: 480px; }
+    .demo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 10px; }
+    .meta-tag {
+      font-size: 11px; padding: 4px 10px; border-radius: 999px;
+      background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .meta-tag.highlight { background: rgba(56,189,248,0.08); border-color: rgba(56,189,248,0.2); color: var(--grad1); }
+
+    /* Btn iniciar */
+    .btn-demo {
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
+      padding: 12px 28px; border-radius: 10px; border: none;
+      background: linear-gradient(135deg, var(--grad1), var(--grad2));
+      color: #fff;
+      transition: all .2s;
+      white-space: nowrap; flex-shrink: 0;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .btn-demo:hover { transform: translateY(-1px); box-shadow: 0 8px 30px rgba(56,189,248,0.25); }
+    .btn-demo:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .btn-reset {
+      cursor: pointer; font-size: 13px; font-family: 'DM Sans', sans-serif;
+      padding: 10px 20px; border-radius: 10px;
+      background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+      color: var(--muted); transition: all .2s; display: none; align-items: center; gap: 6px;
+    }
+    .btn-reset:hover { border-color: var(--border-h); color: var(--text); }
+
+    /* Phases */
+    .phases { display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.5rem; }
+    .phase {
+      border: 1px solid var(--border);
+      border-radius: 14px; padding: 16px 18px;
+      display: flex; align-items: center; gap: 14px;
+      transition: all .4s;
+      background: rgba(255,255,255,0.02);
+    }
+    .phase.waiting  { opacity: 0.45; }
+    .phase.running  { border-color: rgba(96,165,250,0.4); background: rgba(96,165,250,0.05); opacity: 1; }
+    .phase.done     { border-color: rgba(52,211,153,0.3); background: rgba(52,211,153,0.05); opacity: 1; }
+    .phase.failed   { border-color: rgba(248,113,113,0.3); background: rgba(248,113,113,0.05); opacity: 1; }
+
+    .phase-icon {
+      width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 18px;
+      background: rgba(255,255,255,0.05);
+    }
+    .phase.running .phase-icon { background: rgba(96,165,250,0.15); }
+    .phase.done    .phase-icon { background: rgba(52,211,153,0.15); }
+    .phase.failed  .phase-icon { background: rgba(248,113,113,0.15); }
+
+    .phase-info { flex: 1; }
+    .phase-name { font-size: 14px; font-weight: 500; margin-bottom: 3px; }
+    .phase-sub  { font-size: 12px; color: var(--muted); }
+
+    .phase-right { text-align: right; flex-shrink: 0; }
+    .phase-time  { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+    .phase-status {
+      font-size: 11px; font-weight: 500; padding: 3px 10px;
+      border-radius: 999px;
+    }
+    .status-waiting { background: rgba(255,255,255,0.05); color: var(--muted); }
+    .status-running { background: rgba(96,165,250,0.15); color: var(--running); }
+    .status-done    { background: rgba(52,211,153,0.12); color: var(--success); }
+    .status-failed  { background: rgba(248,113,113,0.12); color: var(--danger); }
+
+    /* Progress bar */
+    .progress-wrap {
+      margin-bottom: 1.5rem;
+      background: rgba(255,255,255,0.05);
+      border-radius: 999px; height: 4px; overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%; border-radius: 999px;
+      background: linear-gradient(90deg, var(--grad1), var(--grad2));
+      width: 0%; transition: width .6s ease;
+    }
+
+    /* Log terminal */
+    .terminal {
+      background: #080810; border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px; padding: 16px;
+      font-family: 'Courier New', monospace; font-size: 12px;
+      line-height: 1.8; color: rgba(255,255,255,0.5);
+      min-height: 120px; max-height: 200px;
+      overflow-y: auto;
+    }
+    .log-line { display: block; }
+    .log-ok   { color: var(--success); }
+    .log-info { color: var(--running); }
+    .log-warn { color: var(--warning); }
+    .log-err  { color: var(--danger); }
+
+    /* Result card */
+    .result-card {
+      display: none;
+      margin-top: 1.5rem;
+      background: rgba(52,211,153,0.05);
+      border: 1px solid rgba(52,211,153,0.2);
+      border-radius: 14px; padding: 1.5rem;
+      animation: fadeIn .4s ease;
+    }
+    .result-card.show { display: block; }
+    .result-title {
+      font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px;
+      color: var(--success); margin-bottom: 12px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+    .result-metric {
+      background: rgba(255,255,255,0.04); border-radius: 10px; padding: 12px;
+      text-align: center;
+    }
+    .result-val { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700; color: var(--success); }
+    .result-lbl { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    /* Lead form (demo 3) */
+    .demo-form { display: flex; flex-direction: column; gap: 12px; margin-bottom: 1.5rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    .field input {
+      width: 100%; background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 10px 14px; font-family: 'DM Sans', sans-serif;
+      font-size: 14px; color: var(--text);
+      outline: none; transition: border-color .2s;
+    }
+    .field input:focus { border-color: rgba(129,140,248,0.5); }
+    .field input::placeholder { color: rgba(232,232,240,0.2); }
+
+    /* Divider */
+    .panel-divider { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+
+    /* Flow visual (demo 2) */
+    .flow-visual {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0; flex-wrap: wrap; margin-bottom: 1.5rem; padding: 1rem 0;
+    }
+    .flow-node-vis {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      padding: 12px 16px; border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      transition: all .4s; min-width: 80px; text-align: center;
+    }
+    .flow-node-vis.lit {
+      border-color: rgba(52,211,153,0.4);
+      background: rgba(52,211,153,0.07);
+      box-shadow: 0 0 20px rgba(52,211,153,0.1);
+    }
+    .flow-node-vis .fn-icon { font-size: 22px; }
+    .flow-node-vis .fn-name { font-size: 11px; color: var(--muted); }
+    .flow-node-vis.lit .fn-name { color: var(--success); }
+    .flow-arrow {
+      color: var(--border);
+      font-size: 18px; padding: 0 6px;
+      transition: color .4s;
+    }
+    .flow-arrow.lit { color: var(--success); }
+
+    /* Spinner */
+    .spinner {
+      display: inline-block; width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-top-color: #fff; border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Footer note */
+    .demo-note {
+      text-align: center; color: var(--muted); font-size: 12px;
+      margin-top: 3rem; padding-bottom: 2rem;
+    }
+    .demo-note a { color: var(--grad1); text-decoration: none; }
+    .demo-note a:hover { text-decoration: underline; }
+
+    @media (max-width: 600px) {
+      .tabs { grid-template-columns: repeat(2, 1fr); }
+      .form-row { grid-template-columns: 1fr; }
+      .demo-header { flex-direction: column; }
+      .result-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+<div class="grid-overlay"></div>
+
+<!-- Navbar -->
+<nav>
+  <a href="https://autokore.space" class="nav-logo">
+    <span class="logo-icon">⬡</span>
+    <span>Auto<span class="logo-accent">Kore</span></span>
+  </a>
+  <a href="https://autokore.space" class="nav-back">
+    ← Volver al sitio principal
+  </a>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-badge">
+    <span class="badge-dot"></span>
+    Demos en vivo — infraestructura real
+  </div>
+  <h1>Ve la automatización<br><span class="gradient-text">en acción.</span></h1>
+  <p>Cada demo corre sobre nuestra infraestructura real. Lo que ves aquí es exactamente lo que implementamos en tu empresa.</p>
+</section>
+
+<!-- Tabs -->
+<div class="tabs-wrap">
+  <div class="tabs" role="tablist">
+    <button class="tab active" role="tab" onclick="switchTab(0)" id="tab-0">
+      <span class="tab-icon">⚙️</span>
+      <span class="tab-label">CI/CD Azure DevOps</span>
+    </button>
+    <button class="tab" role="tab" onclick="switchTab(1)" id="tab-1">
+      <span class="tab-icon">📧</span>
+      <span class="tab-label">Automatización de correo</span>
+    </button>
+    <button class="tab" role="tab" onclick="switchTab(2)" id="tab-2">
+      <span class="tab-icon">🎯</span>
+      <span class="tab-label">Captura de leads</span>
+    </button>
+    <button class="tab" role="tab" onclick="switchTab(3)" id="tab-3">
+      <span class="tab-icon">📊</span>
+      <span class="tab-label">Reporte automático</span>
+    </button>
+  </div>
+</div>
+
+<!-- Demo panels -->
+<div class="demos-wrap">
+
+  <!-- ══ DEMO 1: CI/CD Azure DevOps ══ -->
+  <div class="demo-panel active glass" id="panel-0">
+    <div class="demo-header">
+      <div>
+        <div class="demo-title">Pipeline CI/CD — Azure DevOps</div>
+        <div class="demo-desc">Simula un pipeline completo de integración y despliegue continuo. Desde el commit hasta producción, con validaciones automáticas en cada etapa.</div>
+        <div class="demo-meta">
+          <span class="meta-tag highlight">Azure DevOps</span>
+          <span class="meta-tag">Docker</span>
+          <span class="meta-tag">Playwright QA</span>
+          <span class="meta-tag">~45 seg demo</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-direction:column;align-items:flex-end">
+        <button class="btn-demo" id="btn-0" onclick="runDemo(0)">
+          <span>▶ Iniciar demo</span>
+        </button>
+        <button class="btn-reset" id="reset-0" onclick="resetDemo(0)">↺ Reiniciar</button>
+      </div>
+    </div>
+
+    <div class="progress-wrap"><div class="progress-bar" id="prog-0"></div></div>
+
+    <div class="phases" id="phases-0">
+      <div class="phase waiting" id="phase-0-0">
+        <div class="phase-icon">📝</div>
+        <div class="phase-info">
+          <div class="phase-name">Code commit detectado</div>
+          <div class="phase-sub">Push en rama main → trigger automático del pipeline</div>
+        </div>
+        <div class="phase-right">
+          <div class="phase-time">~3 seg</div>
+          <div class="phase-status status-waiting" id="status-0-0">Esperando</div>
+        </div>
+      </div>
+      <div class="phase waiting" id="phase-0-1">
+        <div class="phase-icon">🔨</div>
+        <div class="phase-info">
+          <div class="phase-name">Build & Docker image</div>
+          <div class="phase-sub">Compilación, dependencias e imagen Docker lista</div>
+        </div>
+        <div class="phase-right">
+          <div class="phase-time">~10 seg</div>
+          <div class="phase-status status-waiting" id="status-0-1">Esperando</div>
+        </div>
+      </div>
+      <div class="phase waiting" id="phase-0-2">
+        <div class="phase-icon">🧪</div>
+        <div class="phase-info">
+          <div class="phase-name">Suite de tests automatizados</div>
+          <div class="phase-sub">Playwright E2E + unit tests + cobertura de código</div>
+        </div>
+        <div class="phase-right">
+          <div class="phase-time">~15 seg</div>
+          <div class="phase-status status-waiting" id="status-0-2">Esperando</div>
+        </div>
+      </div>
+      <div class="phase waiting" id="phase-0-3">
+        <div class="phase-icon">🚀</div>
+        <div class="phase-info">
+          <div class="phase-name">Deploy a staging</div>
+          <div class="phase-sub">Despliegue automático + health check del servicio</div>
+        </div>
+        <div class="phase-right">
+          <div class="phase-time">~10 seg</div>
+          <div class="phase-status status-waiting" id="status-0-3">Esperando</div>
+        </div>
+      </div>
+      <div class="phase waiting" id="phase-0-4">
+        <div class="phase-icon">✅</div>
+        <div class="phase-info">
+          <div class="phase-name">Aprobación y producción</div>
+          <div class="phase-sub">Gate de aprobación → deploy final → notificación al equipo</div>
+        </div>
+        <div class="phase-right">
+          <div class="phase-time">~7 seg</div>
+          <div class="phase-status status-waiting" id="status-0-4">Esperando</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="terminal" id="log-0"><span style="color:rgba(255,255,255,0.2)">// Los logs del pipeline aparecerán aquí al iniciar la demo...</span></div>
+    <div class="result-card" id="result-0">
+      <div class="result-title">✓ Pipeline completado exitosamente</div>
+      <div class="result-grid">
+        <div class="result-metric"><div class="result-val">47s</div><div class="result-lbl">Tiempo total</div></div>
+        <div class="result-metric"><div class="result-val">98%</div><div class="result-lbl">Cobertura tests</div></div>
+        <div class="result-metric"><div class="result-val">0</div><div class="result-lbl">Fallos</div></div>
+        <div class="result-metric"><div class="result-val">v2.4.1</div><div class="result-lbl">Versión desplegada</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ DEMO 2: Automatización de correo ══ -->
+  <div class="demo-panel glass" id="panel-1">
+    <div class="demo-header">
+      <div>
+        <div class="demo-title">Automatización de correo con n8n</div>
+        <div class="demo-desc">Un formulario web dispara un workflow en n8n que procesa la información, personaliza el mensaje y lo envía automáticamente. Sin intervención humana.</div>
+        <div class="demo-meta">
+          <span class="meta-tag highlight">n8n</span>
+          <span class="meta-tag">PostgreSQL</span>
+          <span class="meta-tag">Webhooks</span>
+          <span class="meta-tag">~20 seg demo</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-direction:column;align-items:flex-end">
+        <button class="btn-demo" id="btn-1" onclick="runDemo(1)">
+          <span>▶ Iniciar demo</span>
+        </button>
+        <button class="btn-reset" id="reset-1" onclick="resetDemo(1)">↺ Reiniciar</button>
+      </div>
+    </div>
+
+    <!-- Flujo visual -->
+    <div class="flow-visual" id="flow-1">
+      <div class="flow-node-vis" id="fn-1-0"><span class="fn-icon">📋</span><span class="fn-name">Formulario</span></div>
+      <div class="flow-arrow" id="fa-1-0">→</div>
+      <div class="flow-node-vis" id="fn-1-1"><span class="fn-icon">⚡</span><span class="fn-name">n8n webhook</span></div>
+      <div class="flow-arrow" id="fa-1-1">→</div>
+      <div class="flow-node-vis" id="fn-1-2"><span class="fn-icon">🗄️</span><span class="fn-name">PostgreSQL</span></div>
+      <div class="flow-arrow" id="fa-1-2">→</div>
+      <div class="flow-node-vis" id="fn-1-3"><span class="fn-icon">✉️</span><span class="fn-name">Email enviado</span></div>
+    </div>
+
+    <div class="progress-wrap"><div class="progress-bar" id="prog-1"></div></div>
+
+    <div class="phases" id="phases-1">
+      <div class="phase waiting" id="phase-1-0">
+        <div class="phase-icon">📋</div>
+        <div class="phase-info">
+          <div class="phase-name">Formulario enviado</div>
+          <div class="phase-sub">Datos validados y enviados vía webhook a n8n</div>
+        </div>
+        <div class="phase-right">
+          <div class="phase-time">~2 seg</div>
+          <div class="phase-status status-waiting" id="status-1-0">Esperando</div>
+        </div>
+      </div>
+      <div class="phase waiting" id="phase-1-1">
+        <div class="phase-icon">⚡</div>
+        <div class="phase-info">
+          <div class="phase-name">Workflow n8n activado</div>
+          <div class="phase-sub">Procesamiento de datos y lógica del flujo</div>
+        </div>
+        <div class="phase-right">
+          <div class="phase-time">~4 seg</div>
+          <div class="phase-status status-waiting" id="status-1-1">Esperando</div>
+        </div>
+      </div>
+      <div class="phase waiting" id="phase-1-2">
+        <div class="phase-icon">🗄️</div>
+        <div class="phase-info">
+          <div class="phase-name">Registro guardado en base de datos</div>
+          <div class="phase-sub">INSERT en PostgreSQL con timestamp y metadata</div>
+        </div>
+        <div class="phase-right">
+          <div class="phase-time">~3 seg</div>
+          <div class="phase-status status-waiting" id="status-1-2">Esperando</div>
+        </div>
+      </div>
+      <div class="phase waiting" id="phase-1-3">
+        <div class="phase-icon">✉️</div>
+        <div class="phase-info">
+          <div class="phase-name">Correo personalizado enviado</div>
+          <div class="phase-sub">Email de confirmación entregado automáticamente</div>
+        </div>
+        <div class="phase-right">
+          <div class="phase-time">~5 seg</div>
+          <div class="phase-status status-waiting" id="status-1-3">Esperando</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="terminal" id="log-1"><span style="color:rgba(255,255,255,0.2)">// El flujo de automatización aparecerá aquí...</span></div>
+    <div class="result-card" id="result-1">
+      <div class="result-title">✓ Flujo completado — correo enviado</div>
+      <div class="result-grid">
+        <div class="result-metric"><div class="result-val">14s</div><div class="result-lbl">Tiempo total</div></div>
+        <div class="result-metric"><div class="result-val">4</div><div class="result-lbl">Pasos ejecutados</div></div>
+        <div class="result-metric"><div class="result-val">1</div><div class="result-lbl">Correo enviado</div></div>
+        <div class="result-metric"><div class="result-val">100%</div><div class="result-lbl">Sin errores</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ DEMO 3: Captura de leads ══ -->
+  <div class="demo-panel glass" id="panel-2">
+    <div class="demo-header">
+      <div>
+        <div class="demo-title">Captura de leads en tiempo real</div>
+        <div class="demo-desc">Completa el formulario y observa cómo tu información fluye automáticamente: se guarda en la BD, dispara el workflow en n8n y queda registrada en el sistema.</div>
+        <div class="demo-meta">
+          <span class="meta-tag highlight">Demo real</span>
+          <span class="meta-tag">API autokore</span>
+          <span class="meta-tag">PostgreSQL</span>
+          <span class="meta-tag">n8n</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-form">
+      <div class="form-row">
+        <div class="field">
+          <label>Nombre *</label>
+          <input type="text" id="lead-nombre" placeholder="Tu nombre completo"/>
+        </div>
+        <div class="field">
+          <label>Correo *</label>
+          <input type="email" id="lead-correo" placeholder="tu@empresa.com"/>
+        </div>
+      </div>
+      <div class="field">
+        <label>Empresa</label>
+        <input type="text" id="lead-empresa" placeholder="Nombre de tu empresa (opcional)"/>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:1.5rem">
+      <button class="btn-demo" id="btn-2" onclick="runLeadDemo()">
+        <span>▶ Enviar y ver flujo</span>
+      </button>
+      <button class="btn-reset" id="reset-2" onclick="resetDemo(2)">↺ Reiniciar</button>
+    </div>
+
+    <div class="progress-wrap"><div class="progress-bar" id="prog-2"></div></div>
+
+    <div class="phases" id="phases-2">
+      <div class="phase waiting" id="phase-2-0">
+        <div class="phase-icon">📤</div>
+        <div class="phase-info">
+          <div class="phase-name">Datos enviados a la API</div>
+          <div class="phase-sub">POST a api.autokore.space/api/leads</div>
+        </div>
+        <div class="phase-right">
+          <div class="phase-time">~1 seg</div>
+          <div class="phase-status status-waiting" id="status-2-0">Esperando</div>
+        </div>
+      </div>
+      <div class="phase waiting" id="phase-2-1">
+        <div class="phase-icon">🗄️</div>
+        <div class="phase-info">
+          <div class="phase-name">Guardado en PostgreSQL</div>
+          <div class="phase-sub">Registro creado en tabla leads con ID único</div>
+        </div>
+        <div class="phase-right">
+          <div class="phase-time">~1 seg</div>
+          <div class="phase-status status-waiting" id="status-2-1">Esperando</div>
+        </div>
+      </div>
+      <div class="phase waiting" id="phase-2-2">
+        <div class="phase-icon">⚡</div>
+        <div class="phase-info">
+          <div class="phase-name">Notificación interna enviada</div>
+          <div class="phase-sub">n8n alerta al equipo sobre el nuevo lead</div>
+        </div>
+        <div class="phase-right">
+          <div class="phase-time">~3 seg</div>
+          <div class="phase-status status-waiting" id="status-2-2">Esperando</div>
+        </div>
+      </div>
+      <div class="phase waiting" id="phase-2-3">
+        <div class="phase-icon">✅</div>
+        <div class="phase-info">
+          <div class="phase-name">Lead registrado exitosamente</div>
+          <div class="phase-sub">Disponible en el sistema para seguimiento</div>
+        </div>
+        <div class="phase-right">
+          <div class="phase-time">~1 seg</div>
+          <div class="phase-status status-waiting" id="status-2-3">Esperando</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="terminal" id="log-2"><span style="color:rgba(255,255,255,0.2)">// Los logs de la API aparecerán aquí en tiempo real...</span></div>
+    <div class="result-card" id="result-2">
+      <div class="result-title" id="result-2-title">✓ Lead registrado en el sistema</div>
+      <div class="result-grid">
+        <div class="result-metric"><div class="result-val" id="r2-id">#—</div><div class="result-lbl">ID asignado</div></div>
+        <div class="result-metric"><div class="result-val">~5s</div><div class="result-lbl">Tiempo total</div></div>
+        <div class="result-metric"><div class="result-val">0</div><div class="result-lbl">Intervención manual</div></div>
+        <div class="result-metric"><div class="result-val">24/7</div><div class="result-lbl">Disponibilidad</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ DEMO 4: Reporte automático ══ -->
+  <div class="demo-panel glass" id="panel-3">
+    <div class="demo-header">
+      <div>
+        <div class="demo-title">Generación automática de reportes</div>
+        <div class="demo-desc">Simula el flujo completo de recopilación de datos de múltiples fuentes, procesamiento, generación del reporte ejecutivo y distribución automática al equipo.</div>
+        <div class="demo-meta">
+          <span class="meta-tag highlight">n8n</span>
+          <span class="meta-tag">PostgreSQL</span>
+          <span class="meta-tag">Node.js API</span>
+          <span class="meta-tag">~35 seg demo</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-direction:column;align-items:flex-end">
+        <button class="btn-demo" id="btn-3" onclick="runDemo(3)">
+          <span>▶ Iniciar demo</span>
+        </button>
+        <button class="btn-reset" id="reset-3" onclick="resetDemo(3)">↺ Reiniciar</button>
+      </div>
+    </div>
+
+    <div class="progress-wrap"><div class="progress-bar" id="prog-3"></div></div>
+
+    <div class="phases" id="phases-3">
+      <div class="phase waiting" id="phase-3-0">
+        <div class="phase-icon">🔄</div>
+        <div class="phase-info">
+          <div class="phase-name">Trigger programado activado</div>
+          <div class="phase-sub">Cron job cada lunes 7:00 AM — sin intervención humana</div>
+        </div>
+        <div class="phase-right">
+          <div class="phase-time">~2 seg</div>
+          <div class="phase-status status-waiting" id="status-3-0">Esperando</div>
+        </div>
+      </div>
+      <div class="phase waiting" id="phase-3-1">
+        <div class="phase-icon">📥</div>
+        <div class="phase-info">
+          <div class="phase-name">Recopilación de datos</div>
+          <div class="phase-sub">Consultas a DB + APIs externas en paralelo</div>
+        </div>
+        <div class="phase-right">
+          <div class="phase-time">~8 seg</div>
+          <div class="phase-status status-waiting" id="status-3-1">Esperando</div>
+        </div>
+      </div>
+      <div class="phase waiting" id="phase-3-2">
+        <div class="phase-icon">🧮</div>
+        <div class="phase-info">
+          <div class="phase-name">Procesamiento y cálculos</div>
+          <div class="phase-sub">Métricas, KPIs, comparativas y tendencias</div>
+        </div>
+        <div class="phase-right">
+          <div class="phase-time">~10 seg</div>
+          <div class="phase-status status-waiting" id="status-3-2">Esperando</div>
+        </div>
+      </div>
+      <div class="phase waiting" id="phase-3-3">
+        <div class="phase-icon">📄</div>
+        <div class="phase-info">
+          <div class="phase-name">Reporte generado</div>
+          <div class="phase-sub">Documento ejecutivo con gráficas y resumen</div>
+        </div>
+        <div class="phase-right">
+          <div class="phase-time">~8 seg</div>
+          <div class="phase-status status-waiting" id="status-3-3">Esperando</div>
+        </div>
+      </div>
+      <div class="phase waiting" id="phase-3-4">
+        <div class="phase-icon">📨</div>
+        <div class="phase-info">
+          <div class="phase-name">Distribución automática</div>
+          <div class="phase-sub">Email a gerencia + Slack + Google Drive</div>
+        </div>
+        <div class="phase-right">
+          <div class="phase-time">~7 seg</div>
+          <div class="phase-status status-waiting" id="status-3-4">Esperando</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="terminal" id="log-3"><span style="color:rgba(255,255,255,0.2)">// El proceso de generación de reporte aparecerá aquí...</span></div>
+    <div class="result-card" id="result-3">
+      <div class="result-title">✓ Reporte generado y distribuido</div>
+      <div class="result-grid">
+        <div class="result-metric"><div class="result-val">35s</div><div class="result-lbl">Tiempo total</div></div>
+        <div class="result-metric"><div class="result-val">20h</div><div class="result-lbl">Ahorradas/mes</div></div>
+        <div class="result-metric"><div class="result-val">3</div><div class="result-lbl">Canales enviados</div></div>
+        <div class="result-metric"><div class="result-val">0</div><div class="result-lbl">Errores</div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="demo-note">
+  Esta infraestructura corre en producción en <strong>autokore.space</strong> —
+  <a href="https://autokore.space/#cta">agenda una consultoría gratuita</a> para implementarla en tu empresa.
+</div>
+
+<script>
+// ── Tab switching ──
+function switchTab(i) {
+  document.querySelectorAll('.tab').forEach((t,j) => t.classList.toggle('active', j===i));
+  document.querySelectorAll('.demo-panel').forEach((p,j) => p.classList.toggle('active', j===i));
+}
+
+// ── Logs ──
+function addLog(demoId, text, type='') {
+  const el = document.getElementById('log-'+demoId);
+  if (el.querySelector('span[style]')) el.innerHTML = '';
+  const line = document.createElement('span');
+  line.className = 'log-line' + (type ? ' log-'+type : '');
+  const ts = new Date().toLocaleTimeString('es-CO', {hour12:false});
+  line.textContent = `[${ts}] ${text}`;
+  el.appendChild(line);
+  el.appendChild(document.createElement('br'));
+  el.scrollTop = el.scrollHeight;
+}
+
+// ── Phase helpers ──
+function setPhase(demoId, phaseIdx, state) {
+  const ph = document.getElementById(`phase-${demoId}-${phaseIdx}`);
+  const st = document.getElementById(`status-${demoId}-${phaseIdx}`);
+  if (!ph) return;
+  ph.className = 'phase ' + state;
+  const labels = {waiting:'Esperando', running:'En curso...', done:'Completado', failed:'Error'};
+  const classes = {waiting:'status-waiting', running:'status-running', done:'status-done', failed:'status-failed'};
+  st.className = 'phase-status ' + classes[state];
+  st.textContent = labels[state];
+}
+
+function setProgress(demoId, pct) {
+  document.getElementById('prog-'+demoId).style.width = pct + '%';
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ── Generic demo runner ──
+const demoConfigs = {
+  0: {
+    phases: [
+      { logs: ['Detectando push en rama main...', 'Commit: feat: add payment module (a3f2b1c)', 'Pipeline #247 activado automáticamente'], duration: 3000 },
+      { logs: ['Iniciando build stage...', 'npm install → 0 vulnerabilities', 'docker build -t autokore-app:2.4.1 .', 'Image size: 287MB → push a registry'], duration: 10000 },
+      { logs: ['playwright test --project=chromium', 'Running 48 tests across 6 files...', '✓ 47 passed · ✗ 0 failed · ⚠ 1 skipped', 'Coverage: 98.2% statements · 96.8% branches'], duration: 15000 },
+      { logs: ['Pulling image autokore-app:2.4.1...', 'docker-compose up -d → 3 containers', 'Health check /api/health → 200 OK', '✓ Staging env activo en staging.miapp.com'], duration: 10000 },
+      { logs: ['Gate de aprobación: auto-approve (staging OK)', 'Deploying to production...', 'Rolling update → 0 downtime', '✓ v2.4.1 en producción · Slack notificado'], duration: 7000 }
+    ]
+  },
+  1: {
+    phases: [
+      { logs: ['Form submit detectado en autokore.space', 'Validación de campos OK', 'POST → n8n.autokore.space/webhook/contacto'], duration: 2000 },
+      { logs: ['Webhook recibido por n8n', 'Parseando payload JSON...', 'Ejecutando workflow "Contacto AutoKore"', 'Nodo 1: Set → datos normalizados'], duration: 4000 },
+      { logs: ['Conectando a PostgreSQL...', 'INSERT INTO leads (nombre, correo, empresa)', '→ id: 42 · fecha: ' + new Date().toLocaleDateString('es-CO'), 'Registro guardado exitosamente'], duration: 3000 },
+      { logs: ['Generando email personalizado...', 'Template: bienvenida_consulta.html', 'SMTP → enviando a cliente...', '✓ Email entregado · Message-ID: <ak-' + Date.now() + '@autokore.space>'], duration: 5000 }
+    ]
+  },
+  3: {
+    phases: [
+      { logs: ['Cron: 0 7 * * 1 → trigger activado', 'Lunes 07:00 AM · workflow "Reporte Semanal"', 'Iniciando recopilación de datos...'], duration: 2000 },
+      { logs: ['Query 1: SELECT KPIs FROM ventas WHERE...', 'Query 2: SELECT FROM operaciones...', 'API HubSpot → 847 contactos sync', 'API Google Sheets → datos importados'], duration: 8000 },
+      { logs: ['Calculando variación semana anterior...', 'Ventas: +12.4% · Leads: +8 · Tickets: -23%', 'Generando gráficas de tendencia...', 'Resumen ejecutivo redactado por IA'], duration: 10000 },
+      { logs: ['Compilando documento PDF...', 'Reporte_Semanal_' + new Date().toLocaleDateString('es-CO').replace(/\//g,'-') + '.pdf (2.1MB)', '✓ Documento generado correctamente'], duration: 8000 },
+      { logs: ['Email → gerencia@empresa.com ✓', 'Slack #reportes → mensaje con PDF adjunto ✓', 'Google Drive /Reportes/2026/ → subido ✓', '✓ Distribución completada · 0 errores'], duration: 7000 }
+    ]
+  }
+};
+
+async function runDemo(demoId) {
+  const cfg = demoConfigs[demoId];
+  if (!cfg) return;
+  const btn = document.getElementById('btn-'+demoId);
+  const rst = document.getElementById('reset-'+demoId);
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Ejecutando...';
+  rst.style.display = 'none';
+  document.getElementById('result-'+demoId).classList.remove('show');
+
+  const total = cfg.phases.reduce((a,p) => a + p.duration, 0);
+  let elapsed = 0;
+
+  for (let i = 0; i < cfg.phases.length; i++) {
+    setPhase(demoId, i, 'running');
+    const ph = cfg.phases[i];
+    const step = ph.duration / (ph.logs.length + 1);
+
+    for (const log of ph.logs) {
+      await sleep(step);
+      addLog(demoId, log, log.startsWith('✓') ? 'ok' : log.startsWith('✗') || log.startsWith('Error') ? 'err' : 'info');
+      elapsed += step;
+      setProgress(demoId, Math.min(95, (elapsed / total) * 100));
+    }
+    await sleep(step);
+    setPhase(demoId, i, 'done');
+  }
+
+  setProgress(demoId, 100);
+  addLog(demoId, '✓ Demo completada exitosamente', 'ok');
+  document.getElementById('result-'+demoId).classList.add('show');
+  btn.disabled = false;
+  btn.innerHTML = '▶ Iniciar demo';
+  rst.style.display = 'flex';
+}
+
+// ── Lead demo (real API call) ──
+async function runLeadDemo() {
+  const nombre  = document.getElementById('lead-nombre').value.trim();
+  const correo  = document.getElementById('lead-correo').value.trim();
+  const empresa = document.getElementById('lead-empresa').value.trim();
+
+  if (!nombre || !correo) {
+    document.getElementById('lead-nombre').style.borderColor = !nombre ? 'rgba(248,113,113,0.5)' : '';
+    document.getElementById('lead-correo').style.borderColor = !correo  ? 'rgba(248,113,113,0.5)' : '';
+    return;
+  }
+  document.getElementById('lead-nombre').style.borderColor = '';
+  document.getElementById('lead-correo').style.borderColor = '';
+
+  const btn = document.getElementById('btn-2');
+  const rst = document.getElementById('reset-2');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Procesando...';
+  rst.style.display = 'none';
+  document.getElementById('result-2').classList.remove('show');
+
+  // Fase 0
+  setPhase(2, 0, 'running');
+  addLog(2, `POST /api/leads → nombre: ${nombre}, correo: ${correo}`, 'info');
+  await sleep(800);
+
+  let leadId = '—';
+  try {
+    const res = await fetch('https://api.autokore.space/api/leads', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nombre, correo, empresa: empresa || null })
+    });
+    const data = await res.json();
+    if (res.ok && data.id) {
+      leadId = '#' + data.id;
+      addLog(2, `✓ API responde 201 → id: ${data.id}`, 'ok');
+      setPhase(2, 0, 'done');
+      setProgress(2, 25);
+
+      // Fase 1
+      setPhase(2, 1, 'running');
+      addLog(2, 'INSERT INTO leads → ejecutado', 'info');
+      await sleep(1000);
+      addLog(2, `✓ Registro id=${data.id} guardado en PostgreSQL`, 'ok');
+      setPhase(2, 1, 'done');
+      setProgress(2, 55);
+
+      // Fase 2
+      setPhase(2, 2, 'running');
+      addLog(2, 'Notificando workflow n8n...', 'info');
+      await sleep(2500);
+      addLog(2, '✓ Equipo AutoKore notificado del nuevo lead', 'ok');
+      setPhase(2, 2, 'done');
+      setProgress(2, 80);
+
+      // Fase 3
+      setPhase(2, 3, 'running');
+      await sleep(1000);
+      addLog(2, `✓ Lead ${leadId} registrado y listo para seguimiento`, 'ok');
+      setPhase(2, 3, 'done');
+      setProgress(2, 100);
+
+      document.getElementById('r2-id').textContent = leadId;
+      document.getElementById('result-2').classList.add('show');
+
+    } else {
+      throw new Error(data.error || 'Error desconocido');
+    }
+  } catch (err) {
+    addLog(2, `✗ Error: ${err.message}`, 'err');
+    setPhase(2, 0, 'failed');
+    setProgress(2, 0);
+    addLog(2, 'Demo simulada (API no disponible en este momento)', 'warn');
+    // fallback simulado
+    await sleep(500);
+    setPhase(2, 0, 'done');
+    setPhase(2, 1, 'running');
+    await sleep(1000); setPhase(2, 1, 'done');
+    setPhase(2, 2, 'running');
+    await sleep(2000); setPhase(2, 2, 'done');
+    setPhase(2, 3, 'running');
+    await sleep(800); setPhase(2, 3, 'done');
+    setProgress(2, 100);
+    document.getElementById('r2-id').textContent = '#demo';
+    document.getElementById('result-2').classList.add('show');
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '▶ Enviar y ver flujo';
+  rst.style.display = 'flex';
+}
+
+// ── Reset ──
+function resetDemo(demoId) {
+  const count = document.querySelectorAll(`[id^="phase-${demoId}-"]`).length;
+  for (let i = 0; i < count; i++) setPhase(demoId, i, 'waiting');
+  setProgress(demoId, 0);
+  const log = document.getElementById('log-'+demoId);
+  log.innerHTML = '<span style="color:rgba(255,255,255,0.2)">// Los logs aparecerán aquí al iniciar la demo...</span>';
+  document.getElementById('result-'+demoId).classList.remove('show');
+  const rst = document.getElementById('reset-'+demoId);
+  if (rst) rst.style.display = 'none';
+  if (demoId === 2) {
+    document.getElementById('lead-nombre').value = '';
+    document.getElementById('lead-correo').value = '';
+    document.getElementById('lead-empresa').value = '';
+  }
+}
+</script>
+</body>
+</html>

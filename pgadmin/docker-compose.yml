@@ -1,0 +1,28 @@
+services:
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@lilop.store
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+      PGADMIN_CONFIG_SERVER_MODE: "True"
+      PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: "True"
+    volumes:
+      - ./data:/var/lib/pgadmin
+    expose:
+      - "80"
+    networks:
+      - autokore-backend-network
+      - lilop-backend-network
+      - lilop-network
+
+networks:
+  autokore-backend-network:
+    external: true
+  lilop-backend-network:
+    external: true
+  lilop-network:
+    external: true

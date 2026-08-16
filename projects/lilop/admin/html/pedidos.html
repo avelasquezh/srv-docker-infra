@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pedidos — Lilop Admin</title>
+  <link rel="stylesheet" href="/assets/css/tokens.css?v=2"/>
+  <link rel="stylesheet" href="/assets/css/admin.css?v=2"/>
+  <link rel="stylesheet" href="/assets/css/responsive.css"/>
+</head>
+<body>
+
+<div class="admin-layout">
+  <aside class="admin-sidebar" id="adminSidebar"></aside>
+  <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
+  <header class="admin-topbar" id="adminTopbar"></header>
+
+  <main class="admin-content">
+
+    <!-- Header de página -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--s-6);flex-wrap:wrap;gap:var(--s-4);">
+      <div>
+        <h2 style="font-family:var(--font-display);font-size:var(--text-xl);font-weight:var(--weight-semibold);">Gestión de Pedidos</h2>
+        <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-top:4px;" id="pedidosCount"></p>
+      </div>
+
+    </div>
+
+    <!-- Filtros -->
+    <div class="admin-panel" style="margin-bottom:var(--s-6);">
+      <div class="admin-panel__body" style="padding:var(--s-4) var(--s-6);">
+        <div style="display:flex;gap:var(--s-4);flex-wrap:wrap;align-items:center;">
+          <div style="position:relative;flex:1;min-width:200px;">
+            <svg style="position:absolute;left:12px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--color-text-light);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+            <input type="search" class="form-input" id="searchPedidos" placeholder="Buscar por cliente, número..." style="padding-left:36px;"/>
+          </div>
+          <select class="form-input" id="filterEstado" style="max-width:180px;">
+            <option value="">Todos los estados</option>
+            <option value="por_confirmar">Por confirmar</option>
+            <option value="en_alistamiento">En alistamiento</option>
+            <option value="por_entregar">Por entregar</option>
+            <option value="entregado">Entregado</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
+          <select class="form-input" id="filterPago" style="max-width:180px;">
+            <option value="">Todos los pagos</option>
+            <option value="Por confirmar">Por confirmar</option>
+            <option value="Nequi">Nequi</option>
+            <option value="Daviplata">Daviplata</option>
+            <option value="Transferencia">Transferencia</option>
+            <option value="Efectivo">Efectivo</option>
+            <option value="MP">MP</option>
+          </select>
+        </div>
+        <div id="activeFilters" style="display:none;flex-wrap:wrap;gap:var(--s-2);margin-top:var(--s-3);"></div>
+      </div>
+    </div>
+
+    <!-- Tabla de pedidos -->
+    <div class="admin-panel">
+      <div class="admin-panel__body--p0">
+        <table class="admin-table" id="pedidosTable">
+          <thead>
+            <tr>
+              <th data-sort="id" style="cursor:pointer;user-select:none;display:none;">ID <span class="sort-icon">↕</span></th>
+              <th data-sort="cliente" style="cursor:pointer;user-select:none;">Cliente <span class="sort-icon">↕</span></th>
+              <th data-sort="vendedor" style="cursor:pointer;user-select:none;">Vendedor <span class="sort-icon">↕</span></th>
+              <th data-sort="valor_venta" style="cursor:pointer;user-select:none;">Valor <span class="sort-icon">↕</span></th>
+              <th>Medio pago</th>
+              <th>Estado</th>
+              <th data-sort="fecha_venta" style="cursor:pointer;user-select:none;">F. Pedido <span class="sort-icon">↕</span></th>
+              <th data-sort="fecha_entrega" style="cursor:pointer;user-select:none;">F. Entrega <span class="sort-icon">↕</span></th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="pedidosBody"></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="pedidosPagination"></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Modal: Ver/Editar pedido -->
+<div class="modal-overlay" id="modalPedido" role="dialog" aria-modal="true" aria-label="Detalle del pedido">
+  <div class="modal modal--lg">
+    <div class="modal__header">
+      <h3 class="modal__title" id="modalPedidoTitle">Detalle del pedido</h3>
+      <button class="modal__close" data-modal-close aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal__body" id="modalPedidoBody"></div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost btn--sm" data-modal-close>Cerrar</button>
+      <button class="btn btn--primary btn--sm" id="btnGuardarPedido">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal editar pedido -->
+<div class="modal-overlay" id="modalEditarPedido" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal__header">
+      <h3 class="modal__title" id="modalEditarPedidoTitle">Editar pedido</h3>
+      <button class="modal__close" data-modal-close>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal__body" id="modalEditarPedidoBody"></div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost btn--sm" data-modal-close>Cancelar</button>
+      <button class="btn btn--primary btn--sm" id="btnGuardarEditarPedido">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal editar pedido -->
+<div class="modal-overlay" id="modalEditarPedido" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal__header">
+      <h3 class="modal__title" id="modalEditarPedidoTitle">Editar pedido</h3>
+      <button class="modal__close" data-modal-close>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal__body" id="modalEditarPedidoBody"></div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost btn--sm" data-modal-close>Cancelar</button>
+      <button class="btn btn--primary btn--sm" id="btnGuardarEditarPedido">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal costos pedido -->
+<div class="modal-overlay" id="modalCostosPedido" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal__header">
+      <h3 class="modal__title" id="modalCostosPedidoTitle">Costos del pedido</h3>
+      <button class="modal__close" data-modal-close>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal__body" id="modalCostosPedidoBody"></div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost btn--sm" data-modal-close>Cerrar</button>
+    </div>
+  </div>
+</div>
+<!-- Toast -->
+<div class="admin-toasts" id="adminToasts"></div>
+
+<script src="/assets/js/admin-auth.js"></script>
+<script src="/assets/js/admin-store.js"></script>
+<script src="/assets/js/admin-api.js?v=2"></script>
+<script src="/assets/js/colombia.js?v=4"></script>
+<script src="/assets/js/admin-layout.js?v=11"></script>
+<script src="/assets/js/admin-ui.js?v=3"></script>
+<script src="/assets/js/pages/pedidos.js?v=28"></script>
+
+</body>
+</html>

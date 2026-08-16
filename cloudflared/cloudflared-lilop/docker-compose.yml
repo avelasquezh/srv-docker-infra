@@ -1,0 +1,14 @@
+services:
+  cloudflared-lilop:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared-lilop
+    restart: unless-stopped
+    command: tunnel --config /etc/cloudflared/config.yml run
+    volumes:
+      - ./config:/etc/cloudflared
+    networks:
+      - access_network
+
+networks:
+  access_network:
+    external: true

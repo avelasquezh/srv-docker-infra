@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Lilop — Ropa de cama premium bajo pedido. Sábanas, edredones, almohadas y más. Entrega en todo Colombia." />
+  <meta property="og:title"       content="Lilop — Ropa de Cama Premium" />
+  <meta property="og:description" content="Transforma tu dormitorio con ropa de cama de alta calidad. Bajo pedido, entrega en todo Colombia." />
+  <meta property="og:type"        content="website" />
+  <meta property="og:url"         content="https://lilop.store" />
+  <title>Lilop — Ropa de Cama Premium</title>
+
+  <link rel="stylesheet" href="/assets/css/tokens.css" />
+  <link rel="stylesheet" href="/assets/css/global.css" />
+  <link rel="stylesheet" href="/assets/css/components.css" />
+  <link rel="stylesheet" href="/assets/css/pages/home.css" />
+</head>
+<body>
+
+  <!-- Componentes globales -->
+  <lilop-navbar></lilop-navbar>
+  <lilop-cart></lilop-cart>
+  <lilop-toast></lilop-toast>
+  <div class="overlay" id="mainOverlay" aria-hidden="true"></div>
+
+  <!-- ── HERO ────────────────────────────────────────────── -->
+  <section class="hero container" aria-label="Presentación principal">
+
+    <div class="hero__content">
+      <span class="hero__eyebrow section-eyebrow reveal">Colección 2025</span>
+      <h1 class="hero__title reveal">
+        El descanso<br/>que <em>mereces</em>
+      </h1>
+      <p class="hero__subtitle reveal">
+        Ropa de cama premium en algodón, bambú y microfibra.
+        Diseñada para transformar tu dormitorio. Bajo pedido,
+        entrega en todo Colombia.
+      </p>
+      <div class="hero__actions reveal">
+        <a href="/catalogo.html" class="btn btn--primary btn--lg">
+          Ver catálogo
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a href="/nosotros.html" class="btn btn--outline btn--lg">Nuestra historia</a>
+      </div>
+      <div class="hero__trust reveal">
+        <div class="hero__trust-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round"/></svg>
+          Envío a todo Colombia
+        </div>
+        <div class="hero__trust-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Pago 100% seguro
+        </div>
+        <div class="hero__trust-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+          Calidad garantizada
+        </div>
+      </div>
+    </div>
+
+    <div class="hero__visual" aria-hidden="true">
+      <div class="hero__img-main">
+        <img
+          src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=900&q=80"
+          alt="Juego de sábanas Lilop premium"
+          loading="eager"
+          fetchpriority="high"
+        />
+      </div>
+      <div class="hero__badge">
+        <div class="hero__badge-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div>
+          <div class="hero__badge-num">100%</div>
+          <div class="hero__badge-lbl">Calidad<br/>certificada</div>
+        </div>
+      </div>
+      <div class="hero__badge-2">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>+500 clientes felices</span>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ── BARRA DE CONFIANZA ──────────────────────────────── -->
+  <section class="trust-bar" aria-label="Beneficios de comprar en Lilop">
+    <div class="container">
+      <div class="trust-bar__grid">
+
+        <div class="trust-bar__item reveal" data-delay="0">
+          <div class="trust-bar__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div>
+            <p class="trust-bar__title">Envío gratis</p>
+            <p class="trust-bar__desc">En pedidos mayores a $200.000</p>
+          </div>
+        </div>
+
+        <div class="trust-bar__item reveal" data-delay="100">
+          <div class="trust-bar__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <div>
+            <p class="trust-bar__title">Pago seguro</p>
+            <p class="trust-bar__desc">Procesado por MercadoPago</p>
+          </div>
+        </div>
+
+        <div class="trust-bar__item reveal" data-delay="200">
+          <div class="trust-bar__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div>
+            <p class="trust-bar__title">Calidad garantizada</p>
+            <p class="trust-bar__desc">Materiales premium certificados</p>
+          </div>
+        </div>
+
+        <div class="trust-bar__item reveal" data-delay="300">
+          <div class="trust-bar__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.07 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 17"/></svg>
+          </div>
+          <div>
+            <p class="trust-bar__title">Atención WhatsApp</p>
+            <p class="trust-bar__desc">Lunes a sábado 8am – 7pm</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CATEGORÍAS ─────────────────────────────────────── -->
+  <section class="categories section" id="categorias" aria-label="Categorías de productos">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-eyebrow">Explora</span>
+        <h2 class="section-title">Todo para tu <em style="font-style:italic;color:var(--color-violet)">dormitorio</em></h2>
+      </div>
+      <div class="categories__grid">
+
+        <a href="/catalogo.html?categoria=sabanas" class="category-card reveal" data-delay="0" aria-label="Ver sábanas">
+          <img class="category-card__img" src="https://images.unsplash.com/photo-1540518614846-7eded433c457?w=600&q=80" alt="Sábanas premium" loading="lazy"/>
+          <div class="category-card__overlay" aria-hidden="true"></div>
+          <div class="category-card__content">
+            <span class="category-card__label">Colección</span>
+            <h3 class="category-card__name">Sábanas</h3>
+            <span class="category-card__cta">Ver colección <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round"/></svg></span>
+          </div>
+        </a>
+
+        <a href="/catalogo.html?categoria=edredones" class="category-card reveal" data-delay="100" aria-label="Ver edredones">
+          <img class="category-card__img" src="https://images.unsplash.com/photo-1567016432779-094069958ea5?w=600&q=80" alt="Edredones nórdicos" loading="lazy"/>
+          <div class="category-card__overlay" aria-hidden="true"></div>
+          <div class="category-card__content">
+            <span class="category-card__label">Colección</span>
+            <h3 class="category-card__name">Edredones</h3>
+            <span class="category-card__cta">Ver colección <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round"/></svg></span>
+          </div>
+        </a>
+
+        <a href="/catalogo.html?categoria=almohadas" class="category-card reveal" data-delay="200" aria-label="Ver almohadas">
+          <img class="category-card__img" src="https://images.unsplash.com/photo-1592789705501-f9ae4278a9c9?w=600&q=80" alt="Almohadas memory foam" loading="lazy"/>
+          <div class="category-card__overlay" aria-hidden="true"></div>
+          <div class="category-card__content">
+            <span class="category-card__label">Colección</span>
+            <h3 class="category-card__name">Almohadas</h3>
+            <span class="category-card__cta">Ver colección <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round"/></svg></span>
+          </div>
+        </a>
+
+        <a href="/catalogo.html?categoria=toallas" class="category-card reveal" data-delay="300" aria-label="Ver toallas">
+          <img class="category-card__img" src="https://images.unsplash.com/photo-1563453392212-326f5e854473?w=600&q=80" alt="Toallas algodón turco" loading="lazy"/>
+          <div class="category-card__overlay" aria-hidden="true"></div>
+          <div class="category-card__content">
+            <span class="category-card__label">Colección</span>
+            <h3 class="category-card__name">Toallas</h3>
+            <span class="category-card__cta">Ver colección <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round"/></svg></span>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PRODUCTOS DESTACADOS ───────────────────────────── -->
+  <section class="featured section" id="destacados" aria-label="Productos destacados">
+    <div class="container">
+      <div class="featured__header">
+        <div class="reveal">
+          <span class="section-eyebrow">Lo más amado</span>
+          <h2 class="section-title" style="margin-bottom:0;">Productos destacados</h2>
+        </div>
+        <a href="/catalogo.html" class="btn btn--outline reveal" aria-label="Ver todos los productos">
+          Ver todos
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round"/></svg>
+        </a>
+      </div>
+      <!-- Inyectado por home.js -->
+      <div class="featured__grid" id="featuredGrid" role="list" aria-label="Productos destacados">
+        <!-- Skeletons de carga -->
+        <div class="product-card product-card--skeleton" aria-hidden="true"><div class="product-card__img-wrap"></div><div class="product-card__info"><div class="product-card__category" style="width:60%;height:12px;"></div><div class="product-card__name" style="width:80%;height:16px;margin-top:4px;"></div><div class="product-card__price-current" style="width:40%;height:20px;margin-top:8px;"></div></div></div>
+        <div class="product-card product-card--skeleton" aria-hidden="true"><div class="product-card__img-wrap"></div><div class="product-card__info"><div class="product-card__category" style="width:60%;height:12px;"></div><div class="product-card__name" style="width:80%;height:16px;margin-top:4px;"></div><div class="product-card__price-current" style="width:40%;height:20px;margin-top:8px;"></div></div></div>
+        <div class="product-card product-card--skeleton" aria-hidden="true"><div class="product-card__img-wrap"></div><div class="product-card__info"><div class="product-card__category" style="width:60%;height:12px;"></div><div class="product-card__name" style="width:80%;height:16px;margin-top:4px;"></div><div class="product-card__price-current" style="width:40%;height:20px;margin-top:8px;"></div></div></div>
+        <div class="product-card product-card--skeleton" aria-hidden="true"><div class="product-card__img-wrap"></div><div class="product-card__info"><div class="product-card__category" style="width:60%;height:12px;"></div><div class="product-card__name" style="width:80%;height:16px;margin-top:4px;"></div><div class="product-card__price-current" style="width:40%;height:20px;margin-top:8px;"></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── BANNER INTERMEDIO ──────────────────────────────── -->
+  <section class="promo-banner" aria-label="Colección premium de bambú">
+    <div class="container">
+      <div class="promo-banner__bg" aria-hidden="true"></div>
+      <div class="promo-banner__decoration" aria-hidden="true"></div>
+      <div class="promo-banner__decoration-2" aria-hidden="true"></div>
+      <div class="promo-banner__inner">
+        <div class="reveal">
+          <span class="promo-banner__eyebrow">Nueva colección</span>
+          <h2 class="promo-banner__title">Descubre nuestra línea<br/>de <em>bambú premium</em></h2>
+          <p class="promo-banner__desc">Fibra de bambú 100% natural. Termorreguladora, antibacteriana y más suave que el algodón egipcio. Perfecta para piel sensible.</p>
+        </div>
+        <div class="promo-banner__actions reveal">
+          <div class="promo-banner__stat">
+            <span class="promo-banner__stat-num">300</span>
+            <p class="promo-banner__stat-lbl">hilos de bambú<br/>de primera calidad</p>
+          </div>
+          <a href="/catalogo.html?categoria=sabanas" class="btn btn--primary btn--lg">
+            Explorar bambú
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── POR QUÉ LILOP ──────────────────────────────────── -->
+  <section class="why section" aria-label="Por qué elegir Lilop">
+    <div class="container">
+      <div class="why__grid">
+
+        <div class="why__visual" aria-hidden="true">
+          <div class="why__img-wrap">
+            <img src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=700&q=80" alt="Cama con ropa Lilop premium" loading="lazy"/>
+          </div>
+          <div class="why__img-badge">
+            <span class="why__img-badge-num">+500</span>
+            <span class="why__img-badge-lbl">Clientes felices<br/>en Colombia</span>
+          </div>
+        </div>
+
+        <div class="why__content">
+          <div class="reveal">
+            <span class="section-eyebrow">¿Por qué Lilop?</span>
+            <h2 class="section-title">Calidad que se <em style="font-style:italic;color:var(--color-violet)">siente y dura</em></h2>
+            <p class="section-subtitle">Seleccionamos cada fibra y cada proceso para que lo que llega a tu casa supere tus expectativas.</p>
+          </div>
+
+          <div class="why__points">
+            <div class="why__point reveal" data-delay="0">
+              <div class="why__point-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <div>
+                <p class="why__point-title">Materiales certificados</p>
+                <p class="why__point-desc">Solo fibras certificadas OEKO-TEX y GOTS. Sin químicos nocivos, sin tintes azoicos.</p>
+              </div>
+            </div>
+            <div class="why__point reveal" data-delay="100">
+              <div class="why__point-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+              <div>
+                <p class="why__point-title">Bajo pedido, siempre fresco</p>
+                <p class="why__point-desc">Sin bodega llena de stock viejo. Cada pedido se procesa directamente desde el fabricante.</p>
+              </div>
+            </div>
+            <div class="why__point reveal" data-delay="200">
+              <div class="why__point-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.07 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 17"/></svg>
+              </div>
+              <div>
+                <p class="why__point-title">Atención personalizada</p>
+                <p class="why__point-desc">Te acompañamos por WhatsApp antes, durante y después de tu compra. Una persona real, no un bot.</p>
+              </div>
+            </div>
+            <div class="why__point reveal" data-delay="300">
+              <div class="why__point-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div>
+                <p class="why__point-title">Garantía en cada producto</p>
+                <p class="why__point-desc">Si algo no está bien, lo resolvemos. Cambios y garantías sin burocracia innecesaria.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="reveal">
+            <a href="/nosotros.html" class="btn btn--outline">Conocer más sobre Lilop</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── TESTIMONIOS ────────────────────────────────────── -->
+  <section class="testimonials section" aria-label="Testimonios de clientes">
+    <div class="container">
+      <div class="section-header section-header--center reveal">
+        <span class="section-eyebrow">Lo que dicen</span>
+        <h2 class="section-title">Clientes que ya <em style="font-style:italic;color:var(--color-violet)">duermen mejor</em></h2>
+      </div>
+      <div class="testimonials__grid">
+
+        <article class="testimonial-card reveal" data-delay="0">
+          <div class="testimonial-card__quote" aria-hidden="true">"</div>
+          <p class="testimonial-card__text">Compré el juego de sábanas de bambú y no puedo creer la suavidad. Mis hijos ahora se duermen solos porque les encanta meterse en la cama. La calidad superó mis expectativas completamente.</p>
+          <div class="testimonial-card__rating" aria-label="5 de 5 estrellas">
+            <svg class="testimonial-card__star" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="testimonial-card__star" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="testimonial-card__star" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="testimonial-card__star" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="testimonial-card__star" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <div class="testimonial-card__author">
+            <div class="testimonial-card__avatar" aria-hidden="true">MG</div>
+            <div>
+              <p class="testimonial-card__name">María García</p>
+              <p class="testimonial-card__location">Bogotá, Colombia</p>
+              <p class="testimonial-card__product">Sábanas Bambú Premium</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="testimonial-card reveal" data-delay="150">
+          <div class="testimonial-card__quote" aria-hidden="true">"</div>
+          <p class="testimonial-card__text">El edredón nórdico llegó perfectamente empacado. El proceso de compra fue muy fácil y la atención por WhatsApp fue rápida y amable. Definitivamente vuelvo a comprar.</p>
+          <div class="testimonial-card__rating" aria-label="5 de 5 estrellas">
+            <svg class="testimonial-card__star" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="testimonial-card__star" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="testimonial-card__star" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="testimonial-card__star" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="testimonial-card__star" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <div class="testimonial-card__author">
+            <div class="testimonial-card__avatar" aria-hidden="true">CR</div>
+            <div>
+              <p class="testimonial-card__name">Carlos Rondón</p>
+              <p class="testimonial-card__location">Medellín, Colombia</p>
+              <p class="testimonial-card__product">Edredón Nórdico</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="testimonial-card reveal" data-delay="300">
+          <div class="testimonial-card__quote" aria-hidden="true">"</div>
+          <p class="testimonial-card__text">Llevaba años buscando toallas que de verdad absorbieran bien y no se pelaran al tercer lavado. Las toallas de algodón turco de Lilop son increíbles. Ya compré dos juegos más como regalo.</p>
+          <div class="testimonial-card__rating" aria-label="5 de 5 estrellas">
+            <svg class="testimonial-card__star" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="testimonial-card__star" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="testimonial-card__star" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="testimonial-card__star" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="testimonial-card__star" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <div class="testimonial-card__author">
+            <div class="testimonial-card__avatar" aria-hidden="true">LP</div>
+            <div>
+              <p class="testimonial-card__name">Laura Pedroza</p>
+              <p class="testimonial-card__location">Cali, Colombia</p>
+              <p class="testimonial-card__product">Toallas Algodón Turco</p>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <lilop-footer></lilop-footer>
+
+  <!-- Scripts — orden obligatorio -->
+  <script src="/assets/js/store.js"></script>
+  <script src="/assets/js/router.js"></script>
+  <script src="/assets/js/components/navbar.js"></script>
+  <script src="/assets/js/components/footer.js"></script>
+  <script src="/assets/js/components/cart.js"></script>
+  <script src="/assets/js/components/toast.js"></script>
+  <script src="/assets/js/pages/home.js"></script>
+
+</body>
+</html>

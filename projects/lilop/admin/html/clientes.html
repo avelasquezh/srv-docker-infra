@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Clientes — Lilop Admin</title>
+  <link rel="stylesheet" href="/assets/css/tokens.css?v=2"/>
+  <link rel="stylesheet" href="/assets/css/admin.css?v=2"/>
+  <link rel="stylesheet" href="/assets/css/responsive.css"/>
+</head>
+<body>
+<div class="admin-layout">
+  <aside class="admin-sidebar" id="adminSidebar"></aside>
+  <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
+  <header class="admin-topbar" id="adminTopbar"></header>
+  <main class="admin-content">
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--s-6);flex-wrap:wrap;gap:var(--s-4);">
+      <div>
+        <h2 style="font-family:var(--font-display);font-size:var(--text-xl);font-weight:var(--weight-semibold);">Clientes</h2>
+        <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-top:4px;" id="clientesCount"></p>
+      </div>
+      <button class="btn btn--primary" id="btnNuevoCliente">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nuevo cliente
+      </button>
+    </div>
+
+    <div class="admin-panel" style="margin-bottom:var(--s-6);">
+      <div class="admin-panel__body" style="padding:var(--s-4) var(--s-6);">
+        <div style="position:relative;max-width:400px;">
+          <svg style="position:absolute;left:12px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--color-text-light);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input type="search" class="form-input" id="searchClientes" placeholder="Buscar por nombre, email, teléfono..." style="padding-left:36px;"/>
+        </div>
+        <div id="activeFilters" style="display:none;flex-wrap:wrap;gap:var(--s-2);margin-top:var(--s-3);"></div>
+      </div>
+    </div>
+
+    <div class="admin-panel">
+      <div class="admin-panel__body--p0">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th data-sort="nombre" style="cursor:pointer;user-select:none;">Cliente <span class="sort-icon">↕</span></th>
+              <th>Teléfono</th>
+              <th data-sort="ciudad" style="cursor:pointer;user-select:none;">Ciudad <span class="sort-icon">↕</span></th>
+              <th data-sort="total_pedidos" style="cursor:pointer;user-select:none;">Pedidos <span class="sort-icon">↕</span></th>
+              <th data-sort="total_gastado" style="cursor:pointer;user-select:none;">Valor pedidos <span class="sort-icon">↕</span></th>
+              <th data-sort="created_at" style="cursor:pointer;user-select:none;">Registrado <span class="sort-icon">↕</span></th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="clientesBody"></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="clientesPagination"></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Modal Cliente -->
+<div class="modal-overlay" id="modalCliente" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal__header">
+      <h3 class="modal__title" id="modalClienteTitle">Nuevo cliente</h3>
+      <button class="modal__close" data-modal-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal__body" id="modalClienteBody"></div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost btn--sm" data-modal-close>Cancelar</button>
+      <button class="btn btn--primary btn--sm" id="btnGuardarCliente">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="admin-toasts" id="adminToasts"></div>
+<datalist id="dl-origenes"></datalist>
+<script src="/assets/js/admin-auth.js"></script>
+<script src="/assets/js/admin-store.js"></script>
+<script src="/assets/js/admin-api.js?v=2"></script>
+<script src="/assets/js/colombia.js?v=10"></script>
+<script src="/assets/js/admin-layout.js?v=11"></script>
+<script src="/assets/js/admin-ui.js?v=3"></script>
+<script src="/assets/js/pages/clientes.js?v=17"></script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+etwork inspect bridge | grep Gateway

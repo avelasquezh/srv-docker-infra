@@ -1,0 +1,14 @@
+services:
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared-autokore
+    restart: unless-stopped
+    command: tunnel --config /etc/cloudflared/config.yml run
+    volumes:
+      - ./config:/etc/cloudflared:ro
+    networks:
+      - access_network
+
+networks:
+  access_network:
+    external: true

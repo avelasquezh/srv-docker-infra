@@ -1,0 +1,15 @@
+services:
+  lilop-admin:
+    image: nginx:alpine
+    container_name: lilop-admin
+    restart: unless-stopped
+    volumes:
+      - ./html:/usr/share/nginx/html:ro
+    expose:
+      - "80"
+    networks:
+      - lilop-network
+
+networks:
+  lilop-network:
+    external: true

@@ -1,0 +1,17 @@
+services:
+  cloudflared-dev-qa:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared-dev-qa
+    restart: unless-stopped
+    command: tunnel --config /etc/cloudflared/config.yml run
+    volumes:
+      - ./config:/etc/cloudflared
+    networks:
+      - access_network
+      - dev-qa-network
+
+networks:
+  access_network:
+    external: true
+  dev-qa-network:
+    external: true

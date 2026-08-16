@@ -1,0 +1,28 @@
+services:
+  n8n-AV:
+    image: n8nio/n8n:latest
+    container_name: n8n-AV
+    environment:
+      - N8N_PORT=5678
+      - N8N_HOST=n8n.autokore.space
+      - N8N_PROTOCOL=https
+      - N8N_EDITOR_BASE_URL=https://n8n.autokore.space
+      - WEBHOOK_URL=https://n8n.autokore.space/
+      - N8N_SECURE_COOKIE=true
+      - N8N_PROXY_HOPS=1
+      - GENERIC_TIMEZONE=America/Bogota
+      - TZ=America/Bogota
+    volumes:
+      - ./data:/home/node/.n8n
+    restart: unless-stopped
+    expose:
+      - "5678"
+    networks:
+      - autokore-network
+      - autokore-backend-network
+
+networks:
+  autokore-network:
+    external: true
+  autokore-backend-network:
+    external: true

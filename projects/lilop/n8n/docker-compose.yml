@@ -1,0 +1,28 @@
+services:
+  n8n-lilop:
+    image: n8nio/n8n:latest
+    container_name: n8n-lilop
+    environment:
+      - N8N_PORT=5678
+      - N8N_HOST=n8n.lilop.store
+      - N8N_PROTOCOL=https
+      - N8N_EDITOR_BASE_URL=https://n8n.lilop.store
+      - WEBHOOK_URL=https://n8n.lilop.store/
+      - N8N_SECURE_COOKIE=true
+      - N8N_PROXY_HOPS=1
+      - GENERIC_TIMEZONE=America/Bogota
+      - TZ=America/Bogota
+    volumes:
+      - ./data:/home/node/.n8n
+    restart: unless-stopped
+    expose:
+      - "5678"
+    networks:
+      - lilop-network
+      - lilop-backend-network
+
+networks:
+  lilop-network:
+    external: true
+  lilop-backend-network:
+    external: true

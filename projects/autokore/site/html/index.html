@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AutoKore — Automatización Empresarial Inteligente</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- ===================== CURSOR ===================== -->
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-follower" id="cursorFollower"></div>
+
+  <!-- ===================== NAVBAR ===================== -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="https://autokore.space" class="nav-logo">
+        <span class="logo-icon">⬡</span>
+        <span class="logo-text">Auto<span class="logo-accent">Kore</span></span>
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#beneficios">Beneficios</a></li>
+        <li><a href="#servicios">Servicios</a></li>
+        <li><a href="#proceso">Proceso</a></li>
+        <li><a href="#casos">Casos</a></li>
+        <li><a href="#tecnologias">Tech</a></li>
+        <li><a href="#cta" class="nav-cta">Agendar consultoría</a></li>
+      </ul>
+      <button class="hamburger" id="hamburger" aria-label="Abrir menú">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ===================== HERO ===================== -->
+  <section class="hero" id="hero">
+    <!-- Fondo decorativo -->
+    <div class="hero-bg">
+      <div class="grid-overlay"></div>
+      <div class="glow-orb glow-orb--1"></div>
+      <div class="glow-orb glow-orb--2"></div>
+      <div class="glow-orb glow-orb--3"></div>
+      <canvas id="particleCanvas"></canvas>
+    </div>
+
+    <div class="hero-content container">
+      <div class="hero-badge reveal">
+        <span class="badge-dot"></span>
+        Automatización empresarial de nueva generación
+      </div>
+
+      <h1 class="hero-title reveal">
+        Automatiza tu empresa.<br />
+        <span class="gradient-text">Reduce costos.</span><br />
+        Libera tu equipo.
+      </h1>
+
+      <p class="hero-subtitle reveal">
+        Transformamos procesos manuales en flujos de trabajo inteligentes.
+        Integramos tus sistemas, eliminamos tareas repetitivas y
+        <strong>reducimos hasta un 70 % de tus costos operativos</strong>.
+      </p>
+
+      <div class="hero-cta reveal">
+        <a href="#cta" class="btn btn-primary">
+          <span>Agendar consultoría</span>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a href="https://autokore.space/demo/" class="btn btn-ghost">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.5"/><path d="M6.5 5.5L10 8l-3.5 2.5" fill="currentColor"/></svg>
+          Ver cómo funciona
+        </a>
+      </div></div>
+  </section>
+
+  <!-- ===================== BENEFICIOS ===================== -->
+  <section class="benefits section" id="beneficios">
+    <div class="container">
+      <div class="section-header reveal">
+        <p class="section-eyebrow">¿Por qué automatizar?</p>
+        <h2 class="section-title">Resultados que transforman <span class="gradient-text">tu negocio</span></h2>
+        <p class="section-desc">Cada proceso automatizado es tiempo ganado, dinero ahorrado y talento humano liberado para lo que realmente importa.</p>
+      </div>
+
+      <div class="benefits-grid">
+
+        <div class="benefit-card reveal" data-delay="0">
+          <div class="benefit-icon-wrap">
+            <div class="benefit-icon">💸</div>
+          </div>
+          <h3>Reduce costos operativos</h3>
+          <p>Elimina gastos asociados a tareas manuales, errores y retrabajos. Libera presupuesto para crecer.</p>
+          <div class="benefit-metric">hasta <strong>70 %</strong> de ahorro</div>
+        </div>
+
+        <div class="benefit-card reveal" data-delay="100">
+          <div class="benefit-icon-wrap">
+            <div class="benefit-icon">⚙️</div>
+          </div>
+          <h3>Elimina tareas manuales</h3>
+          <p>Los flujos repetitivos se ejecutan solos, sin intervención humana, 24/7 sin pausas ni errores.</p>
+          <div class="benefit-metric"><strong>100 %</strong> continuo</div>
+        </div>
+
+        <div class="benefit-card reveal" data-delay="200">
+          <div class="benefit-icon-wrap">
+            <div class="benefit-icon">🚀</div>
+          </div>
+          <h3>Acelera tus procesos</h3>
+          <p>Lo que antes tomaba días, ahora ocurre en segundos. Velocidad empresarial real desde el día uno.</p>
+          <div class="benefit-metric"><strong>10×</strong> más rápido</div>
+        </div>
+
+        <div class="benefit-card reveal" data-delay="300">
+          <div class="benefit-icon-wrap">
+            <div class="benefit-icon">🎯</div>
+          </div>
+          <h3>Reduce errores humanos</h3>
+          <p>Los sistemas automatizados siguen reglas exactas. Sin omisiones, sin fatiga, sin inconsistencias.</p>
+          <div class="benefit-metric"><strong>98 %</strong> menos errores</div>
+        </div>
+
+        <div class="benefit-card reveal" data-delay="400">
+          <div class="benefit-icon-wrap">
+            <div class="benefit-icon">📈</div>
+          </div>
+          <h3>Mejora la productividad</h3>
+          <p>Tu equipo se enfoca en lo estratégico mientras la automatización ejecuta lo operativo.</p>
+          <div class="benefit-metric"><strong>3×</strong> más output</div>
+        </div>
+
+        <div class="benefit-card reveal" data-delay="500">
+          <div class="benefit-icon-wrap">
+            <div class="benefit-icon">💡</div>
+          </div>
+          <h3>Optimiza tu presupuesto</h3>
+          <p>Cada dólar invertido en automatización retorna múltiples veces. ROI tangible desde el primer mes.</p>
+          <div class="benefit-metric">ROI desde <strong>1 mes</strong></div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SERVICIOS ===================== -->
+  <section class="services section" id="servicios">
+    <div class="services-bg">
+      <div class="glow-orb glow-orb--4"></div>
+    </div>
+    <div class="container">
+      <div class="section-header reveal">
+        <p class="section-eyebrow">Nuestros servicios</p>
+        <h2 class="section-title">Soluciones diseñadas para <span class="gradient-text">escalar contigo</span></h2>
+        <p class="section-desc">Desde la integración de herramientas hasta inteligencia artificial aplicada a tu empresa.</p>
+      </div>
+
+      <div class="services-grid">
+
+        <div class="service-card reveal glass-card" data-delay="0">
+          <div class="service-icon">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="4" y="4" width="16" height="16" rx="3" stroke="currentColor" stroke-width="2"/>
+              <rect x="28" y="4" width="16" height="16" rx="3" stroke="currentColor" stroke-width="2"/>
+              <rect x="4" y="28" width="16" height="16" rx="3" stroke="currentColor" stroke-width="2"/>
+              <rect x="28" y="28" width="16" height="16" rx="3" stroke="currentColor" stroke-width="2"/>
+              <path d="M20 12h8M12 20v8M36 20v8M20 36h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3 class="service-title">Automatización de Procesos</h3>
+          <p class="service-desc">Mapeamos y automatizamos cada proceso repetitivo de tu empresa. Desde aprobaciones hasta generación de reportes.</p>
+          <ul class="service-features">
+            <li>Mapeo de flujos de trabajo</li>
+            <li>Automatización end-to-end</li>
+            <li>Monitoreo en tiempo real</li>
+          </ul>
+          <a href="#cta" class="service-link">Saber más <span>→</span></a>
+        </div>
+
+        <div class="service-card reveal glass-card" data-delay="150">
+          <div class="service-icon">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="24" r="7" stroke="currentColor" stroke-width="2"/>
+              <circle cx="36" cy="12" r="7" stroke="currentColor" stroke-width="2"/>
+              <circle cx="36" cy="36" r="7" stroke="currentColor" stroke-width="2"/>
+              <path d="M19 21l10-6M19 27l10 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3 class="service-title">Integración de Sistemas</h3>
+          <p class="service-desc">Conectamos todas tus herramientas en un ecosistema unificado. CRM, ERP, marketing, soporte y más.</p>
+          <ul class="service-features">
+            <li>APIs y webhooks</li>
+            <li>Sincronización en tiempo real</li>
+            <li>Datos unificados</li>
+          </ul>
+          <a href="#cta" class="service-link">Saber más <span>→</span></a>
+        </div>
+
+        <div class="service-card reveal glass-card" data-delay="300">
+          <div class="service-icon">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M8 24h8l6-12 8 24 6-12h8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3 class="service-title">Optimización de Workflows</h3>
+          <p class="service-desc">Analizamos cuellos de botella y rediseñamos flujos para máxima eficiencia. Menos pasos, más resultados.</p>
+          <ul class="service-features">
+            <li>Diagnóstico de procesos</li>
+            <li>Rediseño eficiente</li>
+            <li>KPIs y métricas</li>
+          </ul>
+          <a href="#cta" class="service-link">Saber más <span>→</span></a>
+        </div>
+
+        <div class="service-card reveal glass-card service-card--featured" data-delay="450">
+          <div class="service-icon">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M24 4L4 16v16l20 12 20-12V16L24 4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+              <path d="M24 4v28M4 16l20 12 20-12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3 class="service-title">Automatización IA</h3>
+          <p class="service-desc">Incorporamos inteligencia artificial a tus flujos. Decisiones automáticas, predicciones y análisis sin intervención humana.</p>
+          <ul class="service-features">
+            <li>Modelos LLM aplicados</li>
+            <li>Decisiones autónomas</li>
+            <li>Aprendizaje continuo</li>
+          </ul>
+          <a href="#cta" class="service-link">Saber más <span>→</span></a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== CÓMO FUNCIONA ===================== -->
+  <section class="process section" id="proceso">
+    <div class="container">
+      <div class="section-header reveal">
+        <p class="section-eyebrow">Metodología</p>
+        <h2 class="section-title">Cómo transformamos <span class="gradient-text">tu empresa</span></h2>
+        <p class="section-desc">Nuestra metodología en 4 fases que garantiza resultados desde el primer sprint.</p>
+      </div>
+
+      <div class="process-steps">
+
+        <div class="process-step reveal" data-delay="0">
+          <div class="step-number">01</div>
+          <div class="step-content">
+            <div class="step-icon">🔍</div>
+            <h3>Análisis de procesos</h3>
+            <p>Mapeamos en detalle todos tus flujos actuales, identificamos cuellos de botella, ineficiencias y oportunidades de automatización con mayor impacto.</p>
+            <div class="step-duration">Semana 1–2</div>
+          </div>
+          <div class="step-connector"></div>
+        </div>
+
+        <div class="process-step reveal" data-delay="150">
+          <div class="step-number">02</div>
+          <div class="step-content">
+            <div class="step-icon">🎨</div>
+            <h3>Diseño de automatización</h3>
+            <p>Construimos la arquitectura técnica del sistema. Seleccionamos herramientas, definimos integraciones y diseñamos los flujos automatizados.</p>
+            <div class="step-duration">Semana 3–4</div>
+          </div>
+          <div class="step-connector"></div>
+        </div>
+
+        <div class="process-step reveal" data-delay="300">
+          <div class="step-number">03</div>
+          <div class="step-content">
+            <div class="step-icon">⚙️</div>
+            <h3>Implementación</h3>
+            <p>Desplegamos y conectamos todos los sistemas. Pruebas exhaustivas, ajuste fino y entrenamiento a tu equipo para adopción inmediata.</p>
+            <div class="step-duration">Semana 5–8</div>
+          </div>
+          <div class="step-connector"></div>
+        </div>
+
+        <div class="process-step reveal" data-delay="450">
+          <div class="step-number">04</div>
+          <div class="step-content">
+            <div class="step-icon">📊</div>
+            <h3>Optimización continua</h3>
+            <p>Monitoreamos resultados, analizamos métricas y refinamos los flujos de forma iterativa para garantizar mejora constante.</p>
+            <div class="step-duration">Ongoing</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== CASOS DE USO (CARRUSEL) ===================== -->
+  <section class="cases section" id="casos">
+    <div class="cases-bg">
+      <div class="glow-orb glow-orb--5"></div>
+    </div>
+    <div class="container">
+      <div class="section-header reveal">
+        <p class="section-eyebrow">Casos de uso</p>
+        <h2 class="section-title">Lo que puedes <span class="gradient-text">automatizar hoy</span></h2>
+        <p class="section-desc">Lo que puedes automatizar con AutoKore.</p>
+      </div>
+
+      <div class="carousel-wrapper">
+        <button class="carousel-btn carousel-btn--prev" id="casesPrev" aria-label="Anterior">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+
+        <div class="carousel-track-container">
+          <div class="carousel-track" id="casesTrack">
+
+            <div class="case-card glass-card">
+              <div class="case-icon">⚡</div>
+              <h3>Captura automática de leads</h3>
+              <p>Formularios web → CRM → segmentación automática → email de bienvenida → asignación a vendedor. Todo en menos de 10 segundos.</p>
+              <div class="case-result">
+                <span class="result-pill">-85 % tiempo manual</span>
+                <span class="result-pill">+40 % conversión</span>
+              </div>
+            </div>
+
+            <div class="case-card glass-card">
+              <div class="case-icon">🔗</div>
+              <h3>Integración CRM + ERP</h3>
+              <p>Sincronización bidireccional en tiempo real entre tu CRM y ERP. Sin datos duplicados, sin inconsistencias, sin trabajo manual.</p>
+              <div class="case-result">
+                <span class="result-pill">100 % datos sync</span>
+                <span class="result-pill">0 h de carga manual</span>
+              </div>
+            </div>
+
+            <div class="case-card glass-card">
+              <div class="case-icon">📊</div>
+              <h3>Reportes automáticos</h3>
+              <p>Reportes ejecutivos generados y enviados automáticamente cada semana o mes, con datos en tiempo real de todas tus fuentes.</p>
+              <div class="case-result">
+                <span class="result-pill">20 h/mes ahorradas</span>
+                <span class="result-pill">0 errores</span>
+              </div>
+            </div>
+
+            <div class="case-card glass-card">
+              <div class="case-icon">📣</div>
+              <h3>Marketing automatizado</h3>
+              <p>Secuencias de emails, SMS y notificaciones disparadas por comportamiento del usuario. Personalización a escala sin esfuerzo.</p>
+              <div class="case-result">
+                <span class="result-pill">+60 % open rate</span>
+                <span class="result-pill">-70 % trabajo manual</span>
+              </div>
+            </div>
+
+            <div class="case-card glass-card">
+              <div class="case-icon">🔄</div>
+              <h3>Orquestación de workflows</h3>
+              <p>Aprobaciones, escalamientos y notificaciones multi-equipo coordinadas automáticamente. Sin emails internos innecesarios.</p>
+              <div class="case-result">
+                <span class="result-pill">5 días → 2 horas</span>
+                <span class="result-pill">+90 % visibilidad</span>
+              </div>
+            </div>
+
+            <div class="case-card glass-card">
+              <div class="case-icon">🤖</div>
+              <h3>Atención al cliente IA</h3>
+              <p>Chatbot con IA que resuelve el 80 % de consultas frecuentes, escala casos complejos y registra todo en tu CRM automáticamente.</p>
+              <div class="case-result">
+                <span class="result-pill">24/7 disponible</span>
+                <span class="result-pill">-60 % tickets manuales</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <button class="carousel-btn carousel-btn--next" id="casesNext" aria-label="Siguiente">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+
+        <div class="carousel-dots" id="casesDots"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== TECNOLOGÍAS ===================== -->
+  <section class="technologies section" id="tecnologias">
+    <div class="container">
+      <div class="section-header reveal">
+        <p class="section-eyebrow">Stack tecnológico</p>
+        <h2 class="section-title">Herramientas de <span class="gradient-text">clase mundial</span></h2>
+        <p class="section-desc">Trabajamos con el ecosistema más robusto del mercado para garantizar estabilidad y escalabilidad.</p>
+      </div>
+
+      <div class="tech-grid">
+        <div class="tech-item reveal" data-delay="0">
+          <div class="tech-logo">n8n</div>
+          <span>Orquestación</span>
+        </div>
+        <div class="tech-item reveal" data-delay="80">
+          <div class="tech-logo tech-logo--api">API</div>
+          <span>REST & GraphQL</span>
+        </div>
+        <div class="tech-item reveal" data-delay="160">
+          <div class="tech-logo tech-logo--ai">AI</div>
+          <span>Modelos LLM</span>
+        </div>
+        <div class="tech-item reveal" data-delay="240">
+          <div class="tech-logo">☁</div>
+          <span>Cloud Services</span>
+        </div>
+        <div class="tech-item reveal" data-delay="320">
+          <div class="tech-logo">⬡</div>
+          <span>Webhooks</span>
+        </div>
+        <div class="tech-item reveal" data-delay="400">
+          <div class="tech-logo">🛢</div>
+          <span>Bases de datos</span>
+        </div>
+        <div class="tech-item reveal" data-delay="480">
+          <div class="tech-logo tech-logo--make">Make</div>
+          <span>Automatización</span>
+        </div>
+        <div class="tech-item reveal" data-delay="560">
+          <div class="tech-logo">🔐</div>
+          <span>Auth & Security</span>
+        </div>
+      </div>
+
+      <div class="tech-scroll-track">
+        <div class="tech-scroll-inner">
+          <span>n8n</span><span>Zapier</span><span>Make</span><span>HubSpot</span>
+          <span>Salesforce</span><span>OpenAI</span><span>Anthropic</span><span>Airtable</span>
+          <span>Notion</span><span>Slack</span><span>Google Workspace</span><span>AWS</span>
+          <!-- duplicado para loop continuo -->
+          <span>n8n</span><span>Zapier</span><span>Make</span><span>HubSpot</span>
+          <span>Salesforce</span><span>OpenAI</span><span>Anthropic</span><span>Airtable</span>
+          <span>Notion</span><span>Slack</span><span>Google Workspace</span><span>AWS</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== CTA ===================== -->
+  <section class="cta-section section" id="cta">
+    <div class="cta-bg">
+      <div class="glow-orb glow-orb--7"></div>
+      <div class="glow-orb glow-orb--8"></div>
+    </div>
+    <div class="container">
+      <div class="cta-content reveal">
+        <p class="section-eyebrow">¿Listo para empezar?</p>
+        <h2 class="cta-title">
+          Empieza a ahorrar tiempo,<br />
+          <span class="gradient-text">dinero y esfuerzo</span> hoy.
+        </h2>
+        <p class="cta-desc">
+          Agenda una consultoría gratuita de 30 minutos. Analizamos tu empresa,<br> identificamos las principales oportunidades de automatización y te presentamos un plan de acción personalizado. Sin compromisos.
+        </p>
+        <div class="cta-actions">
+          <a href="mailto:contactoautokore@gmail.com" class="btn btn-primary btn-lg">
+            <span>Agendar consultoría gratuita</span>
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3.5 9h11M10 4.5l4.5 4.5-4.5 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <p class="cta-note">✓ Sin costo &nbsp; ✓ Sin compromisos &nbsp; ✓ Respuesta en 24 h</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+
+        <div class="footer-brand">
+          <a href="#" class="nav-logo">
+            <span class="logo-icon">⬡</span>
+            <span class="logo-text">Auto<span class="logo-accent">Kore</span></span>
+          </a>
+          <p>Automatización empresarial inteligente. Transformamos procesos en ventajas competitivas.</p>
+        </div>
+
+        <div class="footer-col">
+          <h4>Servicios</h4>
+          <ul>
+            <li><a href="#servicios">Automatización de Procesos</a></li>
+            <li><a href="#servicios">Integración de Sistemas</a></li>
+            <li><a href="#servicios">Optimización de Workflows</a></li>
+            <li><a href="#servicios">Automatización con IA</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Empresa</h4>
+          <ul>
+            <li><a href="#">Nosotros</a></li>
+            <li><a href="#casos">Casos de éxito</a></li>
+            <li><a href="#tecnologias">Tecnologías</a></li>
+            <li><a href="#cta">Contacto</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Contacto</h4>
+          <ul class="footer-contact">
+            <li>
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.5 6.5l7.5 5 7.5-5M3 4h14a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V5a1 1 0 011-1z"/></svg>
+              contactoautokore@gmail.com
+            </li>
+            <li>
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4l4 2-1.5 3L9 12l3-1.5 2 4-4 1.5C5 17 3 11 3 8l1-4z"/></svg>
+              +57 301 600 6654
+            </li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="footer-bottom">
+        <p>© 2026 AutoKore. Todos los derechos reservados.</p>
+        <div class="footer-legal">
+          <a href="#">Privacidad</a>
+          <a href="#">Términos</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,451 @@
+[
+  {
+    "id": "cub-sabanas-premium-prueba",
+    "name": "cub-sabanas-premium-prueba",
+    "slug": "juego-sabanas-premium-queen",
+    "price": 180,
+    "originalPrice": null,
+    "category": "sabanas",
+    "categoryLabel": "Sábanas",
+    "description": "Juego completo en algodón 100% peinado de 300 hilos. Incluye sábana encimera, sábana ajustable con elástico perimetral reforzado y 2 fundas de almohada. Tacto suave y fresco, ideal para todo el año. La densidad de 300 hilos garantiza durabilidad y suavidad que mejora con cada lavado.",
+    "shortDescription": "Algodón 100% peinado, 300 hilos. Incluye encimera, ajustable y 2 fundas.",
+    "materials": [
+      "100% algodón peinado",
+      "Densidad: 300 hilos",
+      "Costura reforzada en bordes",
+      "Elástico perimetral en sábana ajustable",
+      "Libre de sustancias nocivas certificado OEKO-TEX"
+    ],
+    "care": [
+      "Lavar a máquina máximo 40°C",
+      "No usar blanqueadores con cloro",
+      "Secar a temperatura baja",
+      "Planchar a temperatura media"
+    ],
+    "variants": {
+      "Tamaño": ["Sencillo", "Doble", "Queen", "King"],
+      "Color": ["Blanco", "Crema", "Gris perla", "Azul cielo", "Lavanda", "Verde sage"]
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80",
+      "https://images.unsplash.com/photo-1540518614846-7eded433c457?w=800&q=80",
+      "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=800&q=80"
+    ],
+    "featured": true,
+    "badge": "Más vendido",
+    "badgeType": "featured",
+    "stock": "available",
+    "rating": 4.8,
+    "reviewCount": 124,
+    "tags": ["algodón", "premium", "juego completo", "300 hilos"]
+  },
+  {
+    "id": "sabana-ajustable-microfibra",
+    "name": "Sábana Ajustable Microfibra Suave",
+    "slug": "sabana-ajustable-microfibra",
+    "price": 65000,
+    "originalPrice": 85000,
+    "category": "sabanas",
+    "categoryLabel": "Sábanas",
+    "description": "Sábana ajustable en microfibra de alta densidad con elástico perimetral reforzado. Resistente a las arrugas y de fácil lavado. El bolsillo profundo de 35 cm garantiza que se mantenga en su lugar toda la noche, incluso en colchones gruesos.",
+    "shortDescription": "Microfibra antiárrugas con bolsillo de 35 cm. Elástico perimetral reforzado.",
+    "materials": [
+      "100% microfibra de alta densidad",
+      "Elástico perimetral resistente",
+      "Bolsillo profundo: 35 cm",
+      "Tratamiento antiarrugas permanente"
+    ],
+    "care": [
+      "Lavar a máquina máximo 60°C",
+      "Apta para secadora",
+      "No planchar"
+    ],
+    "variants": {
+      "Tamaño": ["Sencillo", "Doble", "Queen", "King"],
+      "Color": ["Blanco", "Beige", "Gris", "Azul marino", "Verde sage", "Rosa pálido"]
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1540518614846-7eded433c457?w=800&q=80",
+      "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80"
+    ],
+    "featured": false,
+    "badge": "Oferta",
+    "badgeType": "sale",
+    "stock": "available",
+    "rating": 4.5,
+    "reviewCount": 89,
+    "tags": ["microfibra", "ajustable", "antiarrugas", "oferta"]
+  },
+  {
+    "id": "cubrecama-acolchado-reversible",
+    "name": "Cubrecama Acolchado Reversible",
+    "slug": "cubrecama-acolchado-reversible",
+    "price": 245000,
+    "originalPrice": null,
+    "category": "cubrecamas",
+    "categoryLabel": "Cubrecamas",
+    "description": "Cubrecama acolchado de doble faz con diseño moderno y reversible. Relleno de fibra siliconada hipoalergénica de 200g/m². Lavable en máquina hasta 40°C. Ideal como cobertor liviano o como elemento decorativo principal del dormitorio.",
+    "shortDescription": "Doble faz reversible, relleno siliconado hipoalergénico. Lavable en máquina.",
+    "materials": [
+      "Exterior: 100% poliéster de alta calidad",
+      "Relleno: fibra siliconada hipoalergénica 200g/m²",
+      "Tejido 170 hilos resistente al pilling",
+      "Costura perimetral reforzada"
+    ],
+    "care": [
+      "Lavar a máquina máximo 40°C",
+      "Secar a baja temperatura",
+      "Planchar a temperatura media"
+    ],
+    "variants": {
+      "Tamaño": ["Doble", "Queen", "King"],
+      "Diseño": ["Líneas beige", "Geométrico gris", "Flores crema", "Abstracto azul"]
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&q=80",
+      "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80"
+    ],
+    "featured": true,
+    "badge": "Nuevo",
+    "badgeType": "new",
+    "stock": "available",
+    "rating": 4.7,
+    "reviewCount": 56,
+    "tags": ["cubrecama", "acolchado", "reversible", "hipoalergénico"]
+  },
+  {
+    "id": "almohada-memory-foam",
+    "name": "Almohada Viscoelástica Memory Foam",
+    "slug": "almohada-memory-foam",
+    "price": 98000,
+    "originalPrice": null,
+    "category": "almohadas",
+    "categoryLabel": "Almohadas",
+    "description": "Almohada ergonómica en memory foam de alta densidad certificado CertiPUR-US. Se adapta perfectamente a la forma del cuello y hombros, distribuye el peso de forma uniforme y reduce los puntos de presión. Funda removible en algodón con cierre de cremallera invisible. Precio por unidad.",
+    "shortDescription": "Memory foam certificado. Funda en algodón removible. Ergonómica y duradera.",
+    "materials": [
+      "Núcleo: memory foam de alta densidad 55kg/m³",
+      "Funda: 100% algodón con cierre invisible",
+      "Certificación CertiPUR-US",
+      "Sin formaldehído ni sustancias tóxicas"
+    ],
+    "care": [
+      "Núcleo: no lavar. Airear periódicamente",
+      "Funda: lavar a máquina máximo 40°C",
+      "No exponer al sol directo por períodos prolongados"
+    ],
+    "variants": {
+      "Firmeza": ["Suave", "Media", "Firme"],
+      "Tamaño": ["Estándar 50x70 cm", "King 50x90 cm"]
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1592789705501-f9ae4278a9c9?w=800&q=80",
+      "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80"
+    ],
+    "featured": false,
+    "badge": null,
+    "badgeType": null,
+    "stock": "available",
+    "rating": 4.9,
+    "reviewCount": 203,
+    "tags": ["almohada", "memory foam", "ergonómica", "cervical"]
+  },
+  {
+    "id": "edredon-nordico-plumon",
+    "name": "Edredón Nórdico Plumón Sintético",
+    "slug": "edredon-nordico-plumon",
+    "price": 320000,
+    "originalPrice": null,
+    "category": "edredones",
+    "categoryLabel": "Edredones",
+    "description": "Edredón nórdico con relleno de plumón sintético 450g/m², diseñado para noches frías. El tejido exterior en 100% microfibra es antiácaros y de secado rápido. Los lazos de fijación en las esquinas evitan que el relleno se desplace dentro de la funda.",
+    "shortDescription": "Plumón sintético 450g/m², tejido antiácaros. Lazos de fijación en esquinas.",
+    "materials": [
+      "Exterior: 100% microfibra antiácaros",
+      "Relleno: plumón sintético premium 450g/m²",
+      "Costura cuadrada 10x10 cm para distribución uniforme",
+      "4 lazos de fijación en esquinas"
+    ],
+    "care": [
+      "Lavar a máquina máximo 40°C (ciclo delicado)",
+      "Secar en secadora a temperatura baja con pelotas de tenis",
+      "No planchar el relleno"
+    ],
+    "variants": {
+      "Tamaño": ["Sencillo", "Doble", "Queen", "King"],
+      "Peso": ["Verano 250g/m²", "Todo clima 350g/m²", "Invierno 450g/m²"]
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1567016432779-094069958ea5?w=800&q=80",
+      "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&q=80"
+    ],
+    "featured": true,
+    "badge": "Más vendido",
+    "badgeType": "featured",
+    "stock": "available",
+    "rating": 4.6,
+    "reviewCount": 78,
+    "tags": ["edredón", "nórdico", "plumón sintético", "invierno"]
+  },
+  {
+    "id": "funda-nordica-algodon-organico",
+    "name": "Funda Nórdica Algodón Orgánico",
+    "slug": "funda-nordica-algodon-organico",
+    "price": 135000,
+    "originalPrice": null,
+    "category": "fundas",
+    "categoryLabel": "Fundas",
+    "description": "Funda para edredón en algodón orgánico certificado GOTS (Global Organic Textile Standard). Cierre con botones de nácar cosidos a mano. El tejido percal de 200 hilos tiene un acabado fresco y crujiente que se suaviza con el uso. No incluye edredón.",
+    "shortDescription": "Algodón orgánico GOTS. Botones de nácar. Percal 200 hilos. Sin edredón.",
+    "materials": [
+      "100% algodón orgánico certificado GOTS",
+      "Tejido percal 200 hilos",
+      "Botones de nácar cosidos a mano",
+      "Sin tintes azoicos ni formaldehído"
+    ],
+    "care": [
+      "Lavar a máquina máximo 40°C",
+      "Secar a la sombra para preservar el color",
+      "Planchar a temperatura media mientras está húmeda"
+    ],
+    "variants": {
+      "Tamaño": ["Sencillo", "Doble", "Queen", "King"],
+      "Color": ["Blanco roto", "Lino natural", "Azul marino", "Terracota", "Verde musgo"]
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=800&q=80",
+      "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80"
+    ],
+    "featured": false,
+    "badge": "Nuevo",
+    "badgeType": "new",
+    "stock": "available",
+    "rating": 4.7,
+    "reviewCount": 42,
+    "tags": ["funda nórdica", "algodón orgánico", "GOTS", "sostenible"]
+  },
+  {
+    "id": "juego-toallas-algodon-turco",
+    "name": "Juego de Toallas Algodón Turco",
+    "slug": "juego-toallas-algodon-turco",
+    "price": 175000,
+    "originalPrice": 220000,
+    "category": "toallas",
+    "categoryLabel": "Toallas",
+    "description": "Set de 4 toallas en algodón turco de doble torsión, reconocido por su absorción superior y secado rápido. El peso de 600 GSM garantiza suavidad y durabilidad excepcionales. Incluye 2 toallas de baño (70x140 cm) y 2 toallas de mano (50x100 cm). Mantienen su suavidad lavado tras lavado.",
+    "shortDescription": "Set 4 toallas algodón turco 600 GSM. 2 de baño + 2 de mano. Secado rápido.",
+    "materials": [
+      "100% algodón turco de doble torsión",
+      "Peso: 600 GSM",
+      "Densidad de bucles alta",
+      "Bordes reforzados antidesflecado"
+    ],
+    "care": [
+      "Lavar a máquina máximo 60°C",
+      "No usar suavizante (reduce absorción)",
+      "Secar en secadora a temperatura media",
+      "No planchar"
+    ],
+    "variants": {
+      "Color": ["Blanco", "Beige", "Gris antracita", "Verde musgo", "Coral", "Azul marino"]
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1563453392212-326f5e854473?w=800&q=80",
+      "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80"
+    ],
+    "featured": false,
+    "badge": "Oferta",
+    "badgeType": "sale",
+    "stock": "available",
+    "rating": 4.8,
+    "reviewCount": 167,
+    "tags": ["toallas", "algodón turco", "600 GSM", "set", "oferta"]
+  },
+  {
+    "id": "protector-colchon-impermeable",
+    "name": "Protector de Colchón Impermeable",
+    "slug": "protector-colchon-impermeable",
+    "price": 89000,
+    "originalPrice": null,
+    "category": "protectores",
+    "categoryLabel": "Protectores",
+    "description": "Protector acolchado con membrana impermeable de poliuretano transpirable. No genera ruido al moverse, a diferencia de los protectores de vinilo convencionales. El elástico perimetral de alta resistencia se adapta a colchones de hasta 40 cm de grosor. Lavable a 60°C para una higiene profunda.",
+    "shortDescription": "Membrana PU transpirable y silenciosa. Elástico para colchones hasta 40 cm.",
+    "materials": [
+      "Superficie: 100% algodón",
+      "Membrana: poliuretano transpirable silencioso",
+      "Relleno: microfibra 120g/m²",
+      "Elástico perimetral de alta resistencia"
+    ],
+    "care": [
+      "Lavar a máquina máximo 60°C",
+      "Secar en secadora a temperatura baja",
+      "No planchar la membrana impermeable"
+    ],
+    "variants": {
+      "Tamaño": ["Sencillo", "Doble", "Queen", "King"],
+      "Grosor colchón": ["Hasta 25 cm", "Hasta 35 cm", "Hasta 40 cm"]
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1631049552057-403cdb8f0658?w=800&q=80",
+      "https://images.unsplash.com/photo-1540518614846-7eded433c457?w=800&q=80"
+    ],
+    "featured": false,
+    "badge": null,
+    "badgeType": null,
+    "stock": "available",
+    "rating": 4.6,
+    "reviewCount": 93,
+    "tags": ["protector", "impermeable", "silencioso", "transpirable"]
+  },
+  {
+    "id": "juego-sabanas-bambu",
+    "name": "Juego de Sábanas Bambú Premium",
+    "slug": "juego-sabanas-bambu",
+    "price": 215000,
+    "originalPrice": null,
+    "category": "sabanas",
+    "categoryLabel": "Sábanas",
+    "description": "Juego de sábanas en fibra de bambú viscosa, una de las fibras más suaves y sostenibles del mercado. Termorreguladora natural: fresca en verano y cálida en invierno. Antibacteriana y antiácaros por naturaleza. Ideal para personas con piel sensible o alergias. Incluye encimera, ajustable y 2 fundas.",
+    "shortDescription": "Bambú viscosa termorregulador. Antibacteriano natural. Piel sensible y alergias.",
+    "materials": [
+      "100% bambú viscosa de primera calidad",
+      "Densidad: 300 hilos",
+      "Termorregulador natural",
+      "Antibacteriano y antiácaros certificado",
+      "Suavidad superior al algodón egipcio"
+    ],
+    "care": [
+      "Lavar a máquina máximo 30°C en ciclo delicado",
+      "No usar blanqueadores",
+      "Secar a la sombra o secadora temperatura muy baja",
+      "Planchar a temperatura baja"
+    ],
+    "variants": {
+      "Tamaño": ["Sencillo", "Doble", "Queen", "King"],
+      "Color": ["Blanco", "Crema", "Gris perla", "Azul pálido", "Lavanda suave"]
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80",
+      "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=800&q=80"
+    ],
+    "featured": true,
+    "badge": "Premium",
+    "badgeType": "featured",
+    "stock": "available",
+    "rating": 5.0,
+    "reviewCount": 38,
+    "tags": ["bambú", "premium", "sostenible", "piel sensible", "termorregulador"]
+  },
+  {
+    "id": "cojines-decorativos-lino",
+    "name": "Cojines Decorativos de Lino",
+    "slug": "cojines-decorativos-lino",
+    "price": 55000,
+    "originalPrice": null,
+    "category": "decoracion",
+    "categoryLabel": "Decoración",
+    "description": "Cojines decorativos en mezcla de lino y algodón con cierre de cremallera invisible. Relleno de fibra siliconada que mantiene la forma. El tejido texturizado de lino aporta una estética natural y sofisticada a cualquier dormitorio. Precio por unidad.",
+    "shortDescription": "Lino y algodón texturizado. Relleno de fibra. Cierre invisible. Por unidad.",
+    "materials": [
+      "Funda: 55% lino, 45% algodón",
+      "Relleno: fibra siliconada 300g",
+      "Cierre de cremallera invisible",
+      "Costuras reforzadas"
+    ],
+    "care": [
+      "Lavar a mano o máquina máximo 30°C",
+      "Secar a la sombra",
+      "Planchar a temperatura baja"
+    ],
+    "variants": {
+      "Tamaño": ["45x45 cm", "50x50 cm", "60x60 cm"],
+      "Color": ["Natural", "Blanco", "Gris", "Arena", "Azul polvoriento", "Rosa nude"]
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&q=80",
+      "https://images.unsplash.com/photo-1567016432779-094069958ea5?w=800&q=80"
+    ],
+    "featured": false,
+    "badge": "Nuevo",
+    "badgeType": "new",
+    "stock": "available",
+    "rating": 4.4,
+    "reviewCount": 29,
+    "tags": ["cojines", "lino", "decoración", "sala", "dormitorio"]
+  },
+  {
+    "id": "sabana-encimera-percal",
+    "name": "Sábana Encimera Percal 400 Hilos",
+    "slug": "sabana-encimera-percal",
+    "price": 78000,
+    "originalPrice": null,
+    "category": "sabanas",
+    "categoryLabel": "Sábanas",
+    "description": "Sábana encimera en algodón percal de 400 hilos, el estándar de los mejores hoteles. El tejido percal tiene un acabado fresco, ligeramente crujiente al inicio que se vuelve increíblemente suave con el lavado. La densidad de 400 hilos la hace más resistente y duradera que las opciones de 200-300 hilos.",
+    "shortDescription": "Percal 400 hilos, calidad hotel 5 estrellas. Fresco y durable.",
+    "materials": [
+      "100% algodón percal largo",
+      "Densidad: 400 hilos",
+      "Acabado mercerizado",
+      "Tejido de una sola pieza sin costuras centrales"
+    ],
+    "care": [
+      "Lavar a máquina máximo 60°C",
+      "Secar a temperatura media",
+      "Planchar a temperatura alta para el acabado perfecto"
+    ],
+    "variants": {
+      "Tamaño": ["Sencillo", "Doble", "Queen", "King"],
+      "Color": ["Blanco óptico", "Blanco roto", "Gris claro"]
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1540518614846-7eded433c457?w=800&q=80",
+      "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80"
+    ],
+    "featured": false,
+    "badge": null,
+    "badgeType": null,
+    "stock": "available",
+    "rating": 4.7,
+    "reviewCount": 51,
+    "tags": ["sábana encimera", "percal", "400 hilos", "hotel", "algodón"]
+  },
+  {
+    "id": "edredon-verano-fino",
+    "name": "Edredón de Verano Ultrafino",
+    "slug": "edredon-verano-fino",
+    "price": 195000,
+    "originalPrice": null,
+    "category": "edredones",
+    "categoryLabel": "Edredones",
+    "description": "Edredón de verano con relleno ultraligero de 150g/m², ideal para climas cálidos o como capa adicional en noches frescas de verano. El tejido de microfibra transpirable permite la circulación del aire evitando el sobrecalentamiento durante el sueño.",
+    "shortDescription": "Relleno 150g/m² ultrafino. Microfibra transpirable para climas cálidos.",
+    "materials": [
+      "Exterior: microfibra transpirable 100%",
+      "Relleno: fibra hueca siliconada 150g/m²",
+      "Costura cuadrada para distribución uniforme",
+      "Lazos en esquinas"
+    ],
+    "care": [
+      "Lavar a máquina máximo 40°C",
+      "Secar en secadora a temperatura baja",
+      "Guardar en bolsa de tela (nunca plástico) en temporada"
+    ],
+    "variants": {
+      "Tamaño": ["Sencillo", "Doble", "Queen", "King"],
+      "Color": ["Blanco", "Gris claro"]
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1567016432779-094069958ea5?w=800&q=80",
+      "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&q=80"
+    ],
+    "featured": false,
+    "badge": null,
+    "badgeType": null,
+    "stock": "available",
+    "rating": 4.5,
+    "reviewCount": 34,
+    "tags": ["edredón verano", "ligero", "transpirable", "clima cálido"]
+  }
+]
