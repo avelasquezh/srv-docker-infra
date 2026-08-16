@@ -1,271 +1,20 @@
 /* ============================================================
-   Lilop Admin — responsive.css v2
+   Lilop Admin — responsive.css v3
+   Sistema unificado: 3 breakpoints únicos, sin duplicados.
+   Organizado por componente, en el mismo orden que admin.css.
+
+   Breakpoints:
+     1024px → tablet (colapso de sidebar)
+     768px  → mobile grande
+     480px  → mobile pequeño
+
+   Nota: algunos !important son necesarios porque el HTML/JS aún
+   inyecta estilos inline (mayor especificidad). Están marcados
+   con «// inline» y se eliminan en el paso 2 (retiro de inline
+   styles → utility classes).
    ============================================================ */
 
-/* ── Botón menú mobile ── */
-@media (max-width: 1024px) {
-  .admin-topbar__menu-btn {
-    display: flex !important;
-  }
-  .admin-topbar {
-    grid-column: 1;
-    padding: 0 var(--s-4);
-  }
-}
-
-/* ── Stat cards ── */
-@media (max-width: 768px) {
-  .stat-cards {
-    grid-template-columns: 1fr 1fr !important;
-    gap: var(--s-3) !important;
-  }
-  .stat-card { padding: var(--s-4) !important; }
-  .stat-card__value { font-size: var(--text-xl) !important; }
-  .stat-card__label { font-size: var(--text-xs) !important; }
-}
-
-/* ── Admin grid ── */
-@media (max-width: 768px) {
-  .admin-grid { grid-template-columns: 1fr !important; }
-  .admin-panel--span2 { grid-column: span 1 !important; }
-  .admin-panel__header { flex-wrap: wrap; gap: var(--s-2); }
-}
-
-/* ── Diseños grid ── */
-@media (max-width: 768px) {
-  #disenosGrid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
-  }
-}
-@media (max-width: 480px) {
-  #disenosGrid {
-    grid-template-columns: repeat(2, 1fr) !important;
-  }
-}
-
-/* ── Modales ── */
-@media (max-width: 640px) {
-  .modal-overlay { padding: var(--s-3); align-items: flex-end; }
-  .modal {
-    border-radius: var(--r-2xl) var(--r-2xl) 0 0 !important;
-    max-height: 92vh !important;
-  }
-  .modal__footer { flex-direction: column-reverse; }
-  .modal__footer .btn { width: 100%; justify-content: center; }
-  .form-row { grid-template-columns: 1fr !important; }
-}
-
-/* ── Tablas scroll horizontal ── */
-@media (max-width: 768px) {
-  .admin-panel__body--p0 {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  #vendedorRankingPanel .admin-table {
-    display: block;
-    overflow-x: auto;
-    white-space: nowrap;
-  }
-}
-
-/* ── Gráfica ── */
-@media (max-width: 640px) {
-  #salesChart { max-height: 160px !important; }
-}
-
-/* ── Filtro mes ── */
-@media (max-width: 640px) {
-  #filtromes { width: 100% !important; max-width: 100% !important; }
-}
-
-/* ── Página cliente responsive ── */
-@media (max-width: 768px) {
-  .pedido-layout {
-    flex-direction: column !important;
-  }
-  .pedido-panel-left {
-    width: 100% !important;
-    min-width: unset !important;
-    border-right: none !important;
-    border-bottom: 1px solid var(--color-border);
-  }
-  .pedido-panel-right {
-    padding: var(--s-4) !important;
-  }
-  .cliente-header-info {
-    flex-wrap: wrap !important;
-    gap: var(--s-2) !important;
-  }
-  .cliente-header-actions {
-    width: 100%;
-    justify-content: flex-end;
-  }
-}
-
-/* ── Modal agregar producto — grid diseños ── */
-@media (max-width: 768px) {
-  #addDisenosGrid {
-    grid-template-columns: repeat(3, 1fr) !important;
-    gap: var(--s-2) !important;
-    max-height: 200px !important;
-  }
-  #editDisenosGrid {
-    grid-template-columns: repeat(3, 1fr) !important;
-    gap: var(--s-2) !important;
-    max-height: 180px !important;
-  }
-  /* Filtros del modal en columna */
-  #addSearch, #editSearch {
-    font-size: var(--text-xs) !important;
-  }
-  #addCol, #addEst, #editCol, #editEst {
-    font-size: var(--text-xs) !important;
-    max-width: 100% !important;
-  }
-  /* Filtros en columna en mobile */
-  div:has(#addSearch), div:has(#editSearch) {
-    flex-direction: column !important;
-  }
-  div:has(#addSearch) > *, div:has(#editSearch) > * {
-    width: 100% !important;
-    max-width: 100% !important;
-  }
-}
-
-/* ── Escala general mobile ── */
-@media (max-width: 768px) {
-  .form-input {
-    font-size: var(--text-sm) !important;
-    padding: var(--s-2) var(--s-3) !important;
-    height: 38px !important;
-  }
-  select.form-input {
-    padding-right: 32px !important;
-  }
-  .form-label {
-    font-size: var(--text-xs) !important;
-    margin-bottom: 4px !important;
-  }
-  .form-group {
-    margin-bottom: var(--s-3) !important;
-  }
-  .modal__header {
-    padding: var(--s-3) var(--s-4) !important;
-  }
-  .modal__title {
-    font-size: var(--text-base) !important;
-  }
-  .modal__body {
-    padding: var(--s-3) var(--s-4) !important;
-  }
-  .modal__footer {
-    padding: var(--s-3) var(--s-4) !important;
-  }
-  .btn {
-    font-size: var(--text-xs) !important;
-  }
-  .btn--sm {
-    font-size: var(--text-xs) !important;
-    padding: 5px 10px !important;
-  }
-  .admin-content {
-    padding: var(--s-3) !important;
-  }
-}
-
-/* ── Modal no desbordarse ── */
-@media (max-width: 768px) {
-  .modal-overlay {
-    padding: var(--s-2) !important;
-    align-items: flex-end !important;
-    box-sizing: border-box;
-  }
-  .modal {
-    width: 100% !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-    border-radius: var(--r-2xl) var(--r-2xl) 0 0 !important;
-    margin: 0 !important;
-  }
-}
-
-/* ── Diseños — mínimo 2 por fila en mobile ── */
-@media (max-width: 600px) {
-  #disenosGrid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: var(--s-3) !important;
-  }
-}
-
-/* ── Clientes recientes — mantener como tabla compacta ── */
-@media (max-width: 768px) {
-  #recentClientsBody tr { display: table-row !important; }
-  #recentClientsBody td {
-    display: table-cell !important;
-    padding: var(--s-2) var(--s-2) !important;
-    border-bottom: none !important;
-    font-size: var(--text-xs) !important;
-  }
-  #recentClientsBody td::before { display: none !important; }
-  #recentClientsBody td:first-child { padding-top: var(--s-2) !important; }
-  #recentClientsBody td:last-child { padding-bottom: var(--s-2) !important; }
-
-  /* Ocultar columna ciudad en mobile */
-  #recentClientsBody td:nth-child(2) { display: none !important; }
-
-  /* Avatar más pequeño */
-  #recentClientsBody div[style*="width:34px"] {
-    width: 28px !important;
-    height: 28px !important;
-    font-size: var(--text-xs) !important;
-  }
-}
-
-/* ── Botones producto siempre visibles en touch ── */
-@media (max-width: 1024px) {
-  .prod-actions {
-    opacity: 1 !important;
-  }
-}
-
-/* ── Submenú nav ── */
-.admin-nav__group-btn {
-  width: 100%;
-  background: none;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  text-align: left;
-}
-.admin-nav__chevron {
-  margin-left: auto;
-  transition: transform 0.2s;
-  flex-shrink: 0;
-}
-.admin-nav__group.is-open .admin-nav__chevron {
-  transform: rotate(180deg);
-}
-.admin-nav__children {
-  display: none;
-  flex-direction: column;
-  padding-left: var(--s-4);
-}
-.admin-nav__group.is-open .admin-nav__children {
-  display: flex;
-}
-.admin-nav__item--child {
-  font-size: var(--text-sm) !important;
-  padding: 6px var(--s-3) !important;
-  opacity: 0.85;
-}
-.admin-nav__item--child:hover {
-  opacity: 1;
-}
-]633;E;echo "";047a2f0c-8623-4c06-95ff-7fad00e824db]633;C
-/* ── Migrado desde admin.css (unificación responsive) ── */
-/* ─── RESPONSIVE ──────────────────────────────────────────── */
+/* ─── LAYOUT: SIDEBAR / TOPBAR (colapso) ──────────────────── */
 @media (max-width: 1024px) {
   .admin-layout {
     grid-template-columns: 1fr;
@@ -291,193 +40,91 @@
 
   .admin-content {
     grid-column: 1;
-    padding: var(--s-5);
   }
 
-  .stat-cards { grid-template-columns: repeat(2, 1fr); }
-  .admin-grid { grid-template-columns: 1fr; }
-  .admin-panel--span2 { grid-column: span 1; }
+  .prod-actions { opacity: 1 !important; } /* inline: opacity:0 en cliente.js */
 }
 
-@media (max-width: 640px) {
-  .stat-cards { grid-template-columns: 1fr 1fr; gap: var(--s-3); }
-  .admin-grid--3 { grid-template-columns: 1fr; }
-  .form-row { grid-template-columns: 1fr; }
-  .admin-topbar__search { display: none; }
-}
-
-/* ─── RESPONSIVE ADICIONAL ────────────────────────────────── */
-
-/* Tablet (max 768px) */
+/* ─── CONTENIDO / STAT CARDS ──────────────────────────────── */
 @media (max-width: 768px) {
-  .admin-content {
-    padding: var(--s-4);
-  }
-
-  .admin-topbar__page-title {
-    font-size: var(--text-base);
-  }
-
-  .admin-topbar__view-site span { display: none; }
+  .admin-content { padding: var(--s-5); }
 
   .stat-cards {
     grid-template-columns: repeat(2, 1fr);
     gap: var(--s-3);
   }
+  .stat-card { padding: var(--s-4); }
+  .stat-card__value { font-size: var(--text-xl); }
+  .stat-card__label { font-size: var(--text-xs); }
+}
 
-  .stat-card {
-    padding: var(--s-4);
-    gap: var(--s-3);
-  }
+@media (max-width: 480px) {
+  .admin-content { padding: var(--s-3); }
 
-  .stat-card__value {
-    font-size: var(--text-xl);
-  }
+  .stat-cards { gap: var(--s-2); }
+  .stat-card { padding: var(--s-3); }
+  .stat-card__icon { width: 36px; height: 36px; }
+  .stat-card__icon svg { width: 18px; height: 18px; }
+  .stat-card__value { font-size: var(--text-lg); }
+}
+
+/* ─── TOPBAR: título / buscador / ver sitio ───────────────── */
+@media (max-width: 768px) {
+  .admin-topbar__page-title { font-size: var(--text-base); }
+  .admin-topbar__search { display: none; }
+  .admin-topbar__view-site span { display: none; }
+}
+
+@media (max-width: 480px) {
+  .admin-topbar { height: 56px; padding: 0 var(--s-4); }
+  .admin-topbar__page-title { font-size: var(--text-sm); }
+  .admin-topbar__right .admin-topbar__divider,
+  .admin-topbar__right .admin-topbar__view-site { display: none; }
+}
+
+/* ─── GRID / PANEL ─────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .admin-grid,
+  .admin-grid--3 { grid-template-columns: 1fr; }
+  .admin-panel--span2 { grid-column: span 1; }
 
   .admin-panel__header {
     padding: var(--s-4);
     flex-wrap: wrap;
     gap: var(--s-2);
   }
+  .admin-panel__body { padding: var(--s-4); }
 
-  .admin-panel__body {
-    padding: var(--s-4);
+  .admin-panel__body--p0 {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
-
-  .modal {
-    max-height: 95vh;
-    border-radius: var(--r-xl);
+  #vendedorRankingPanel .admin-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
   }
-
-  .modal__header,
-  .modal__body,
-  .modal__footer {
-    padding: var(--s-4);
-  }
-
-  .modal--lg { max-width: 100%; }
 }
 
-/* Móvil (max 480px) */
 @media (max-width: 480px) {
-  .admin-content {
-    padding: var(--s-3);
-  }
-
-  .stat-cards {
-    grid-template-columns: 1fr 1fr;
-    gap: var(--s-2);
-  }
-
-  .stat-card {
-    padding: var(--s-3);
-  }
-
-  .stat-card__icon {
-    width: 36px;
-    height: 36px;
-  }
-
-  .stat-card__icon svg {
-    width: 18px;
-    height: 18px;
-  }
-
-  .stat-card__value {
-    font-size: var(--text-lg);
-  }
-
-  .stat-card__label {
-    font-size: var(--text-xs);
-  }
-
-  .admin-topbar {
-    height: 56px;
-    padding: 0 var(--s-4);
-  }
-
-  .admin-topbar__page-title {
-    font-size: var(--text-sm);
-  }
-
-  .admin-topbar__right .admin-topbar__divider,
-  .admin-topbar__right .admin-topbar__view-site {
-    display: none;
-  }
-
-  .admin-panel__header {
-    padding: var(--s-3) var(--s-4);
-  }
-
-  .admin-panel__body {
-    padding: var(--s-3) var(--s-4);
-  }
-
-  .modal-overlay {
-    padding: var(--s-3);
-    align-items: flex-end;
-  }
-
-  .modal {
-    border-radius: var(--r-2xl) var(--r-2xl) 0 0;
-    max-height: 92vh;
-  }
-
-  .modal__footer {
-    flex-direction: column-reverse;
-  }
-
-  .modal__footer .btn {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .pagination {
-    flex-direction: column;
-    gap: var(--s-3);
-    align-items: center;
-  }
-
-  .empty-state {
-    padding: var(--s-10) var(--s-4);
-  }
-
-  .empty-state__title {
-    font-size: var(--text-lg);
-  }
-
-  .admin-toasts {
-    left: var(--s-4);
-    right: var(--s-4);
-    bottom: var(--s-4);
-  }
-
-  .admin-toast {
-    min-width: unset;
-    max-width: 100%;
-  }
+  .admin-panel__header { padding: var(--s-3) var(--s-4); }
+  .admin-panel__body { padding: var(--s-3) var(--s-4); }
 }
 
-/* ─── TABLA RESPONSIVE ────────────────────────────────────── */
+/* ─── TABLA RESPONSIVE (cards apiladas) ───────────────────── */
 @media (max-width: 768px) {
   .admin-table thead { display: none; }
 
   .admin-table,
   .admin-table tbody,
   .admin-table tr,
-  .admin-table td {
-    display: block;
-    width: 100%;
-  }
+  .admin-table td { display: block; width: 100%; }
 
   .admin-table tr {
     border-bottom: 1px solid var(--color-border);
     padding: var(--s-3) var(--s-4);
   }
-
-  .admin-table tr:last-child {
-    border-bottom: none;
-  }
+  .admin-table tr:last-child { border-bottom: none; }
 
   .admin-table td {
     border-bottom: none;
@@ -498,16 +145,147 @@
     flex-shrink: 0;
   }
 
-  .admin-table td:first-child {
-    padding-top: var(--s-2);
-  }
+  .admin-table td:first-child { padding-top: var(--s-2); }
+  .admin-table td:last-child { padding-bottom: var(--s-2); justify-content: flex-end; }
+  .admin-table td:last-child::before { display: none; }
 
-  .admin-table td:last-child {
-    padding-bottom: var(--s-2);
-    justify-content: flex-end;
+  /* Excepción: tabla de clientes recientes se mantiene tabular
+     (id vence a .admin-table por especificidad, sin necesidad de !important) */
+  #recentClientsBody tr { display: table-row; }
+  #recentClientsBody td {
+    display: table-cell;
+    padding: var(--s-2);
+    border-bottom: none;
+    font-size: var(--text-xs);
   }
+  #recentClientsBody td::before { display: none; }
+  #recentClientsBody td:first-child { padding-top: var(--s-2); }
+  #recentClientsBody td:last-child { padding-bottom: var(--s-2); }
+  #recentClientsBody td:nth-child(2) { display: none; } /* columna ciudad */
 
-  .admin-table td:last-child::before {
-    display: none;
+  /* inline: avatar con width/height:34px fijo en dashboard.js */
+  #recentClientsBody div[style*="width:34px"] {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: var(--text-xs) !important;
   }
 }
+
+/* ─── FORMULARIOS / MODAL ──────────────────────────────────── */
+@media (max-width: 768px) {
+  .form-row { grid-template-columns: 1fr; }
+
+  .form-input {
+    font-size: var(--text-sm);
+    padding: var(--s-2) var(--s-3);
+    height: 38px;
+  }
+  select.form-input { padding-right: 32px; }
+  .form-label { font-size: var(--text-xs); margin-bottom: 4px; }
+  .form-group { margin-bottom: var(--s-3); }
+
+  #filtromes { width: 100% !important; max-width: 100% !important; } /* inline: max-width:200px en index.html */
+  #addSearch, #editSearch,
+  #addCol, #addEst, #editCol, #editEst { font-size: var(--text-xs); max-width: 100%; }
+  div:has(#addSearch), div:has(#editSearch) { flex-direction: column; }
+  div:has(#addSearch) > *, div:has(#editSearch) > * { width: 100%; max-width: 100%; }
+
+  .modal { max-height: 95vh; border-radius: var(--r-xl); }
+  .modal__header,
+  .modal__body,
+  .modal__footer { padding: var(--s-4); }
+  .modal__title { font-size: var(--text-base); }
+  .modal--lg { max-width: 100%; }
+
+  .btn { font-size: var(--text-xs); }
+  .btn--sm { font-size: var(--text-xs); padding: 5px 10px; }
+}
+
+@media (max-width: 480px) {
+  .modal-overlay { padding: var(--s-2); align-items: flex-end; }
+  .modal {
+    width: 100%;
+    max-width: 100%;
+    border-radius: var(--r-2xl) var(--r-2xl) 0 0;
+    max-height: 92vh;
+    margin: 0;
+  }
+  .modal__footer { flex-direction: column-reverse; }
+  .modal__footer .btn { width: 100%; justify-content: center; }
+}
+
+/* ─── PÁGINA CLIENTE / PEDIDO ──────────────────────────────── */
+@media (max-width: 768px) {
+  .pedido-layout { flex-direction: column; }
+  .pedido-panel-left {
+    width: 100%;
+    min-width: unset;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .pedido-panel-right { padding: var(--s-4); }
+  .cliente-header-info { flex-wrap: wrap; gap: var(--s-2); }
+  .cliente-header-actions { width: 100%; justify-content: flex-end; }
+}
+
+/* ─── DISEÑOS: grid de imágenes ───────────────────────────── */
+@media (max-width: 768px) {
+  #disenosGrid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+
+  #addDisenosGrid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--s-2);
+    max-height: 200px;
+  }
+  #editDisenosGrid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--s-2);
+    max-height: 180px;
+  }
+}
+
+@media (max-width: 480px) {
+  #disenosGrid { grid-template-columns: repeat(2, 1fr); gap: var(--s-3); }
+}
+
+/* ─── GRÁFICA DASHBOARD ────────────────────────────────────── */
+@media (max-width: 480px) {
+  #salesChart { max-height: 160px; }
+}
+
+/* ─── PAGINACIÓN / EMPTY STATE / TOAST ────────────────────── */
+@media (max-width: 480px) {
+  .pagination { flex-direction: column; gap: var(--s-3); align-items: center; }
+
+  .empty-state { padding: var(--s-10) var(--s-4); }
+  .empty-state__title { font-size: var(--text-lg); }
+
+  .admin-toasts { left: var(--s-4); right: var(--s-4); bottom: var(--s-4); }
+  .admin-toast { min-width: unset; max-width: 100%; }
+}
+
+/* ─── SUBMENÚ NAV (no depende de breakpoint) ──────────────── */
+.admin-nav__group-btn {
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-align: left;
+}
+.admin-nav__chevron {
+  margin-left: auto;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+.admin-nav__group.is-open .admin-nav__chevron { transform: rotate(180deg); }
+.admin-nav__children {
+  display: none;
+  flex-direction: column;
+  padding-left: var(--s-4);
+}
+.admin-nav__group.is-open .admin-nav__children { display: flex; }
+.admin-nav__item--child { font-size: var(--text-sm); padding: 6px var(--s-3); opacity: 0.85; }
+.admin-nav__item--child:hover { opacity: 1; }
