@@ -14,6 +14,7 @@ body {
   background: var(--color-fog);
   line-height: var(--leading-normal);
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden; /* salvaguarda: evita que un overflow interno arrastre toda la página */
 }
 
 /* ─── LAYOUT PRINCIPAL ────────────────────────────────────── */

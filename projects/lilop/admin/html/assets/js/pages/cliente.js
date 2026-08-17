@@ -70,7 +70,7 @@ function renderClienteHeader(c) {
   const inicial = c.nombre.charAt(0).toUpperCase();
   return `
     <div class="admin-panel mb-6">
-      <div class="p-6 d-flex items-center gap-6 flex-wrap">
+      <div class="cliente-header p-6 d-flex items-center gap-6 flex-wrap">
 
         <!-- Avatar -->
         <div class="d-flex items-center justify-center font-display text-2xl font-bold text-white shrink-0" style="width:64px;height:64px;border-radius:50%;background:var(--grad-primary)">
@@ -81,7 +81,7 @@ function renderClienteHeader(c) {
         <div class="flex-1 min-w-0">
           <div class="d-flex items-center gap-3 flex-wrap mb-1">
             <h1 class="font-display text-xl font-semibold text-ink">${c.nombre}</h1>
-            ${c.origen_venta ? `<span class="items-center radius-pill text-xs font-medium text-violet" style="display:inline-flex;padding:2px var(--s-3);background:var(--color-soft)">${c.origen_venta}</span>` : ''}
+            ${c.origen_venta ? `<span class="items-center radius-pill text-xs font-medium text-violet shrink-0 nowrap" style="display:inline-flex;padding:2px var(--s-3);background:var(--color-soft)">${c.origen_venta}</span>` : ''}
           </div>
           <p class="text-xs text-light mb-3" style="font-family:var(--font-mono)">${c.id}</p>
           <div class="d-flex flex-wrap gap-5">

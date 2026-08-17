@@ -131,6 +131,7 @@
     display: flex;
     align-items: center;
     gap: var(--s-2);
+    text-align: left; /* anula .text-center u otras clases pensadas para la tabla de escritorio */
   }
 
   .admin-table td::before {
@@ -215,6 +216,13 @@
 
 /* ─── PÁGINA CLIENTE / PEDIDO ──────────────────────────────── */
 @media (max-width: 768px) {
+  .cliente-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .cliente-header > .shrink-0:last-child { width: 100%; }
+  .cliente-header .btn { width: 100%; justify-content: center; }
+
   .pedido-layout { flex-direction: column; }
   .pedido-panel-left {
     width: 100%;
