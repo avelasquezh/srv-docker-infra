@@ -58,25 +58,23 @@ function renderTable() {
   tbody.innerHTML = page.map(c => `
     <tr>
       <td>
-        <a href="/cliente.html?id=${c.id}" style="display:flex;align-items:center;gap:var(--s-3);text-decoration:none;color:inherit;border-radius:var(--r-md);padding:var(--s-1);margin:-var(--s-1);transition:background var(--duration-fast);"
-          onmouseover="this.style.background='var(--color-soft)'"
-          onmouseout="this.style.background='transparent'">
-          <div style="width:36px;height:36px;border-radius:50%;background:var(--grad-primary);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:700;color:white;font-size:var(--text-sm);flex-shrink:0;">
+        <a class="d-flex items-center gap-3 text-inherit radius-md p-1" href="/cliente.html?id=${c.id}" style="text-decoration:none;margin:-var(--s-1);transition:background var(--duration-fast)" onmouseover="this.style.background='var(--color-soft)'" onmouseout="this.style.background='transparent'">
+          <div class="size-36 d-flex items-center justify-center font-display font-bold text-white text-sm shrink-0" style="border-radius:50%;background:var(--grad-primary)">
             ${c.nombre.charAt(0).toUpperCase()}
           </div>
           <div>
-            <p style="font-size:var(--text-sm);font-weight:600;color:var(--color-text);">${c.nombre}</p>
-            <p style="font-size:var(--text-xs);color:var(--color-text-muted);">${c.origen_venta || '—'}</p>
+            <p class="text-sm font-semibold text-ink">${c.nombre}</p>
+            <p class="text-xs text-muted">${c.origen_venta || '—'}</p>
           </div>
         </a>
       </td>
-      <td data-label="Teléfono" style="font-size:var(--text-sm);">${c.celular || '—'}</td>
-      <td data-label="Ciudad" style="font-size:var(--text-sm);color:var(--color-text-muted);">${c.ciudad || '—'}</td>
-      <td data-label="Pedidos" style="text-align:center;font-weight:600;">${c.total_pedidos || 0}</td>
-      <td data-label="Valor pedidos" style="font-weight:600;color:var(--color-violet);">${formatPrice(c.total_gastado || 0)}</td>
-      <td data-label="Registrado" style="font-size:var(--text-xs);color:var(--color-text-muted);">${formatDate(c.created_at)}</td>
+      <td class="text-sm" data-label="Teléfono">${c.celular || '—'}</td>
+      <td class="text-sm text-muted" data-label="Ciudad">${c.ciudad || '—'}</td>
+      <td class="text-center font-semibold" data-label="Pedidos">${c.total_pedidos || 0}</td>
+      <td class="font-semibold text-violet" data-label="Valor pedidos">${formatPrice(c.total_gastado || 0)}</td>
+      <td class="text-xs text-muted" data-label="Registrado">${formatDate(c.created_at)}</td>
       <td>
-        <div style="display:flex;gap:var(--s-2);">
+        <div class="d-flex gap-2">
           <button class="btn btn--sm btn--outline btn--icon" data-action="edit" data-id="${c.id}" aria-label="Editar">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>

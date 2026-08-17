@@ -38,24 +38,24 @@ function renderGrid() {
   }
 
   grid.innerHTML = page.map(p => `
-    <div class="admin-panel" style="display:flex;flex-direction:column;">
-      <div style="height:160px;background:var(--color-fog);border-radius:var(--r-lg) var(--r-lg) 0 0;overflow:hidden;position:relative;">
+    <div class="admin-panel d-flex flex-col">
+      <div class="pos-relative" style="height:160px;background:var(--color-fog);border-radius:var(--r-lg) var(--r-lg) 0 0;overflow:hidden">
         ${p.imagen
           ? `<img src="${p.imagen}" style="width:100%;height:100%;object-fit:cover;" alt="${p.nombre}" loading="lazy"/>`
-          : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--color-lilac)" stroke-width="1.5"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg></div>`
+          : `<div class="d-flex items-center justify-center" style="width:100%;height:100%"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--color-lilac)" stroke-width="1.5"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg></div>`
         }
-        <span class="status-badge ${p.estado === 'active' ? 'status-badge--active' : 'status-badge--inactive'}" style="position:absolute;top:10px;right:10px;">${p.estado === 'active' ? 'Activo' : 'Inactivo'}</span>
+        <span class="status-badge ${p.estado === 'active' ? 'status-badge--active' : 'status-badge--inactive'} pos-absolute" style="top:10px;right:10px">${p.estado === 'active' ? 'Activo' : 'Inactivo'}</span>
       </div>
-      <div style="padding:var(--s-5);flex:1;display:flex;flex-direction:column;gap:var(--s-2);">
-        <p style="font-size:var(--text-xs);font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-violet);">${CATEGORIAS[p.categoria] || p.categoria}</p>
-        <h3 style="font-family:var(--font-display);font-size:var(--text-base);font-weight:600;line-height:var(--leading-snug);">${p.nombre}</h3>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:var(--s-3);border-top:1px solid var(--color-border);">
-          <span style="font-family:var(--font-display);font-size:var(--text-lg);font-weight:700;color:var(--color-violet);">${store.formatPrice(p.precio)}</span>
-          <span style="font-size:var(--text-xs);color:var(--color-text-muted);">${p.vendidos || 0} vendidos</span>
+      <div class="p-5 flex-1 d-flex flex-col gap-2">
+        <p class="text-xs font-semibold uppercase text-violet" style="letter-spacing:0.1em">${CATEGORIAS[p.categoria] || p.categoria}</p>
+        <h3 class="font-display text-base font-semibold" style="line-height:var(--leading-snug)">${p.nombre}</h3>
+        <div class="d-flex items-center justify-between" style="margin-top:auto;padding-top:var(--s-3);border-top:1px solid var(--color-border)">
+          <span class="font-display text-lg font-bold text-violet">${store.formatPrice(p.precio)}</span>
+          <span class="text-xs text-muted">${p.vendidos || 0} vendidos</span>
         </div>
       </div>
-      <div style="padding:0 var(--s-5) var(--s-5);display:flex;gap:var(--s-2);">
-        <button class="btn btn--outline btn--sm" style="flex:1;" data-action="edit" data-id="${p.id}">Editar</button>
+      <div class="d-flex gap-2" style="padding:0 var(--s-5) var(--s-5)">
+        <button class="btn btn--outline btn--sm flex-1" data-action="edit" data-id="${p.id}">Editar</button>
         <button class="btn btn--danger btn--sm btn--icon" data-action="toggle" data-id="${p.id}" aria-label="${p.estado === 'active' ? 'Desactivar' : 'Activar'}">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${p.estado === 'active' ? '<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24M1 1l22 22"/>' : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>'}
           </svg>

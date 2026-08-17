@@ -6,7 +6,8 @@
   <title>Configuración — Lilop Admin</title>
   <link rel="stylesheet" href="/assets/css/tokens.css"/>
   <link rel="stylesheet" href="/assets/css/admin.css?v=2"/>
-  <link rel="stylesheet" href="/assets/css/responsive.css"/>
+  <link rel="stylesheet" href="/assets/css/utilities.css?v=1"/>
+  <link rel="stylesheet" href="/assets/css/responsive.css?v=1"/>
 </head>
 <body>
 <div class="admin-layout">
@@ -15,9 +16,9 @@
   <header class="admin-topbar" id="adminTopbar"></header>
   <main class="admin-content">
 
-    <div style="margin-bottom:var(--s-8);">
-      <h2 style="font-family:var(--font-display);font-size:var(--text-xl);font-weight:var(--weight-semibold);">Configuración general</h2>
-      <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-top:4px;">Personaliza los datos del negocio, precios y ajustes del sistema</p>
+    <div class="mb-8">
+      <h2 class="font-display text-xl font-semibold">Configuración general</h2>
+      <p class="text-sm text-muted" style="margin-top:4px">Personaliza los datos del negocio, precios y ajustes del sistema</p>
     </div>
 
     <div class="admin-grid">
@@ -93,13 +94,13 @@
         <div class="admin-panel__header"><h3 class="admin-panel__title">Datos y sistema</h3></div>
         <div class="admin-panel__body">
           <div class="form-section">
-            <p style="font-size:var(--text-sm);color:var(--color-text-muted);line-height:var(--leading-relaxed);">Exporta o limpia los datos del panel. Los datos se almacenan en el navegador (localStorage).</p>
+            <p class="text-sm text-muted" style="line-height:var(--leading-relaxed)">Exporta o limpia los datos del panel. Los datos se almacenan en el navegador (localStorage).</p>
             <button class="btn btn--outline" id="btnExportarDatos">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
               Exportar datos (JSON)
             </button>
-            <div style="border-top:1px solid var(--color-border);padding-top:var(--s-4);margin-top:var(--s-2);">
-              <p style="font-size:var(--text-xs);color:var(--color-error);margin-bottom:var(--s-3);font-weight:500;">⚠️ Zona de peligro</p>
+            <div class="mt-2" style="border-top:1px solid var(--color-border);padding-top:var(--s-4)">
+              <p class="text-xs text-error mb-3" style="font-weight:500">⚠️ Zona de peligro</p>
               <button class="btn btn--danger btn--sm" id="btnLimpiarDatos">Limpiar todos los datos</button>
             </div>
           </div>
@@ -118,7 +119,7 @@
         <div class="admin-panel__body--p0">
           <table class="admin-table" id="tablaUsuarios">
             <thead><tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Comisión %</th><th>Estado</th><th></th></tr></thead>
-            <tbody id="usuariosBody"><tr><td colspan="6" style="text-align:center;padding:var(--s-6);color:var(--color-text-muted);">Cargando...</td></tr></tbody>
+            <tbody id="usuariosBody"><tr><td class="text-center p-6 text-muted" colspan="6">Cargando...</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -129,8 +130,8 @@
           <h3 class="admin-panel__title">Orígenes de venta</h3>
         </div>
         <div class="admin-panel__body">
-          <div id="origenesLista" style="display:flex;flex-direction:column;gap:var(--s-2);margin-bottom:var(--s-4);"></div>
-          <div style="display:flex;gap:var(--s-2);">
+          <div class="d-flex flex-col gap-2 mb-4" id="origenesLista"></div>
+          <div class="d-flex gap-2">
             <input class="form-input" id="nuevoOrigenInput" placeholder="Nuevo origen…"/>
             <button class="btn btn--primary btn--sm" id="btnAgregarOrigen">Agregar</button>
           </div>
@@ -143,8 +144,8 @@
           <h3 class="admin-panel__title">Conceptos de costo</h3>
         </div>
         <div class="admin-panel__body">
-          <div id="conceptosLista" style="display:flex;flex-direction:column;gap:var(--s-2);margin-bottom:var(--s-4);"></div>
-          <div style="display:flex;gap:var(--s-2);">
+          <div class="d-flex flex-col gap-2 mb-4" id="conceptosLista"></div>
+          <div class="d-flex gap-2">
             <input class="form-input" id="nuevoConceptoInput" placeholder="Nuevo concepto…"/>
             <button class="btn btn--primary btn--sm" id="btnAgregarConcepto">Agregar</button>
           </div>
@@ -173,7 +174,7 @@
               </tr>
             </thead>
             <tbody id="catalogoBody">
-              <tr><td colspan="8" style="text-align:center;padding:var(--s-6);color:var(--color-text-muted);">Cargando...</td></tr>
+              <tr><td class="text-center p-6 text-muted" colspan="8">Cargando...</td></tr>
             </tbody>
           </table>
         </div>

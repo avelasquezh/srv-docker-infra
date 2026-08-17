@@ -64,8 +64,8 @@ function skeletonRows(n, cols) {
 function showLoadingStates() {
   document.getElementById('statCards').innerHTML = Array(9).fill(`
     <div class="stat-card" style="opacity:.5;">
-      <div style="height:38px;background:var(--color-fog);border-radius:var(--r-base);margin-bottom:var(--s-4);"></div>
-      <div style="height:26px;background:var(--color-fog);border-radius:var(--r-base);margin-bottom:var(--s-2);width:55%;"></div>
+      <div class="mb-4" style="height:38px;background:var(--color-fog);border-radius:var(--r-base)"></div>
+      <div class="mb-2" style="height:26px;background:var(--color-fog);border-radius:var(--r-base);width:55%"></div>
       <div style="height:13px;background:var(--color-fog);border-radius:var(--r-base);width:75%;"></div>
     </div>`).join('');
   document.getElementById('recentOrdersBody').innerHTML    = skeletonRows(4, 4);
@@ -319,7 +319,7 @@ function renderRecentOrders(pedidos) {
     .sort((a, b) => new Date(b.fecha_venta) - new Date(a.fecha_venta))
     .slice(0, 5);
   if (!recent.length) {
-    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--color-text-muted);padding:32px;">Sin pedidos aún</td></tr>`;
+    tbody.innerHTML = `<tr><td class="text-center text-muted" colspan="4" style="padding:32px">Sin pedidos aún</td></tr>`;
     return;
   }
   tbody.innerHTML = recent.map(p => {
@@ -328,13 +328,13 @@ function renderRecentOrders(pedidos) {
       ? new Date(p.fecha_venta).toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })
       : '—';
     return `
-      <tr style="cursor:pointer;" onclick="window.location.href='pedidos.html?id=${p.id}'">
+      <tr class="cursor-pointer" onclick="window.location.href='pedidos.html?id=${p.id}'">
         <td>
-          <span style="font-weight:600;color:var(--color-text);font-size:var(--text-sm);">${p.id}</span><br/>
-          <span style="font-size:var(--text-xs);color:var(--color-text-muted);">${fecha}</span>
+          <span class="font-semibold text-ink text-sm">${p.id}</span><br/>
+          <span class="text-xs text-muted">${fecha}</span>
         </td>
-        <td style="font-size:var(--text-sm);"><a href="/cliente.html?id=${p.cliente_id || ''}" style="color:var(--color-text);text-decoration:none;" onmouseover="this.style.color='var(--color-violet)'" onmouseout="this.style.color='var(--color-text)'">${p.cliente || '—'}</a></td>
-        <td style="font-weight:600;color:var(--color-violet);">${fmt(p.valor_venta)}</td>
+        <td class="text-sm"><a class="text-ink" href="/cliente.html?id=${p.cliente_id || ''}" style="text-decoration:none" onmouseover="this.style.color='var(--color-violet)'" onmouseout="this.style.color='var(--color-text)'">${p.cliente || '—'}</a></td>
+        <td class="font-semibold text-violet">${fmt(p.valor_venta)}</td>
         <td><span class="status-badge ${est.cls}">${est.label}</span></td>
       </tr>`;
   }).join('');
@@ -354,24 +354,24 @@ function renderMedioPago(pedidos) {
   const sorted = Object.entries(byMedio).sort((a, b) => b[1].total - a[1].total);
   const max = sorted[0]?.[1].total || 1;
   if (!sorted.length) {
-    panel.innerHTML = `<p style="padding:var(--s-5);color:var(--color-text-muted);text-align:center;">Sin datos</p>`;
+    panel.innerHTML = `<p class="p-5 text-muted text-center">Sin datos</p>`;
     return;
   }
   panel.innerHTML = `
-    <div style="padding:var(--s-5) var(--s-6);display:flex;flex-direction:column;gap:var(--s-4);">
+    <div class="p-5-6 d-flex flex-col gap-4">
       ${sorted.map(([medio, d], i) => `
-        <div style="display:flex;align-items:center;gap:var(--s-3);">
-          <span style="width:20px;font-size:var(--text-xs);font-weight:700;color:var(--color-text-light);text-align:right;">${i + 1}</span>
-          <div style="flex:1;min-width:0;">
-            <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-              <p style="font-size:var(--text-sm);font-weight:600;color:var(--color-text);">${medio}</p>
-              <span style="font-size:var(--text-xs);color:var(--color-text-muted);">${d.count} pedido${d.count !== 1 ? 's' : ''}</span>
+        <div class="d-flex items-center gap-3">
+          <span class="text-xs font-bold text-light" style="width:20px;text-align:right">${i + 1}</span>
+          <div class="flex-1 min-w-0">
+            <div class="d-flex justify-between" style="margin-bottom:4px">
+              <p class="text-sm font-semibold text-ink">${medio}</p>
+              <span class="text-xs text-muted">${d.count} pedido${d.count !== 1 ? 's' : ''}</span>
             </div>
-            <div style="height:6px;background:var(--color-fog);border-radius:var(--r-pill);overflow:hidden;">
-              <div style="height:100%;width:${Math.round((d.total / max) * 100)}%;background:var(--grad-primary);border-radius:var(--r-pill);transition:width .8s;"></div>
+            <div class="radius-pill" style="height:6px;background:var(--color-fog);overflow:hidden">
+              <div class="radius-pill" style="height:100%;width:${Math.round((d.total / max) * 100)}%;background:var(--grad-primary);transition:width .8s"></div>
             </div>
           </div>
-          <span style="font-size:var(--text-sm);font-weight:600;color:var(--color-violet);flex-shrink:0;min-width:58px;text-align:right;">${fmtShort(d.total)}</span>
+          <span class="text-sm font-semibold text-violet shrink-0" style="min-width:58px;text-align:right">${fmtShort(d.total)}</span>
         </div>`).join('')}
     </div>`;
 }
@@ -390,12 +390,12 @@ function renderOrdersFunnel(pedidos) {
     { key: 'cancelado',       label: 'Cancelado',       color: '#ef4444', bg: '#fee2e2' },
   ];
   panel.innerHTML = items.map((item, i) => `
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:var(--s-3) 0;${i < items.length - 1 ? 'border-bottom:1px solid var(--color-border);' : ''}">
-      <div style="display:flex;align-items:center;gap:var(--s-3);">
-        <div style="width:10px;height:10px;border-radius:50%;background:${item.color};flex-shrink:0;"></div>
-        <span style="font-size:var(--text-sm);color:var(--color-text-muted);">${item.label}</span>
+    <div class="d-flex items-center justify-between" style="padding:var(--s-3) 0;${i < items.length - 1 ? 'border-bottom:1px solid var(--color-border);' : ''}">
+      <div class="d-flex items-center gap-3">
+        <div class="size-10 shrink-0" style="border-radius:50%;background:${item.color}"></div>
+        <span class="text-sm text-muted">${item.label}</span>
       </div>
-      <span style="font-size:var(--text-base);font-weight:700;color:var(--color-text);background:${item.bg};padding:2px 12px;border-radius:var(--r-pill);">${counts[item.key] || 0}</span>
+      <span class="text-base font-bold text-ink radius-pill" style="background:${item.bg};padding:2px 12px">${counts[item.key] || 0}</span>
     </div>`).join('');
 }
 
@@ -412,27 +412,27 @@ function renderRecentClients(clientes, pedidos) {
   });
   const recent = clientes.slice(0, 4);
   if (!recent.length) {
-    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--color-text-muted);padding:32px;">Sin clientes aún</td></tr>`;
+    tbody.innerHTML = `<tr><td class="text-center text-muted" colspan="4" style="padding:32px">Sin clientes aún</td></tr>`;
     return;
   }
   tbody.innerHTML = recent.map(c => {
     const s = stats[c.id] || { count: 0, total: 0 };
     return `
-      <tr style="cursor:pointer;">
+      <tr class="cursor-pointer">
         <td>
-          <div style="display:flex;align-items:center;gap:var(--s-3);">
-            <div style="width:34px;height:34px;border-radius:50%;background:var(--grad-primary);display:flex;align-items:center;justify-content:center;font-size:var(--text-sm);font-weight:700;color:white;flex-shrink:0;">
+          <div class="d-flex items-center gap-3">
+            <div class="d-flex items-center justify-center text-sm font-bold text-white shrink-0" style="width:34px;height:34px;border-radius:50%;background:var(--grad-primary)">
               ${(c.nombre || '?').charAt(0).toUpperCase()}
             </div>
             <div>
-              <a href="/cliente.html?id=${c.id || ''}" style="font-size:var(--text-sm);font-weight:600;color:var(--color-text);text-decoration:none;" onmouseover="this.style.color='var(--color-violet)'" onmouseout="this.style.color='var(--color-text)'">${c.nombre}</a>
-              <p style="font-size:var(--text-xs);color:var(--color-text-muted);">${c.celular || '—'}</p>
+              <a class="text-sm font-semibold text-ink" href="/cliente.html?id=${c.id || ''}" style="text-decoration:none" onmouseover="this.style.color='var(--color-violet)'" onmouseout="this.style.color='var(--color-text)'">${c.nombre}</a>
+              <p class="text-xs text-muted">${c.celular || '—'}</p>
             </div>
           </div>
         </td>
-        <td style="font-size:var(--text-sm);color:var(--color-text-muted);">${c.ciudad || '—'}</td>
-        <td style="font-size:var(--text-sm);text-align:center;">${s.count}</td>
-        <td style="font-weight:600;color:var(--color-violet);">${fmt(s.total)}</td>
+        <td class="text-sm text-muted">${c.ciudad || '—'}</td>
+        <td class="text-sm text-center">${s.count}</td>
+        <td class="font-semibold text-violet">${fmt(s.total)}</td>
       </tr>`;
   }).join('');
 }
@@ -456,7 +456,7 @@ function renderVendedorRanking(pedidos) {
   const labelEl = document.getElementById('rankingMesLabel');
   if (labelEl) labelEl.textContent = now.toLocaleDateString('es-CO', { month: 'long', year: 'numeric' });
   if (!sorted.length) {
-    panel.innerHTML = `<p style="padding:var(--s-5);color:var(--color-text-muted);text-align:center;">Sin ventas este mes</p>`;
+    panel.innerHTML = `<p class="p-5 text-muted text-center">Sin ventas este mes</p>`;
     return;
   }
   const medals = ['🥇','🥈','🥉'];
@@ -466,19 +466,19 @@ function renderVendedorRanking(pedidos) {
       <tbody>
         ${sorted.map(([nombre, d], i) => `
           <tr>
-            <td style="font-size:var(--text-base);text-align:center;">${medals[i] || i + 1}</td>
+            <td class="text-base text-center">${medals[i] || i + 1}</td>
             <td>
-              <div style="display:flex;align-items:center;gap:var(--s-2);">
-                <div style="width:30px;height:30px;border-radius:50%;background:var(--grad-primary);display:flex;align-items:center;justify-content:center;font-size:var(--text-xs);font-weight:700;color:white;flex-shrink:0;">
+              <div class="d-flex items-center gap-2">
+                <div class="d-flex items-center justify-center text-xs font-bold text-white shrink-0" style="width:30px;height:30px;border-radius:50%;background:var(--grad-primary)">
                   ${nombre.charAt(0).toUpperCase()}
                 </div>
-                <span style="font-size:var(--text-sm);font-weight:600;">${nombre}</span>
+                <span class="text-sm font-semibold">${nombre}</span>
               </div>
             </td>
-            <td style="text-align:center;font-size:var(--text-sm);">${d.pedidos}</td>
-            <td style="font-weight:600;color:var(--color-violet);">${fmtShort(d.ventas)}</td>
-            <td style="font-weight:600;color:#22c55e;">${fmtShort(d.ganancias)}</td>
-            <td style="font-size:var(--text-sm);color:var(--color-text-muted);">${fmtShort(d.comision)}</td>
+            <td class="text-center text-sm">${d.pedidos}</td>
+            <td class="font-semibold text-violet">${fmtShort(d.ventas)}</td>
+            <td class="font-semibold" style="color:#22c55e">${fmtShort(d.ganancias)}</td>
+            <td class="text-sm text-muted">${fmtShort(d.comision)}</td>
           </tr>`).join('')}
       </tbody>
     </table>`;
@@ -512,25 +512,25 @@ function renderCanalAdquisicion(clientes, pedidos) {
   // Incluir orígenes registrados aunque no tengan clientes aún
   const total = sorted.reduce((s, c) => s + c.clientes, 0) || 1;
   if (!sorted.length) {
-    panel.innerHTML = `<p style="color:var(--color-text-muted);text-align:center;">Sin datos de canal</p>`;
+    panel.innerHTML = `<p class="text-muted text-center">Sin datos de canal</p>`;
     return;
   }
   panel.innerHTML = `
-    <div style="display:flex;flex-direction:column;gap:var(--s-4);">
+    <div class="d-flex flex-col gap-4">
       ${sorted.map(item => `
         <div>
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-            <div style="display:flex;align-items:center;gap:var(--s-2);">
+          <div class="d-flex items-center justify-between" style="margin-bottom:6px">
+            <div class="d-flex items-center gap-2">
               <span style="font-size:16px;">${getIcon(item.canal)}</span>
-              <span style="font-size:var(--text-sm);font-weight:600;color:var(--color-text);">${item.canal}</span>
+              <span class="text-sm font-semibold text-ink">${item.canal}</span>
             </div>
-            <div style="display:flex;align-items:center;gap:var(--s-3);">
-              <span style="font-size:var(--text-xs);color:var(--color-text-muted);">${item.clientes} cliente${item.clientes !== 1 ? 's' : ''}</span>
-              ${item.ventas > 0 ? `<span style="font-size:var(--text-xs);font-weight:600;color:var(--color-violet);">${fmtShort(item.ventas)}</span>` : ''}
+            <div class="d-flex items-center gap-3">
+              <span class="text-xs text-muted">${item.clientes} cliente${item.clientes !== 1 ? 's' : ''}</span>
+              ${item.ventas > 0 ? `<span class="text-xs font-semibold text-violet">${fmtShort(item.ventas)}</span>` : ''}
             </div>
           </div>
-          <div style="height:8px;background:var(--color-fog);border-radius:var(--r-pill);overflow:hidden;">
-            <div style="height:100%;width:${Math.round((item.clientes / total) * 100)}%;background:var(--grad-primary);border-radius:var(--r-pill);transition:width .8s;"></div>
+          <div class="radius-pill" style="height:8px;background:var(--color-fog);overflow:hidden">
+            <div class="radius-pill" style="height:100%;width:${Math.round((item.clientes / total) * 100)}%;background:var(--grad-primary);transition:width .8s"></div>
           </div>
         </div>`).join('')}
     </div>`;
@@ -545,9 +545,9 @@ function renderCuentasPorCobrar(pedidos) {
     .sort((a, b) => new Date(b.fecha_entrega || b.fecha_venta) - new Date(a.fecha_entrega || a.fecha_venta));
   if (!cxc.length) {
     tbody.innerHTML = `
-      <tr><td colspan="4" style="text-align:center;padding:32px;">
+      <tr><td class="text-center" colspan="4" style="padding:32px">
         <span style="color:#22c55e;font-size:24px;">✓</span><br/>
-        <span style="color:var(--color-text-muted);font-size:var(--text-sm);">Sin cuentas pendientes</span>
+        <span class="text-muted text-sm">Sin cuentas pendientes</span>
       </td></tr>`;
     return;
   }
@@ -559,15 +559,15 @@ function renderCuentasPorCobrar(pedidos) {
       ? Math.floor((new Date() - new Date(p.fecha_entrega)) / 86400000)
       : null;
     return `
-      <tr style="cursor:pointer;" onclick="window.location.href='pedidos.html?id=${p.id}'">
+      <tr class="cursor-pointer" onclick="window.location.href='pedidos.html?id=${p.id}'">
         <td>
-          <span style="font-weight:600;font-size:var(--text-sm);">${p.id}</span>
+          <span class="font-semibold text-sm">${p.id}</span>
         </td>
-        <td style="font-size:var(--text-sm);"><a href="/cliente.html?id=${p.cliente_id || ''}" style="color:var(--color-text);text-decoration:none;" onmouseover="this.style.color='var(--color-violet)'" onmouseout="this.style.color='var(--color-text)'">${p.cliente || '—'}</a></td>
-        <td style="font-weight:600;color:var(--color-violet);">${fmt(p.valor_venta)}</td>
+        <td class="text-sm"><a class="text-ink" href="/cliente.html?id=${p.cliente_id || ''}" style="text-decoration:none" onmouseover="this.style.color='var(--color-violet)'" onmouseout="this.style.color='var(--color-text)'">${p.cliente || '—'}</a></td>
+        <td class="font-semibold text-violet">${fmt(p.valor_venta)}</td>
         <td>
-          <span style="font-size:var(--text-xs);">${fecha}</span>
-          ${diasPendiente !== null ? `<br/><span style="font-size:var(--text-xs);color:${diasPendiente > 3 ? '#ef4444' : '#f59e0b'};">${diasPendiente}d pendiente</span>` : ''}
+          <span class="text-xs">${fecha}</span>
+          ${diasPendiente !== null ? `<br/><span class="text-xs" style="color:${diasPendiente > 3 ? '#ef4444' : '#f59e0b'}">${diasPendiente}d pendiente</span>` : ''}
         </td>
       </tr>`;
   }).join('');
@@ -614,47 +614,47 @@ function renderRetencion(clientes, pedidos) {
     : 0;
 
   panel.innerHTML = `
-    <div style="display:flex;flex-direction:column;gap:var(--s-5);">
+    <div class="d-flex flex-col gap-5">
 
       <!-- Barra visual -->
       <div>
-        <div style="display:flex;height:12px;border-radius:var(--r-pill);overflow:hidden;margin-bottom:var(--s-3);">
+        <div class="d-flex radius-pill mb-3" style="height:12px;overflow:hidden">
           <div style="width:${pctNuevos}%;background:var(--grad-primary);transition:width .8s;"></div>
           <div style="width:${pctRecurrentes}%;background:#22c55e;transition:width .8s;"></div>
         </div>
-        <div style="display:flex;gap:var(--s-4);">
-          <div style="display:flex;align-items:center;gap:var(--s-2);">
-            <div style="width:10px;height:10px;border-radius:50%;background:var(--color-violet);"></div>
-            <span style="font-size:var(--text-xs);color:var(--color-text-muted);">Nuevos</span>
+        <div class="d-flex gap-4">
+          <div class="d-flex items-center gap-2">
+            <div class="size-10" style="border-radius:50%;background:var(--color-violet)"></div>
+            <span class="text-xs text-muted">Nuevos</span>
           </div>
-          <div style="display:flex;align-items:center;gap:var(--s-2);">
-            <div style="width:10px;height:10px;border-radius:50%;background:#22c55e;"></div>
-            <span style="font-size:var(--text-xs);color:var(--color-text-muted);">Recurrentes</span>
+          <div class="d-flex items-center gap-2">
+            <div class="size-10" style="border-radius:50%;background:#22c55e"></div>
+            <span class="text-xs text-muted">Recurrentes</span>
           </div>
         </div>
       </div>
 
       <!-- Números -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--s-4);">
-        <div style="background:var(--color-fog);border-radius:var(--r-base);padding:var(--s-4);text-align:center;">
-          <div style="font-size:var(--text-2xl);font-weight:700;color:var(--color-violet);">${nuevos}</div>
-          <div style="font-size:var(--text-xs);color:var(--color-text-muted);">Nuevos (${pctNuevos}%)</div>
+      <div class="d-grid gap-4" style="grid-template-columns:1fr 1fr">
+        <div class="p-4 text-center" style="background:var(--color-fog);border-radius:var(--r-base)">
+          <div class="text-2xl font-bold text-violet">${nuevos}</div>
+          <div class="text-xs text-muted">Nuevos (${pctNuevos}%)</div>
         </div>
-        <div style="background:var(--color-fog);border-radius:var(--r-base);padding:var(--s-4);text-align:center;">
-          <div style="font-size:var(--text-2xl);font-weight:700;color:#22c55e;">${recurrentes}</div>
-          <div style="font-size:var(--text-xs);color:var(--color-text-muted);">Recurrentes (${pctRecurrentes}%)</div>
+        <div class="p-4 text-center" style="background:var(--color-fog);border-radius:var(--r-base)">
+          <div class="text-2xl font-bold" style="color:#22c55e">${recurrentes}</div>
+          <div class="text-xs text-muted">Recurrentes (${pctRecurrentes}%)</div>
         </div>
       </div>
 
       <!-- LTV -->
       <div style="border-top:1px solid var(--color-border);padding-top:var(--s-4);">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <span style="font-size:var(--text-sm);color:var(--color-text-muted);">LTV promedio por cliente</span>
-          <span style="font-size:var(--text-base);font-weight:700;color:var(--color-violet);">${fmtShort(ltv)}</span>
+        <div class="d-flex justify-between items-center">
+          <span class="text-sm text-muted">LTV promedio por cliente</span>
+          <span class="text-base font-bold text-violet">${fmtShort(ltv)}</span>
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:var(--s-2);">
-          <span style="font-size:var(--text-sm);color:var(--color-text-muted);">Total clientes con compras</span>
-          <span style="font-size:var(--text-base);font-weight:700;color:var(--color-text);">${totalClientes}</span>
+        <div class="d-flex justify-between items-center mt-2">
+          <span class="text-sm text-muted">Total clientes con compras</span>
+          <span class="text-base font-bold text-ink">${totalClientes}</span>
         </div>
       </div>
     </div>`;

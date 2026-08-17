@@ -16,7 +16,7 @@ function formatPrice(n) {
 function renderCatalogo(productos) {
   const tbody = document.getElementById('catalogoBody');
   if (!productos.length) {
-    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state" style="padding:var(--s-8);">
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state p-8">
       <p class="empty-state__title">Sin productos</p></div></td></tr>`;
     return;
   }
@@ -27,19 +27,13 @@ function renderCatalogo(productos) {
 
     return `
       <tr>
-        <td style="font-weight:var(--weight-semibold);font-size:var(--text-sm);">${p.nombre}</td>
+        <td class="font-semibold text-sm">${p.nombre}</td>
         ${TAMANIOS.map(t => `
           <td>
-            <input type="number" min="0"
-              class="form-input" style="width:100px;padding:6px 8px;font-size:var(--text-xs);"
-              data-catalogo-id="${p.id}" data-tamanio="${t}"
-              value="${preciosMap[t] ? preciosMap[t].precio : ''}"
-              placeholder="—"/>
+            <input type="number" min="0" class="form-input text-xs" style="width:100px;padding:6px 8px" data-catalogo-id="${p.id}" data-tamanio="${t}" value="${preciosMap[t] ? preciosMap[t].precio : ''}" placeholder="—" />
           </td>`).join('')}
         <td>
-          <button data-action="toggle" data-id="${p.id}"
-            class="btn btn--sm ${p.activo ? 'btn--primary' : 'btn--ghost'}"
-            style="font-size:var(--text-xs);">
+          <button data-action="toggle" data-id="${p.id}" class="btn btn--sm ${p.activo ? 'btn--primary' : 'btn--ghost'} text-xs">
             ${p.activo ? 'Activo' : 'Inactivo'}
           </button>
         </td>
@@ -97,18 +91,18 @@ async function loadUsuarios() {
     const data = await api.get('/usuarios');
     const tbody = document.getElementById('usuariosBody');
     if (!data.length) {
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:var(--s-6);color:var(--color-text-muted);">Sin usuarios</td></tr>';
+      tbody.innerHTML = '<tr><td class="text-center p-6 text-muted" colspan="6">Sin usuarios</td></tr>';
       return;
     }
     tbody.innerHTML = data.map(u => `
       <tr>
-        <td style="font-weight:var(--weight-semibold);">${u.nombre}</td>
-        <td style="font-size:var(--text-xs);color:var(--color-text-muted);">${u.email || '—'}</td>
+        <td class="font-semibold">${u.nombre}</td>
+        <td class="text-xs text-muted">${u.email || '—'}</td>
         <td><span class="status-badge ${u.rol === 'vendedor' ? 'status-badge--processing' : u.rol === 'domiciliario' ? 'status-badge--shipped' : 'status-badge--delivered'}">${ROL_LABELS[u.rol] || u.rol}</span></td>
         <td>${u.comision_pct}%</td>
         <td><span class="status-badge ${u.activo ? 'status-badge--delivered' : 'status-badge--cancelled'}">${u.activo ? 'Activo' : 'Inactivo'}</span></td>
         <td>
-          <div style="display:flex;gap:var(--s-2);">
+          <div class="d-flex gap-2">
             <button class="btn btn--sm btn--outline btn--icon" data-action="editar-usuario" data-id="${u.id}" aria-label="Editar">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             </button>
@@ -191,12 +185,12 @@ async function loadOrigenes() {
     const data = await api.get('/maestros/origenes');
     const lista = document.getElementById('origenesLista');
     lista.innerHTML = data.length ? data.map(o => `
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:var(--s-2) var(--s-3);background:var(--color-fog);border-radius:var(--r-sm);">
-        <span style="font-size:var(--text-sm);">${o.nombre}</span>
-        <button class="btn btn--sm btn--danger btn--icon" data-action="eliminar-origen" data-id="${o.id}" style="width:28px;height:28px;">
+      <div class="d-flex items-center justify-between p-2-3 radius-sm" style="background:var(--color-fog)">
+        <span class="text-sm">${o.nombre}</span>
+        <button class="btn btn--sm btn--danger btn--icon size-28" data-action="eliminar-origen" data-id="${o.id}">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
         </button>
-      </div>`).join('') : '<p style="font-size:var(--text-sm);color:var(--color-text-muted);">Sin orígenes registrados</p>';
+      </div>`).join('') : '<p class="text-sm text-muted">Sin orígenes registrados</p>';
     lista.querySelectorAll('[data-action="eliminar-origen"]').forEach(btn =>
       btn.addEventListener('click', async () => {
         try {
@@ -215,12 +209,12 @@ async function loadConceptos() {
     const data = await api.get('/maestros/conceptos');
     const lista = document.getElementById('conceptosLista');
     lista.innerHTML = data.length ? data.map(c => `
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:var(--s-2) var(--s-3);background:var(--color-fog);border-radius:var(--r-sm);">
-        <span style="font-size:var(--text-sm);">${c.nombre}</span>
-        <button class="btn btn--sm btn--danger btn--icon" data-action="eliminar-concepto" data-id="${c.id}" style="width:28px;height:28px;">
+      <div class="d-flex items-center justify-between p-2-3 radius-sm" style="background:var(--color-fog)">
+        <span class="text-sm">${c.nombre}</span>
+        <button class="btn btn--sm btn--danger btn--icon size-28" data-action="eliminar-concepto" data-id="${c.id}">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
         </button>
-      </div>`).join('') : '<p style="font-size:var(--text-sm);color:var(--color-text-muted);">Sin conceptos registrados</p>';
+      </div>`).join('') : '<p class="text-sm text-muted">Sin conceptos registrados</p>';
     lista.querySelectorAll('[data-action="eliminar-concepto"]').forEach(btn =>
       btn.addEventListener('click', async () => {
         try {

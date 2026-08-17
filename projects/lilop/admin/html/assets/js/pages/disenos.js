@@ -60,10 +60,10 @@ function renderGrid() {
       </div>
       <div class="diseno-card__info">
         <p class="diseno-card__name">${d.nombre}</p>
-        <p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:2px;">${formatMesAnio(d.created_at)}</p>
-        <p style="font-size:var(--text-xs);font-weight:var(--weight-semibold);color:${estadoColor};margin-bottom:var(--s-3);">${d.estado}</p>
+        <p class="text-xs text-muted" style="margin-bottom:2px">${formatMesAnio(d.created_at)}</p>
+        <p class="text-xs font-semibold mb-3" style="color:${estadoColor}">${d.estado}</p>
         <div class="diseno-card__actions">
-          <button class="btn btn--outline btn--sm" style="flex:1;" data-action="edit" data-id="${d.id}">Editar</button>
+          <button class="btn btn--outline btn--sm flex-1" data-action="edit" data-id="${d.id}">Editar</button>
           <button class="btn btn--danger btn--sm btn--icon" data-action="delete" data-id="${d.id}" data-nombre="${d.nombre}">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polyline points="3 6 5 6 21 6"/>
@@ -122,7 +122,7 @@ async function openModal(id) {
     checksContainer.innerHTML = catalogoProds
       .filter(p => p.activo)
       .map(p => `
-        <label style="display:flex;align-items:center;gap:var(--s-2);font-size:var(--text-sm);cursor:pointer;white-space:nowrap;">
+        <label class="d-flex items-center gap-2 text-sm cursor-pointer nowrap">
           <input type="checkbox" value="${p.id}" ${productosSeleccionados.includes(p.id) ? 'checked' : ''}
             style="width:15px;height:15px;accent-color:var(--color-violet);cursor:pointer;"/>
           ${p.nombre}

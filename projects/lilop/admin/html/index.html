@@ -6,7 +6,8 @@
   <title>Dashboard — Lilop Admin</title>
   <link rel="stylesheet" href="/assets/css/tokens.css"/>
   <link rel="stylesheet" href="/assets/css/admin.css?v=2"/>
-  <link rel="stylesheet" href="/assets/css/responsive.css"/>
+  <link rel="stylesheet" href="/assets/css/utilities.css?v=1"/>
+  <link rel="stylesheet" href="/assets/css/responsive.css?v=1"/>
 </head>
 <body>
 
@@ -23,9 +24,9 @@
   <main class="admin-content" id="mainContent">
 
     <!-- Filtro de mes -->
-    <div style="display:flex;align-items:center;gap:var(--s-3);margin-bottom:var(--s-5);flex-wrap:wrap;">
-      <label style="font-size:var(--text-sm);font-weight:var(--weight-semibold);color:var(--color-text-muted);">Período:</label>
-      <select class="form-input" id="filtromes" style="max-width:200px;height:36px;font-size:var(--text-sm);">
+    <div class="d-flex items-center gap-3 mb-5 flex-wrap">
+      <label class="text-sm font-semibold text-muted">Período:</label>
+      <select class="form-input text-sm" id="filtromes" style="max-width:200px;height:36px">
       </select>
       <button class="btn btn--ghost btn--sm" id="btnMesHoy">Mes actual</button>
     </div>
@@ -35,12 +36,12 @@
     </div>
 
     <!-- Fila 1: Gráfica + Actividad reciente -->
-    <div class="admin-grid" style="margin-bottom:var(--s-6);">
+    <div class="admin-grid mb-6">
 
       <div class="admin-panel admin-panel--span2">
         <div class="admin-panel__header">
           <h2 class="admin-panel__title">Ventas del período</h2>
-          <div style="display:flex;gap:var(--s-2);">
+          <div class="d-flex gap-2">
             <button class="btn btn--sm btn--outline chart-period-btn is-active" data-period="7">7 días</button>
             <button class="btn btn--sm btn--ghost chart-period-btn" data-period="30">30 días</button>
             <button class="btn btn--sm btn--ghost chart-period-btn" data-period="90">90 días</button>
@@ -54,7 +55,7 @@
     </div>
 
     <!-- Fila 2: Pedidos recientes + Productos top -->
-    <div class="admin-grid" style="margin-bottom:var(--s-6);">
+    <div class="admin-grid mb-6">
 
       <!-- Pedidos recientes -->
       <div class="admin-panel">
@@ -91,7 +92,7 @@
     </div>
 
     <!-- Fila 3: Estado de pedidos + Clientes recientes -->
-    <div class="admin-grid admin-grid--3" style="margin-bottom:var(--s-6);">
+    <div class="admin-grid admin-grid--3 mb-6">
 
       <!-- Embudo de estados -->
       <div class="admin-panel">
@@ -128,11 +129,11 @@
 
 
     <!-- Fila 4: Ranking vendedores + Canal de adquisición -->
-    <div class="admin-grid" style="margin-bottom:var(--s-6);">
+    <div class="admin-grid mb-6">
       <div class="admin-panel">
         <div class="admin-panel__header">
           <h2 class="admin-panel__title">Ranking vendedores</h2>
-          <span id="rankingMesLabel" style="font-size:var(--text-xs);color:var(--color-text-muted);"></span>
+          <span class="text-xs text-muted" id="rankingMesLabel"></span>
         </div>
         <div class="admin-panel__body--p0" id="vendedorRankingPanel"></div>
       </div>
@@ -145,11 +146,11 @@
     </div>
 
     <!-- Fila 5: Cuentas por cobrar + Clientes nuevos vs recurrentes -->
-    <div class="admin-grid" style="margin-bottom:var(--s-6);">
+    <div class="admin-grid mb-6">
       <div class="admin-panel">
         <div class="admin-panel__header">
           <h2 class="admin-panel__title">Cuentas por cobrar</h2>
-          <span style="font-size:var(--text-xs);color:var(--color-text-muted);">Entregados sin pago confirmado</span>
+          <span class="text-xs text-muted">Entregados sin pago confirmado</span>
         </div>
         <div class="admin-panel__body--p0">
           <table class="admin-table">
@@ -163,7 +164,7 @@
       <div class="admin-panel">
         <div class="admin-panel__header">
           <h2 class="admin-panel__title">Clientes nuevos vs recurrentes</h2>
-          <span id="retencionMesLabel" style="font-size:var(--text-xs);color:var(--color-text-muted);"></span>
+          <span class="text-xs text-muted" id="retencionMesLabel"></span>
         </div>
         <div class="admin-panel__body" id="retencionPanel"></div>
       </div>

@@ -69,22 +69,22 @@ function syncDatalist(id, set) {
 function renderClienteHeader(c) {
   const inicial = c.nombre.charAt(0).toUpperCase();
   return `
-    <div class="admin-panel" style="margin-bottom:var(--s-6);">
-      <div style="padding:var(--s-6);display:flex;align-items:center;gap:var(--s-6);flex-wrap:wrap;">
+    <div class="admin-panel mb-6">
+      <div class="p-6 d-flex items-center gap-6 flex-wrap">
 
         <!-- Avatar -->
-        <div style="width:64px;height:64px;border-radius:50%;background:var(--grad-primary);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:var(--text-2xl);font-weight:var(--weight-bold);color:white;flex-shrink:0;">
+        <div class="d-flex items-center justify-center font-display text-2xl font-bold text-white shrink-0" style="width:64px;height:64px;border-radius:50%;background:var(--grad-primary)">
           ${inicial}
         </div>
 
         <!-- Info -->
-        <div style="flex:1;min-width:0;">
-          <div style="display:flex;align-items:center;gap:var(--s-3);flex-wrap:wrap;margin-bottom:var(--s-1);">
-            <h1 style="font-family:var(--font-display);font-size:var(--text-xl);font-weight:var(--weight-semibold);color:var(--color-text);">${c.nombre}</h1>
-            ${c.origen_venta ? `<span style="display:inline-flex;align-items:center;padding:2px var(--s-3);border-radius:var(--r-pill);font-size:var(--text-xs);font-weight:var(--weight-medium);background:var(--color-soft);color:var(--color-violet);">${c.origen_venta}</span>` : ''}
+        <div class="flex-1 min-w-0">
+          <div class="d-flex items-center gap-3 flex-wrap mb-1">
+            <h1 class="font-display text-xl font-semibold text-ink">${c.nombre}</h1>
+            ${c.origen_venta ? `<span class="items-center radius-pill text-xs font-medium text-violet" style="display:inline-flex;padding:2px var(--s-3);background:var(--color-soft)">${c.origen_venta}</span>` : ''}
           </div>
-          <p style="font-size:var(--text-xs);color:var(--color-text-light);font-family:var(--font-mono);margin-bottom:var(--s-3);">${c.id}</p>
-          <div style="display:flex;flex-wrap:wrap;gap:var(--s-5);">
+          <p class="text-xs text-light mb-3" style="font-family:var(--font-mono)">${c.id}</p>
+          <div class="d-flex flex-wrap gap-5">
             ${campoHeader('Celular',     c.celular)}
             ${campoHeader('Ciudad',      c.ciudad ? `${c.ciudad}${c.departamento ? ', '+c.departamento : ''}` : null)}
             ${campoHeader('Localidad',   c.localidad)}
@@ -94,7 +94,7 @@ function renderClienteHeader(c) {
         </div>
 
         <!-- Acciones -->
-        <div style="flex-shrink:0;">
+        <div class="shrink-0">
           <button class="btn btn--outline btn--sm" id="btnEditarCliente">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
               <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
@@ -112,9 +112,9 @@ function renderClienteHeader(c) {
 function campoHeader(label, valor) {
   if (!valor) return '';
   return `
-    <div style="display:flex;flex-direction:column;gap:2px;">
-      <span style="font-size:var(--text-xs);font-weight:var(--weight-semibold);text-transform:uppercase;letter-spacing:0.07em;color:var(--color-text-light);">${label}</span>
-      <span style="font-size:var(--text-sm);color:var(--color-text);font-weight:var(--weight-medium);">${valor}</span>
+    <div class="d-flex flex-col" style="gap:2px">
+      <span class="text-xs font-semibold uppercase text-light" style="letter-spacing:0.07em">${label}</span>
+      <span class="text-sm text-ink font-medium">${valor}</span>
     </div>`;
 }
 
@@ -123,20 +123,20 @@ function campoHeader(label, valor) {
 ───────────────────────────────────────────────────────────── */
 function htmlFiltrosDisenos(prefijo) {
   return `
-    <div style="display:flex;flex-direction:column;gap:var(--s-2);margin-bottom:var(--s-3);">
-      <div style="position:relative;">
-        <svg style="position:absolute;left:9px;top:50%;transform:translateY(-50%);width:13px;height:13px;color:var(--color-text-light);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+    <div class="d-flex flex-col gap-2 mb-3">
+      <div class="pos-relative">
+        <svg class="pos-absolute text-light" style="left:9px;top:50%;transform:translateY(-50%);width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
         <input type="search" class="form-input" id="${prefijo}Search" placeholder="Buscar diseño…" style="padding-left:30px;"/>
       </div>
-      <div style="display:flex;gap:var(--s-2);">
-        <select class="form-input" id="${prefijo}Col" style="flex:1;">
+      <div class="d-flex gap-2">
+        <select class="form-input flex-1" id="${prefijo}Col">
           <option value="">Catálogo</option>
           <option value="adulto_diseno">Adulto — Diseño</option>
           <option value="adulto_unicolor">Adulto — Unicolor</option>
           <option value="nino">Niño</option>
           <option value="nina">Niña</option>
         </select>
-        <select class="form-input" id="${prefijo}Est" style="flex:1;">
+        <select class="form-input flex-1" id="${prefijo}Est">
           <option value="">Estado</option>
           <option value="Disponible">Disponible</option>
           <option value="Agotado">Agotado</option>
@@ -170,7 +170,7 @@ function renderDisenosGrid(gridId, claseOpt, disenoActivo, prefijo) {
   if (!grid) return;
 
   if (!filtrados.length) {
-    grid.innerHTML = `<p style="grid-column:1/-1;text-align:center;font-size:var(--text-xs);color:var(--color-text-muted);padding:var(--s-4);">Sin diseños</p>`;
+    grid.innerHTML = `<p class="text-center text-xs text-muted p-4" style="grid-column:1/-1">Sin diseños</p>`;
     return;
   }
 
@@ -185,9 +185,8 @@ function renderDisenosGrid(gridId, claseOpt, disenoActivo, prefijo) {
                display:flex;flex-direction:column;align-items:center;justify-content:center;
                gap:var(--s-1);transition:all var(--duration-fast);position:relative;">
         ${d.imagen
-          ? `<img src="https://api.lilop.store${d.imagen}" alt="${d.nombre}"
-               style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;" loading="lazy"/>`
-          : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="24" height="24" style="color:var(--color-lavender);">
+          ? `<img class="pos-absolute" src="https://api.lilop.store${d.imagen}" alt="${d.nombre}" style="width:100%;height:100%;object-fit:cover;inset:0" loading="lazy" />`
+          : `<svg class="text-lavender" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="24" height="24">
                <rect x="3" y="3" width="18" height="18" rx="2"/>
                <circle cx="8.5" cy="8.5" r="1.5"/>
                <polyline points="21 15 16 10 5 21"/>
@@ -205,32 +204,21 @@ function renderDisenosGrid(gridId, claseOpt, disenoActivo, prefijo) {
 function renderProductoCard(prod) {
   const est = ESTADO_PRODUCTO_MAP[prod.estado] || { label: prod.estado, cls: '' };
   return `
-    <div style="width:180px;flex-shrink:0;background:var(--color-white);border:1px solid var(--color-border);border-radius:var(--r-lg);overflow:hidden;display:flex;flex-direction:column;position:relative;transition:box-shadow var(--duration-base) var(--ease),border-color var(--duration-base);"
-      onmouseover="this.style.boxShadow='var(--shadow-sm)';this.style.borderColor='var(--color-lilac)';this.querySelector('.prod-actions').style.opacity='1'"
-      onmouseout="this.style.boxShadow='';this.style.borderColor='var(--color-border)';this.querySelector('.prod-actions').style.opacity='0'">
+    <div class="shrink-0 radius-lg d-flex flex-col pos-relative" style="width:180px;background:var(--color-white);border:1px solid var(--color-border);overflow:hidden;transition:box-shadow var(--duration-base) var(--ease),border-color var(--duration-base)" onmouseover="this.style.boxShadow='var(--shadow-sm)';this.style.borderColor='var(--color-lilac)';this.querySelector('.prod-actions').style.opacity='1'" onmouseout="this.style.boxShadow='';this.style.borderColor='var(--color-border)';this.querySelector('.prod-actions').style.opacity='0'">
 
       <!-- Botones acción -->
-      <div class="prod-actions" style="position:absolute;top:var(--s-2);right:var(--s-2);display:flex;gap:4px;opacity:0;transition:opacity var(--duration-fast);z-index:1;">
-        <button data-action="editar-producto" data-producto-id="${prod.id}" data-producto-nombre="${prod.nombre}" data-producto-tamanio="${prod.tamanio || ''}" data-producto-diseno="${prod.diseno || ''}" data-producto-override="${prod.valor_venta_override ?? ''}"
-          style="width:26px;height:26px;border-radius:var(--r-sm);border:none;background:rgba(255,255,255,0.92);color:var(--color-violet);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background var(--duration-fast);"
-          onmouseover="this.style.background='var(--color-soft)'" onmouseout="this.style.background='rgba(255,255,255,0.92)'"
-          aria-label="Editar producto">
+      <div class="prod-actions pos-absolute d-flex" style="top:var(--s-2);right:var(--s-2);gap:4px;opacity:0;transition:opacity var(--duration-fast);z-index:1">
+        <button class="size-26 radius-sm text-violet cursor-pointer d-flex items-center justify-center" data-action="editar-producto" data-producto-id="${prod.id}" data-producto-nombre="${prod.nombre}" data-producto-tamanio="${prod.tamanio || ''}" data-producto-diseno="${prod.diseno || ''}" data-producto-override="${prod.valor_venta_override ?? ''}" style="border:none;background:rgba(255,255,255,0.92);transition:background var(--duration-fast)" onmouseover="this.style.background='var(--color-soft)'" onmouseout="this.style.background='rgba(255,255,255,0.92)'" aria-label="Editar producto">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13">
             <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
           </svg>
         </button>
-        <button data-action="abrir-costos" data-producto-id="${prod.id}" data-producto-nombre="${prod.nombre}"
-          style="width:26px;height:26px;border-radius:var(--r-sm);border:none;background:rgba(255,255,255,0.92);color:#b8860b;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background var(--duration-fast);"
-          onmouseover="this.style.background='#fef3c7'" onmouseout="this.style.background='rgba(255,255,255,0.92)'"
-          aria-label="Agregar costo">
+        <button class="size-26 radius-sm cursor-pointer d-flex items-center justify-center" data-action="abrir-costos" data-producto-id="${prod.id}" data-producto-nombre="${prod.nombre}" style="border:none;background:rgba(255,255,255,0.92);color:#b8860b;transition:background var(--duration-fast)" onmouseover="this.style.background='#fef3c7'" onmouseout="this.style.background='rgba(255,255,255,0.92)'" aria-label="Agregar costo">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13">
             <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
           </svg>
         </button>
-        <button data-action="eliminar-producto" data-producto-id="${prod.id}" data-producto-nombre="${prod.nombre}"
-          style="width:26px;height:26px;border-radius:var(--r-sm);border:none;background:rgba(255,255,255,0.92);color:var(--color-error);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background var(--duration-fast);"
-          onmouseover="this.style.background='var(--color-error-bg)'" onmouseout="this.style.background='rgba(255,255,255,0.92)'"
-          aria-label="Eliminar producto">
+        <button class="size-26 radius-sm text-error cursor-pointer d-flex items-center justify-center" data-action="eliminar-producto" data-producto-id="${prod.id}" data-producto-nombre="${prod.nombre}" style="border:none;background:rgba(255,255,255,0.92);transition:background var(--duration-fast)" onmouseover="this.style.background='var(--color-error-bg)'" onmouseout="this.style.background='rgba(255,255,255,0.92)'" aria-label="Eliminar producto">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13">
             <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
           </svg>
@@ -238,57 +226,46 @@ function renderProductoCard(prod) {
       </div>
 
       <!-- Imagen / placeholder -->
-      <div style="width:100%;aspect-ratio:3/4;background:var(--grad-card);overflow:hidden;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--s-2);padding:var(--s-3);">
+      <div class="pos-relative d-flex flex-col items-center justify-center gap-2 p-3" style="width:100%;aspect-ratio:3/4;background:var(--grad-card);overflow:hidden">
         ${(() => {
           const d = DISENOS.find(x => x.nombre === prod.diseno);
           return d?.imagen
-            ? `<img src="https://api.lilop.store${d.imagen}" alt="${prod.diseno}"
-                 data-lightbox="https://api.lilop.store${d.imagen}"
-                 style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;cursor:zoom-in;" loading="lazy"/>`
-            : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32" style="color:var(--color-lavender);">
+            ? `<img class="pos-absolute" src="https://api.lilop.store${d.imagen}" alt="${prod.diseno}" data-lightbox="https://api.lilop.store${d.imagen}" style="inset:0;width:100%;height:100%;object-fit:cover;cursor:zoom-in" loading="lazy" />`
+            : `<svg class="text-lavender" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32">
                  <rect x="3" y="3" width="18" height="18" rx="2"/>
                  <circle cx="8.5" cy="8.5" r="1.5"/>
                  <polyline points="21 15 16 10 5 21"/>
                </svg>
-               <span style="font-size:var(--text-xs);color:var(--color-text-light);text-align:center;line-height:var(--leading-snug);">${prod.diseno || 'Sin diseño'}</span>`;
+               <span class="text-xs text-light text-center" style="line-height:var(--leading-snug)">${prod.diseno || 'Sin diseño'}</span>`;
         })()}
       </div>
 
       <!-- Datos -->
-      <div style="padding:var(--s-3) var(--s-4);flex:1;display:flex;flex-direction:column;gap:var(--s-1);">
-        <p style="font-size:var(--text-sm);font-weight:var(--weight-semibold);color:var(--color-text);line-height:var(--leading-snug);">${prod.nombre}${prod.tamanio ? ` — ${prod.tamanio}` : ''}</p>
-        <div style="margin-top:var(--s-2);">
-          <span class="status-badge ${est.cls}" data-action="cambiar-estado-producto"
-            data-producto-id="${prod.id}" data-estado="${prod.estado}"
-            style="font-size:10px;padding:2px 8px;cursor:pointer;user-select:none;"
-            title="Clic para cambiar estado">${est.label}</span>
+      <div class="p-3-4 flex-1 d-flex flex-col gap-1">
+        <p class="text-sm font-semibold text-ink" style="line-height:var(--leading-snug)">${prod.nombre}${prod.tamanio ? ` — ${prod.tamanio}` : ''}</p>
+        <div class="mt-2">
+          <span class="status-badge ${est.cls} cursor-pointer select-none" data-action="cambiar-estado-producto" data-producto-id="${prod.id}" data-estado="${prod.estado}" style="font-size:10px;padding:2px 8px" title="Clic para cambiar estado">${est.label}</span>
         </div>
 
         <!-- Sección expandible financiera -->
-        <div style="margin-top:var(--s-2);border-top:1px solid var(--color-border);padding-top:var(--s-2);">
-          <button onclick="
-            const det = this.nextElementSibling;
-            const icon = this.querySelector('.exp-icon');
-            const visible = det.style.display !== 'none';
-            det.style.display = visible ? 'none' : 'flex';
-            icon.style.transform = visible ? 'rotate(0deg)' : 'rotate(180deg)';
-          " style="width:100%;display:flex;align-items:center;justify-content:space-between;background:none;border:none;cursor:pointer;padding:0;">
-            <span style="font-size:10px;font-weight:var(--weight-semibold);text-transform:uppercase;letter-spacing:0.07em;color:var(--color-text-light);">Detalle costos</span>
-            <svg class="exp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" style="color:var(--color-text-light);transition:transform var(--duration-fast);flex-shrink:0;">
+        <div class="mt-2" style="border-top:1px solid var(--color-border);padding-top:var(--s-2)">
+          <button class="d-flex items-center justify-between cursor-pointer" style="width:100%;background:none;border:none;padding:0">
+            <span class="font-semibold uppercase text-light" style="font-size:10px;letter-spacing:0.07em">Detalle costos</span>
+            <svg class="exp-icon text-light shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" style="transition:transform var(--duration-fast)">
               <polyline points="6 9 12 15 18 9"/>
             </svg>
           </button>
-          <div style="display:none;flex-direction:column;gap:4px;margin-top:var(--s-2);">
-            <div style="display:flex;justify-content:space-between;">
-              <span style="font-size:10px;color:var(--color-text-light);">Venta</span>
-              <span style="font-size:10px;font-weight:var(--weight-semibold);color:var(--color-violet);">${prod.valor_venta_override ? formatPrice(prod.valor_venta_override) : '—'}</span>
+          <div class="d-none flex-col mt-2" style="gap:4px">
+            <div class="d-flex justify-between">
+              <span class="text-light" style="font-size:10px">Venta</span>
+              <span class="font-semibold text-violet" style="font-size:10px">${prod.valor_venta_override ? formatPrice(prod.valor_venta_override) : '—'}</span>
             </div>
             ${(prod.compras || []).map(c => `
-            <div style="display:flex;justify-content:space-between;">
-              <span style="font-size:10px;color:var(--color-text-light);">${c.concepto}</span>
-              <span style="font-size:10px;color:var(--color-text-muted);">${formatPrice(c.valor)}</span>
+            <div class="d-flex justify-between">
+              <span class="text-light" style="font-size:10px">${c.concepto}</span>
+              <span class="text-muted" style="font-size:10px">${formatPrice(c.valor)}</span>
             </div>`).join('')}
-            ${!(prod.compras || []).length ? `<p style="font-size:10px;color:var(--color-text-light);text-align:center;">Sin costos</p>` : ''}
+            ${!(prod.compras || []).length ? `<p class="text-light text-center" style="font-size:10px">Sin costos</p>` : ''}
           </div>
         </div>
 
@@ -302,17 +279,13 @@ function renderProductoCard(prod) {
 ───────────────────────────────────────────────────────────── */
 function renderAddCard(pedidoId) {
   return `
-    <div data-action="abrir-modal-producto" data-pedido-id="${pedidoId}"
-      style="width:180px;min-height:240px;flex-shrink:0;border:2px dashed var(--color-lilac);border-radius:var(--r-lg);background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--s-3);transition:all var(--duration-base) var(--ease);"
-      onmouseover="this.style.borderColor='var(--color-violet)';this.style.background='var(--color-soft)'"
-      onmouseout="this.style.borderColor='var(--color-lilac)';this.style.background='transparent'"
-      role="button" tabindex="0" aria-label="Agregar producto">
-      <div style="width:44px;height:44px;border-radius:50%;background:var(--color-soft);display:flex;align-items:center;justify-content:center;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" style="color:var(--color-violet);">
+    <div class="shrink-0 radius-lg cursor-pointer d-flex flex-col items-center justify-center gap-3" data-action="abrir-modal-producto" data-pedido-id="${pedidoId}" style="width:180px;min-height:240px;border:2px dashed var(--color-lilac);background:transparent;transition:all var(--duration-base) var(--ease)" onmouseover="this.style.borderColor='var(--color-violet)';this.style.background='var(--color-soft)'" onmouseout="this.style.borderColor='var(--color-lilac)';this.style.background='transparent'" role="button" tabindex="0" aria-label="Agregar producto">
+      <div class="d-flex items-center justify-center" style="width:44px;height:44px;border-radius:50%;background:var(--color-soft)">
+        <svg class="text-violet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
           <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
         </svg>
       </div>
-      <span style="font-size:var(--text-xs);font-weight:var(--weight-semibold);color:var(--color-violet);text-align:center;">Agregar<br>producto</span>
+      <span class="text-xs font-semibold text-violet text-center">Agregar<br>producto</span>
     </div>
   `;
 }
@@ -328,23 +301,22 @@ function renderPedidoCard(pedido) {
     : (pedido.valor_venta - (pedido.costo || 0) - (pedido.valor_domicilio || 0) - (pedido.comision || 0) - (pedido.costos_otros || 0));
 
   return `
-    <div class="admin-panel" style="margin-bottom:var(--s-5);">
-      <div class="pedido-layout" style="display:flex;min-height:0;">
+    <div class="admin-panel mb-5">
+      <div class="pedido-layout d-flex" style="min-height:0">
 
         <!-- Panel izquierdo (~30%) -->
-        <div class="pedido-panel-left" style="width:30%;min-width:200px;flex-shrink:0;padding:var(--s-5);border-right:1px solid var(--color-border);display:flex;flex-direction:column;gap:var(--s-4);">
+        <div class="pedido-panel-left shrink-0 p-5 d-flex flex-col gap-4" style="width:30%;min-width:200px;border-right:1px solid var(--color-border)">
 
 
 
           <!-- Select estado + botones pedido -->
-          <div style="display:flex;align-items:center;gap:var(--s-2);">
-            <select class="form-input" data-pedido-id="${pedido.id}" data-action="cambiar-estado"
-              style="font-size:var(--text-xs);padding:5px 28px 5px 8px;height:auto;flex:1;">
+          <div class="d-flex items-center gap-2">
+            <select class="form-input text-xs flex-1" data-pedido-id="${pedido.id}" data-action="cambiar-estado" style="padding:5px 28px 5px 8px;height:auto">
               ${Object.entries(ESTADO_PEDIDO_MAP).map(([val, info]) =>
                 `<option value="${val}" ${pedido.estado === val ? 'selected' : ''}>${info.label}</option>`
               ).join('')}
             </select>
-            <div style="display:flex;gap:4px;flex-shrink:0;">
+            <div class="d-flex shrink-0" style="gap:4px">
               <button class="btn btn--sm btn--outline btn--icon" data-action="editar-pedido" data-pedido-id="${pedido.id}" aria-label="Editar pedido">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
               </button>
@@ -364,7 +336,7 @@ function renderPedidoCard(pedido) {
           </div>
 
           <!-- Fechas y vendedor -->
-          <div style="padding:var(--s-3);background:var(--color-fog);border-radius:var(--r-md);display:flex;flex-direction:column;gap:var(--s-2);">
+          <div class="p-3 radius-md d-flex flex-col gap-2" style="background:var(--color-fog)">
             ${campoFinanciero('Venta',    formatDate(pedido.fecha_venta))}
             ${pedido.fecha_entrega ? campoFinanciero('Entrega',  formatDate(pedido.fecha_entrega)) : ''}
             ${pedido.vendedor      ? campoFinanciero('Vendedor', pedido.vendedor) : ''}
@@ -372,25 +344,25 @@ function renderPedidoCard(pedido) {
           </div>
 
           <!-- Financiero -->
-          <div style="padding:var(--s-3);background:var(--color-fog);border-radius:var(--r-md);display:flex;flex-direction:column;gap:var(--s-2);">
+          <div class="p-3 radius-md d-flex flex-col gap-2" style="background:var(--color-fog)">
             ${campoFinanciero('Total',     formatPrice(pedido.valor_venta), 'var(--color-text)', true)}
             ${campoFinanciero('Costo',     formatPrice(pedido.costo || 0))}
             ${campoFinanciero('Domicilio', formatPrice(pedido.valor_domicilio || 0))}
             ${campoFinanciero('Comisión',  formatPrice(pedido.comision || 0))}
             ${campoFinanciero('Otros',     formatPrice(pedido.costos_otros || 0))}
-            <div style="border-top:1px solid var(--color-border);padding-top:var(--s-2);margin-top:var(--s-1);">
+            <div class="mt-1" style="border-top:1px solid var(--color-border);padding-top:var(--s-2)">
               ${campoFinanciero('Ganancia', formatPrice(ganancia), ganancia >= 0 ? 'var(--color-success)' : 'var(--color-error)', true)}
             </div>
           </div>
 
           ${pedido.notas ? `
-          <p style="font-size:var(--text-xs);font-weight:var(--weight-semibold);color:var(--color-text-muted);margin-bottom:var(--s-1);">Observaciones</p>
-          <p style="font-size:var(--text-xs);color:var(--color-text-muted);padding:var(--s-2) var(--s-3);background:var(--color-fog);border-radius:var(--r-sm);border-left:2px solid var(--color-lilac);line-height:var(--leading-snug);">${pedido.notas}</p>` : ''}
+          <p class="text-xs font-semibold text-muted mb-1">Observaciones</p>
+          <p class="text-xs text-muted p-2-3 radius-sm" style="background:var(--color-fog);border-left:2px solid var(--color-lilac);line-height:var(--leading-snug)">${pedido.notas}</p>` : ''}
         </div>
 
         <!-- Panel derecho: productos con scroll horizontal -->
-        <div class="pedido-panel-right" style="flex:1;min-width:0;padding:var(--s-5);overflow-x:auto;">
-          <div style="display:flex;gap:var(--s-4);min-width:max-content;" id="grid-${pedido.id}">
+        <div class="pedido-panel-right flex-1 min-w-0 p-5" style="overflow-x:auto">
+          <div class="d-flex gap-4" style="min-width:max-content" id="grid-${pedido.id}">
             ${productos.map(p => renderProductoCard(p)).join('')}
             ${renderAddCard(pedido.id)}
           </div>
@@ -403,17 +375,17 @@ function renderPedidoCard(pedido) {
 
 function campoPanel(label, valor) {
   return `
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:var(--s-2);">
-      <span style="font-size:10px;font-weight:var(--weight-semibold);text-transform:uppercase;letter-spacing:0.07em;color:var(--color-text-light);white-space:nowrap;">${label}</span>
-      <span style="font-size:var(--text-xs);color:var(--color-text);font-weight:var(--weight-medium);text-align:right;">${valor}</span>
+    <div class="d-flex items-center justify-between gap-2">
+      <span class="font-semibold uppercase text-light nowrap" style="font-size:10px;letter-spacing:0.07em">${label}</span>
+      <span class="text-xs text-ink font-medium" style="text-align:right">${valor}</span>
     </div>`;
 }
 
 function campoFinanciero(label, valor, color = 'var(--color-text-muted)', bold = false) {
   return `
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <span style="font-size:var(--text-xs);color:var(--color-text-light);">${label}</span>
-      <span style="font-size:var(--text-xs);font-weight:${bold ? 'var(--weight-semibold)' : 'var(--weight-regular)'};color:${color};">${valor}</span>
+    <div class="d-flex justify-between items-center">
+      <span class="text-xs text-light">${label}</span>
+      <span class="text-xs" style="font-weight:${bold ? 'var(--weight-semibold)' : 'var(--weight-regular)'};color:${color}">${valor}</span>
     </div>`;
 }
 
@@ -425,10 +397,10 @@ function renderDetalle() {
   document.getElementById('clienteDetalle').innerHTML = `
     ${renderClienteHeader(clienteData)}
 
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--s-4);flex-wrap:wrap;gap:var(--s-3);">
-      <div style="display:flex;align-items:baseline;gap:var(--s-3);">
-        <h2 style="font-family:var(--font-display);font-size:var(--text-lg);font-weight:var(--weight-semibold);">Pedidos</h2>
-        <span style="font-size:var(--text-sm);color:var(--color-text-muted);">${pedidosData.length} pedido${pedidosData.length !== 1 ? 's' : ''}</span>
+    <div class="d-flex items-center justify-between mb-4 flex-wrap gap-3">
+      <div class="d-flex gap-3" style="align-items:baseline">
+        <h2 class="font-display text-lg font-semibold">Pedidos</h2>
+        <span class="text-sm text-muted">${pedidosData.length} pedido${pedidosData.length !== 1 ? 's' : ''}</span>
       </div>
       <button class="btn btn--primary btn--sm" id="btnNuevoPedido">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -598,8 +570,8 @@ function abrirModalProducto(pedidoId) {
   disenoSeleccionado = null;
 
   document.getElementById('modalProductoBody').innerHTML = `
-    <div style="display:flex;flex-direction:column;gap:var(--s-4);">
-      <p style="font-size:var(--text-xs);font-weight:var(--weight-semibold);text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-light);padding-bottom:var(--s-2);border-bottom:1px solid var(--color-border);">Datos del producto</p>
+    <div class="d-flex flex-col gap-4">
+      <p class="text-xs font-semibold uppercase text-light" style="letter-spacing:0.08em;padding-bottom:var(--s-2);border-bottom:1px solid var(--color-border)">Datos del producto</p>
       <div class="form-row">
         <div class="form-group">
           <label class="form-label form-label--required">Tipo de producto</label>
@@ -625,13 +597,13 @@ function abrirModalProducto(pedidoId) {
       </div>
     </div>
 
-    <div style="display:flex;flex-direction:column;gap:var(--s-3);">
-      <p style="font-size:var(--text-xs);font-weight:var(--weight-semibold);text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-light);padding-bottom:var(--s-2);border-bottom:1px solid var(--color-border);">Diseño <span style="font-weight:var(--weight-regular);text-transform:none;letter-spacing:0;">(selecciona uno)</span></p>
+    <div class="d-flex flex-col gap-3">
+      <p class="text-xs font-semibold uppercase text-light" style="letter-spacing:0.08em;padding-bottom:var(--s-2);border-bottom:1px solid var(--color-border)">Diseño <span class="font-regular" style="text-transform:none;letter-spacing:0">(selecciona uno)</span></p>
       ${htmlFiltrosDisenos('add')}
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:var(--s-3);max-height:240px;overflow-y:auto;padding:var(--s-1);" id="addDisenosGrid"></div>
-      <div id="disenoPreview" style="display:none;align-items:center;gap:var(--s-3);padding:var(--s-3) var(--s-4);background:var(--color-soft);border-radius:var(--r-md);border:1px solid var(--color-lilac);">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32" style="color:var(--color-violet);flex-shrink:0;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-        <span style="font-size:var(--text-sm);font-weight:var(--weight-medium);color:var(--color-violet);" id="disenoPreviewNombre"></span>
+      <div class="d-grid gap-3 p-1" style="grid-template-columns:repeat(auto-fill,minmax(110px,1fr));max-height:240px;overflow-y:auto" id="addDisenosGrid"></div>
+      <div class="d-none items-center gap-3 p-3-4 radius-md" id="disenoPreview" style="background:var(--color-soft);border:1px solid var(--color-lilac)">
+        <svg class="text-violet shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        <span class="text-sm font-medium text-violet" id="disenoPreviewNombre"></span>
       </div>
     </div>
   `;
@@ -915,11 +887,11 @@ async function abrirModalDomicilio(pedidoId) {
         ${domiciliarios.map(d => `<option value="${d.id}" data-nombre="${d.nombre}" data-celular="${d.celular || ''}">${d.nombre}</option>`).join('')}
       </select>
     </div>
-    <div style="padding:var(--s-3);background:var(--color-fog);border-radius:var(--r-md);font-size:var(--text-xs);color:var(--color-text-muted);">
-      <p style="font-weight:var(--weight-semibold);margin-bottom:var(--s-2);color:var(--color-text);">Resumen del pedido</p>
+    <div class="p-3 radius-md text-xs text-muted" style="background:var(--color-fog)">
+      <p class="font-semibold mb-2 text-ink">Resumen del pedido</p>
       <p><strong>${clienteData?.nombre || '—'}</strong> · ${clienteData?.celular || '—'}</p>
       <p>${[clienteData?.ciudad, clienteData?.localidad, clienteData?.barrio, clienteData?.direccion].filter(Boolean).join(' · ')}</p>
-      <p style="margin-top:var(--s-2);">${(pedido.productos || []).map(p => `${p.nombre} — ${p.tamanio || 'S/T'}`).join('<br/>')}</p>
+      <p class="mt-2">${(pedido.productos || []).map(p => `${p.nombre} — ${p.tamanio || 'S/T'}`).join('<br/>')}</p>
     </div>
   `;
 
@@ -964,7 +936,7 @@ async function abrirModalCostosPedido(pedidoId) {
 
 async function renderModalCostosPedido() {
   const body = document.getElementById('modalCostosPedidoBody');
-  body.innerHTML = '<p style="text-align:center;color:var(--color-text-muted);">Cargando...</p>';
+  body.innerHTML = '<p class="text-center text-muted">Cargando...</p>';
 
   let datos = { domicilio: [], comision: null, otros: [] };
   let listaDoms = [], listaComisiones = [], listaConceptos = [];
@@ -979,17 +951,16 @@ async function renderModalCostosPedido() {
 
   /* ── Helpers de render ── */
   function seccionLabel(texto) {
-    return `<p style="font-size:var(--text-xs);font-weight:var(--weight-semibold);text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-light);margin-bottom:var(--s-3);">${texto}</p>`;
+    return `<p class="text-xs font-semibold uppercase text-light mb-3" style="letter-spacing:0.08em">${texto}</p>`;
   }
 
   function filaRegistro(nombre, valor, tipo, id) {
     return `
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:var(--s-2) var(--s-3);background:var(--color-fog);border-radius:var(--r-sm);">
-        <span style="font-size:var(--text-sm);">${nombre}</span>
-        <div style="display:flex;align-items:center;gap:var(--s-3);">
-          <span style="font-size:var(--text-sm);font-weight:var(--weight-semibold);">${formatPrice(valor)}</span>
-          <button data-costo-tipo="${tipo}" data-costo-id="${id}" data-costo-action="eliminar"
-            class="btn btn--sm btn--danger btn--icon" style="width:28px;height:28px;flex-shrink:0;">
+      <div class="d-flex items-center justify-between p-2-3 radius-sm" style="background:var(--color-fog)">
+        <span class="text-sm">${nombre}</span>
+        <div class="d-flex items-center gap-3">
+          <span class="text-sm font-semibold">${formatPrice(valor)}</span>
+          <button data-costo-tipo="${tipo}" data-costo-id="${id}" data-costo-action="eliminar" class="btn btn--sm btn--danger btn--icon size-28 shrink-0">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
               <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
             </svg>
@@ -1000,9 +971,9 @@ async function renderModalCostosPedido() {
 
   function filaNuevo(tipo, campos) {
     return `
-      <div style="display:flex;gap:var(--s-2);margin-top:var(--s-3);align-items:flex-end;">
+      <div class="d-flex gap-2 mt-3 items-end">
         ${campos.map(c => `
-          <div class="form-group" style="flex:1;">
+          <div class="form-group flex-1">
             <label class="form-label ${c.required ? 'form-label--required' : ''}">${c.label}</label>
             ${c.select ? `
               <select class="form-input" id="${c.id}">
@@ -1013,16 +984,15 @@ async function renderModalCostosPedido() {
                 value="${c.value || ''}" placeholder="${c.placeholder || '0'}" min="0"/>` : `
               <input class="form-input" id="${c.id}" placeholder="${c.placeholder || ''}"/>`}
           </div>`).join('')}
-        <button data-costo-tipo="${tipo}" data-costo-action="agregar"
-          class="btn btn--primary btn--sm" style="flex-shrink:0;">Agregar</button>
+        <button data-costo-tipo="${tipo}" data-costo-action="agregar" class="btn btn--primary btn--sm shrink-0">Agregar</button>
       </div>`;
   }
 
   body.innerHTML = `
-    <div style="display:flex;flex-direction:column;gap:var(--s-5);">
+    <div class="d-flex flex-col gap-5">
       <div>
         ${seccionLabel('Domicilio')}
-        <div data-costo-lista="domicilio" style="display:flex;flex-direction:column;gap:var(--s-2);">
+        <div class="d-flex flex-col gap-2" data-costo-lista="domicilio">
           ${datos.domicilio.map(e => filaRegistro(e.domiciliario || 'Sin nombre', e.valor_domicilio, 'domicilio', e.id)).join('')}
         </div>
         ${filaNuevo('domicilio', [
@@ -1032,7 +1002,7 @@ async function renderModalCostosPedido() {
       </div>
       <div>
         ${seccionLabel('Comisión')}
-        <div data-costo-lista="comision" style="display:flex;flex-direction:column;gap:var(--s-2);">
+        <div class="d-flex flex-col gap-2" data-costo-lista="comision">
           ${datos.comision.map(c => filaRegistro(c.nombre_vendedor || 'Sin nombre', c.valor_comision, 'comision', c.id)).join('')}
         </div>
         ${filaNuevo('comision', [
@@ -1042,7 +1012,7 @@ async function renderModalCostosPedido() {
       </div>
       <div>
         ${seccionLabel('Otros')}
-        <div data-costo-lista="otros" style="display:flex;flex-direction:column;gap:var(--s-2);">
+        <div class="d-flex flex-col gap-2" data-costo-lista="otros">
           ${datos.otros.map(o => filaRegistro(o.nombre, o.valor, 'otros', o.id)).join('')}
         </div>
         ${filaNuevo('otros', [
@@ -1143,13 +1113,9 @@ function abrirModalEditarProducto(productoId, nombre, tamanio, diseno, override)
     </div>
     <div class="form-group">
       <label class="form-label">Valor de venta (COP)</label>
-      <div style="display:flex;gap:var(--s-2);align-items:center;">
-        <input class="form-input" type="number" id="epOverrideValor" min="0"
-          value="${tieneOverride ? override : ''}"
-          placeholder="${tieneOverride ? override : 'Precio del catálogo'}"
-          style="flex:1;"/>
-        <button type="button" id="btnValorOriginal" class="btn btn--ghost btn--sm"
-          style="white-space:nowrap;flex-shrink:0;">
+      <div class="d-flex gap-2 items-center">
+        <input class="form-input flex-1" type="number" id="epOverrideValor" min="0" value="${tieneOverride ? override : ''}" placeholder="${tieneOverride ? override : 'Precio del catálogo'}" />
+        <button type="button" id="btnValorOriginal" class="btn btn--ghost btn--sm nowrap shrink-0">
           Valor original
         </button>
       </div>
@@ -1157,7 +1123,7 @@ function abrirModalEditarProducto(productoId, nombre, tamanio, diseno, override)
     <div class="form-group">
       <label class="form-label form-label--required">Diseño</label>
       ${htmlFiltrosDisenos('edit')}
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:var(--s-2);max-height:220px;overflow-y:auto;" id="editDisenosGrid"></div>
+      <div class="d-grid gap-2" style="grid-template-columns:repeat(auto-fill,minmax(100px,1fr));max-height:220px;overflow-y:auto" id="editDisenosGrid"></div>
     </div>
   `;
 
@@ -1237,7 +1203,7 @@ let costosActuales = [];
 
 function renderFilaCosto(idx, costo = null) {
   return `
-    <div style="display:flex;gap:var(--s-4);align-items:flex-end;" id="fila-costo-${idx}">
+    <div class="d-flex gap-4 items-end" id="fila-costo-${idx}">
       <div class="form-group">
         <label class="form-label form-label--required">Concepto</label>
         <select class="form-input" id="costo-concepto-${idx}">
@@ -1250,7 +1216,7 @@ function renderFilaCosto(idx, costo = null) {
         <input class="form-input" type="number" id="costo-valor-${idx}" min="0"
           value="${costo?.valor_unitario || ''}" placeholder="0"/>
       </div>
-      <div style="flex-shrink:0;padding-bottom:2px;">
+      <div class="shrink-0" style="padding-bottom:2px">
         ${costo
           ? `<button data-action="eliminar-costo" data-costo-id="${costo.id}"
                class="btn btn--sm btn--danger btn--icon">
@@ -1285,16 +1251,15 @@ function renderModalCostos() {
   const total = costosActuales.reduce((s, c) => s + parseFloat(c.valor_total || 0), 0);
 
   body.innerHTML = `
-    <div style="display:flex;flex-direction:column;gap:var(--s-4);">
+    <div class="d-flex flex-col gap-4">
 
       <!-- Registros existentes (solo lectura) -->
       ${costosActuales.map(c => `
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:var(--s-2) var(--s-3);background:var(--color-fog);border-radius:var(--r-sm);">
-          <span style="font-size:var(--text-sm);">${c.concepto || '—'}</span>
-          <div style="display:flex;align-items:center;gap:var(--s-3);">
-            <span style="font-size:var(--text-sm);font-weight:var(--weight-semibold);">${formatPrice(c.valor_total)}</span>
-            <button data-action="eliminar-costo" data-costo-id="${c.id}"
-              class="btn btn--sm btn--danger btn--icon" style="width:28px;height:28px;flex-shrink:0;">
+        <div class="d-flex items-center justify-between p-2-3 radius-sm" style="background:var(--color-fog)">
+          <span class="text-sm">${c.concepto || '—'}</span>
+          <div class="d-flex items-center gap-3">
+            <span class="text-sm font-semibold">${formatPrice(c.valor_total)}</span>
+            <button data-action="eliminar-costo" data-costo-id="${c.id}" class="btn btn--sm btn--danger btn--icon size-28 shrink-0">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
                 <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
               </svg>
@@ -1304,9 +1269,9 @@ function renderModalCostos() {
 
       <!-- Total -->
       ${costosActuales.length > 0 ? `
-      <div style="display:flex;justify-content:space-between;padding:var(--s-3) var(--s-4);background:var(--color-fog);border-radius:var(--r-md);">
-        <span style="font-size:var(--text-sm);font-weight:var(--weight-semibold);">Total costos</span>
-        <span style="font-size:var(--text-sm);font-weight:var(--weight-bold);color:var(--color-violet);">${formatPrice(total)}</span>
+      <div class="d-flex justify-between p-3-4 radius-md" style="background:var(--color-fog)">
+        <span class="text-sm font-semibold">Total costos</span>
+        <span class="text-sm font-bold text-violet">${formatPrice(total)}</span>
       </div>` : ''}
 
       <!-- Fila nueva -->

@@ -6,7 +6,8 @@
   <title>Pedidos — Lilop Admin</title>
   <link rel="stylesheet" href="/assets/css/tokens.css?v=2"/>
   <link rel="stylesheet" href="/assets/css/admin.css?v=2"/>
-  <link rel="stylesheet" href="/assets/css/responsive.css"/>
+  <link rel="stylesheet" href="/assets/css/utilities.css?v=1"/>
+  <link rel="stylesheet" href="/assets/css/responsive.css?v=1"/>
 </head>
 <body>
 
@@ -18,20 +19,20 @@
   <main class="admin-content">
 
     <!-- Header de página -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--s-6);flex-wrap:wrap;gap:var(--s-4);">
+    <div class="d-flex items-center justify-between mb-6 flex-wrap gap-4">
       <div>
-        <h2 style="font-family:var(--font-display);font-size:var(--text-xl);font-weight:var(--weight-semibold);">Gestión de Pedidos</h2>
-        <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-top:4px;" id="pedidosCount"></p>
+        <h2 class="font-display text-xl font-semibold">Gestión de Pedidos</h2>
+        <p class="text-sm text-muted" style="margin-top:4px" id="pedidosCount"></p>
       </div>
 
     </div>
 
     <!-- Filtros -->
-    <div class="admin-panel" style="margin-bottom:var(--s-6);">
-      <div class="admin-panel__body" style="padding:var(--s-4) var(--s-6);">
-        <div style="display:flex;gap:var(--s-4);flex-wrap:wrap;align-items:center;">
-          <div style="position:relative;flex:1;min-width:200px;">
-            <svg style="position:absolute;left:12px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--color-text-light);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+    <div class="admin-panel mb-6">
+      <div class="admin-panel__body p-4-6">
+        <div class="d-flex gap-4 flex-wrap items-center">
+          <div class="pos-relative flex-1" style="min-width:200px">
+            <svg class="size-15 pos-absolute text-light" style="left:12px;top:50%;transform:translateY(-50%)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
             <input type="search" class="form-input" id="searchPedidos" placeholder="Buscar por cliente, número..." style="padding-left:36px;"/>
           </div>
           <select class="form-input" id="filterEstado" style="max-width:180px;">
@@ -52,7 +53,7 @@
             <option value="MP">MP</option>
           </select>
         </div>
-        <div id="activeFilters" style="display:none;flex-wrap:wrap;gap:var(--s-2);margin-top:var(--s-3);"></div>
+        <div class="d-none flex-wrap gap-2 mt-3" id="activeFilters"></div>
       </div>
     </div>
 
@@ -62,14 +63,14 @@
         <table class="admin-table" id="pedidosTable">
           <thead>
             <tr>
-              <th data-sort="id" style="cursor:pointer;user-select:none;display:none;">ID <span class="sort-icon">↕</span></th>
-              <th data-sort="cliente" style="cursor:pointer;user-select:none;">Cliente <span class="sort-icon">↕</span></th>
-              <th data-sort="vendedor" style="cursor:pointer;user-select:none;">Vendedor <span class="sort-icon">↕</span></th>
-              <th data-sort="valor_venta" style="cursor:pointer;user-select:none;">Valor <span class="sort-icon">↕</span></th>
+              <th class="cursor-pointer select-none d-none" data-sort="id">ID <span class="sort-icon">↕</span></th>
+              <th class="cursor-pointer select-none" data-sort="cliente">Cliente <span class="sort-icon">↕</span></th>
+              <th class="cursor-pointer select-none" data-sort="vendedor">Vendedor <span class="sort-icon">↕</span></th>
+              <th class="cursor-pointer select-none" data-sort="valor_venta">Valor <span class="sort-icon">↕</span></th>
               <th>Medio pago</th>
               <th>Estado</th>
-              <th data-sort="fecha_venta" style="cursor:pointer;user-select:none;">F. Pedido <span class="sort-icon">↕</span></th>
-              <th data-sort="fecha_entrega" style="cursor:pointer;user-select:none;">F. Entrega <span class="sort-icon">↕</span></th>
+              <th class="cursor-pointer select-none" data-sort="fecha_venta">F. Pedido <span class="sort-icon">↕</span></th>
+              <th class="cursor-pointer select-none" data-sort="fecha_entrega">F. Entrega <span class="sort-icon">↕</span></th>
               <th>Acciones</th>
             </tr>
           </thead>

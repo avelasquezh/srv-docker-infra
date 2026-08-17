@@ -1,0 +1,100 @@
+/* ============================================================
+   Lilop Admin — utilities.css
+   Clases atomicas generadas a partir de patrones de uso real
+   (ver util_map.py). Cubren estilos repetidos que antes vivian
+   como atributos style inline en HTML/JS.
+   ============================================================ */
+
+.cursor-pointer { cursor: pointer; }
+.d-block { display: block; }
+.d-flex { display: flex; }
+.d-grid { display: grid; }
+.d-none { display: none; }
+.flex-1 { flex: 1; }
+.flex-col { flex-direction: column; }
+.flex-wrap { flex-wrap: wrap; }
+.font-bold { font-weight: var(--weight-bold); }
+.font-display { font-family: var(--font-display); }
+.font-light { font-weight: var(--weight-light); }
+.font-medium { font-weight: var(--weight-medium); }
+.font-regular { font-weight: var(--weight-regular); }
+.font-semibold { font-weight: var(--weight-semibold); }
+.gap-1 { gap: var(--s-1); }
+.gap-2 { gap: var(--s-2); }
+.gap-3 { gap: var(--s-3); }
+.gap-4 { gap: var(--s-4); }
+.gap-5 { gap: var(--s-5); }
+.gap-6 { gap: var(--s-6); }
+.gap-8 { gap: var(--s-8); }
+.items-center { align-items: center; }
+.items-end { align-items: flex-end; }
+.items-start { align-items: flex-start; }
+.justify-between { justify-content: space-between; }
+.justify-center { justify-content: center; }
+.justify-end { justify-content: flex-end; }
+.mb-1 { margin-bottom: var(--s-1); }
+.mb-10 { margin-bottom: var(--s-10); }
+.mb-2 { margin-bottom: var(--s-2); }
+.mb-3 { margin-bottom: var(--s-3); }
+.mb-4 { margin-bottom: var(--s-4); }
+.mb-5 { margin-bottom: var(--s-5); }
+.mb-6 { margin-bottom: var(--s-6); }
+.mb-8 { margin-bottom: var(--s-8); }
+.min-w-0 { min-width: 0; }
+.mt-1 { margin-top: var(--s-1); }
+.mt-10 { margin-top: var(--s-10); }
+.mt-2 { margin-top: var(--s-2); }
+.mt-3 { margin-top: var(--s-3); }
+.mt-4 { margin-top: var(--s-4); }
+.mt-5 { margin-top: var(--s-5); }
+.mt-6 { margin-top: var(--s-6); }
+.mt-8 { margin-top: var(--s-8); }
+.nowrap { white-space: nowrap; }
+.p-1 { padding: var(--s-1); }
+.p-10 { padding: var(--s-10); }
+.p-2 { padding: var(--s-2); }
+.p-2-3 { padding: var(--s-2) var(--s-3); }
+.p-3 { padding: var(--s-3); }
+.p-3-4 { padding: var(--s-3) var(--s-4); }
+.p-4 { padding: var(--s-4); }
+.p-4-6 { padding: var(--s-4) var(--s-6); }
+.p-5 { padding: var(--s-5); }
+.p-5-6 { padding: var(--s-5) var(--s-6); }
+.p-6 { padding: var(--s-6); }
+.p-8 { padding: var(--s-8); }
+.pos-absolute { position: absolute; }
+.pos-relative { position: relative; }
+.radius-2xl { border-radius: var(--r-2xl); }
+.radius-lg { border-radius: var(--r-lg); }
+.radius-md { border-radius: var(--r-md); }
+.radius-pill { border-radius: var(--r-pill); }
+.radius-sm { border-radius: var(--r-sm); }
+.radius-xl { border-radius: var(--r-xl); }
+.radius-xs { border-radius: var(--r-xs); }
+.select-none { user-select: none; }
+.shrink-0 { flex-shrink: 0; }
+.size-10 { width: 10px; height: 10px; }
+.size-15 { width: 15px; height: 15px; }
+.size-26 { width: 26px; height: 26px; }
+.size-28 { width: 28px; height: 28px; }
+.size-36 { width: 36px; height: 36px; }
+.text-2xl { font-size: var(--text-2xl); }
+.text-2xs { font-size: var(--text-2xs); }
+.text-base { font-size: var(--text-base); }
+.text-center { text-align: center; }
+.text-error { color: var(--color-error); }
+.text-inherit { color: inherit; }
+.text-ink { color: var(--color-text); }
+.text-lavender { color: var(--color-lavender); }
+.text-lg { font-size: var(--text-lg); }
+.text-light { color: var(--color-text-light); }
+.text-md { font-size: var(--text-md); }
+.text-muted { color: var(--color-text-muted); }
+.text-sm { font-size: var(--text-sm); }
+.text-success { color: var(--color-success); }
+.text-violet { color: var(--color-violet); }
+.text-warning { color: var(--color-warning); }
+.text-white { color: white; }
+.text-xl { font-size: var(--text-xl); }
+.text-xs { font-size: var(--text-xs); }
+.uppercase { text-transform: uppercase; }

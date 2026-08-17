@@ -97,8 +97,8 @@
     if (!topbar) return;
 
     const badgeHTML  = pendientes > 0
-      ? '<span class="admin-topbar__btn-badge" style="display:flex;">' + pendientes + '</span>'
-      : '<span class="admin-topbar__btn-badge" style="display:none;">0</span>';
+      ? '<span class="admin-topbar__btn-badge d-flex">' + pendientes + '</span>'
+      : '<span class="admin-topbar__btn-badge d-none">0</span>';
 
     topbar.innerHTML =
       '<div class="admin-topbar__left">' +

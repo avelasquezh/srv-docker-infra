@@ -6,7 +6,8 @@
   <title>Diseños — Lilop Admin</title>
   <link rel="stylesheet" href="/assets/css/tokens.css"/>
   <link rel="stylesheet" href="/assets/css/admin.css?v=2"/>
-  <link rel="stylesheet" href="/assets/css/responsive.css"/>
+  <link rel="stylesheet" href="/assets/css/utilities.css?v=1"/>
+  <link rel="stylesheet" href="/assets/css/responsive.css?v=1"/>
   <style>
     .diseno-card { background:var(--color-white);border:1px solid var(--color-border);border-radius:var(--r-xl);overflow:hidden;transition:all var(--duration-base) var(--ease);cursor:pointer; }
     .diseno-card:hover { transform:translateY(-3px);box-shadow:var(--shadow-md);border-color:var(--color-lilac); }
@@ -31,10 +32,10 @@
   <header class="admin-topbar" id="adminTopbar"></header>
   <main class="admin-content">
 
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--s-6);flex-wrap:wrap;gap:var(--s-4);">
+    <div class="d-flex items-center justify-between mb-6 flex-wrap gap-4">
       <div>
-        <h2 style="font-family:var(--font-display);font-size:var(--text-xl);font-weight:var(--weight-semibold);">Gestión de Diseños</h2>
-        <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-top:4px;" id="disenosCount"></p>
+        <h2 class="font-display text-xl font-semibold">Gestión de Diseños</h2>
+        <p class="text-sm text-muted" style="margin-top:4px" id="disenosCount"></p>
       </div>
       <button class="btn btn--primary" id="btnNuevoDiseno">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -43,11 +44,11 @@
     </div>
 
     <!-- Filtros -->
-    <div class="admin-panel" style="margin-bottom:var(--s-6);">
-      <div class="admin-panel__body" style="padding:var(--s-4) var(--s-6);">
-        <div style="display:flex;gap:var(--s-4);flex-wrap:wrap;align-items:center;">
-          <div style="position:relative;flex:1;min-width:200px;">
-            <svg style="position:absolute;left:12px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--color-text-light);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+    <div class="admin-panel mb-6">
+      <div class="admin-panel__body p-4-6">
+        <div class="d-flex gap-4 flex-wrap items-center">
+          <div class="pos-relative flex-1" style="min-width:200px">
+            <svg class="size-15 pos-absolute text-light" style="left:12px;top:50%;transform:translateY(-50%)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
             <input type="search" class="form-input" id="searchDisenos" placeholder="Buscar diseño..." style="padding-left:36px;"/>
           </div>
           <select class="form-input" id="filterCatalogo" style="max-width:200px;">
@@ -66,12 +67,12 @@
             <option value="Agotado">Agotado</option>
           </select>
         </div>
-        <div id="activeFilters" style="display:none;flex-wrap:wrap;gap:var(--s-2);margin-top:var(--s-3);"></div>
+        <div class="d-none flex-wrap gap-2 mt-3" id="activeFilters"></div>
       </div>
     </div>
 
     <!-- Grid de diseños -->
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:var(--s-5);" id="disenosGrid"></div>
+    <div class="d-grid gap-5" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr))" id="disenosGrid"></div>
 
   </main>
 </div>
@@ -100,7 +101,7 @@
       <div class="form-group">
         <label class="form-label">Imagen</label>
         <input type="file" class="form-input" id="dImagenFile" accept="image/jpeg,image/png,image/webp"/>
-        <span style="font-size:var(--text-xs);color:var(--color-text-muted);">JPG, PNG o WebP — máximo 5MB</span>
+        <span class="text-xs text-muted">JPG, PNG o WebP — máximo 5MB</span>
       </div>
       <div class="form-group">
         <label class="form-label">Estado</label>
@@ -111,12 +112,12 @@
       </div>
       <div class="form-group">
         <label class="form-label">Aplica para</label>
-        <div id="dProductosChecks" style="display:flex;flex-wrap:wrap;gap:var(--s-3);padding:var(--s-3);background:var(--color-fog);border-radius:var(--r-md);border:1px solid var(--color-border);">
-          <span style="font-size:var(--text-xs);color:var(--color-text-muted);">Cargando...</span>
+        <div class="d-flex flex-wrap gap-3 p-3 radius-md" id="dProductosChecks" style="background:var(--color-fog);border:1px solid var(--color-border)">
+          <span class="text-xs text-muted">Cargando...</span>
         </div>
       </div>
-      <div id="dPreview" style="display:none;">
-        <img id="dPreviewImg" style="width:100%;max-height:200px;object-fit:cover;border-radius:var(--r-lg);border:1px solid var(--color-border);" alt="Preview"/>
+      <div class="d-none" id="dPreview">
+        <img class="radius-lg" id="dPreviewImg" style="width:100%;max-height:200px;object-fit:cover;border:1px solid var(--color-border)" alt="Preview" />
       </div>
     </div>
     <div class="modal__footer">

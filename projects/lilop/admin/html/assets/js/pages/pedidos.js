@@ -64,34 +64,30 @@ function renderTable() {
     return `
       <tr>
         <td>
-          <a href="/cliente.html?id=${p.cliente_id || ''}"
-            style="display:flex;align-items:center;gap:var(--s-3);text-decoration:none;color:inherit;border-radius:var(--r-md);padding:var(--s-1);margin:-4px;transition:background var(--duration-fast);"
-            onmouseover="this.style.background='var(--color-soft)'"
-            onmouseout="this.style.background='transparent'">
-            <div style="width:32px;height:32px;border-radius:50%;background:var(--grad-primary);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:700;color:white;font-size:var(--text-xs);flex-shrink:0;">
+          <a class="d-flex items-center gap-3 text-inherit radius-md p-1" href="/cliente.html?id=${p.cliente_id || ''}" style="text-decoration:none;margin:-4px;transition:background var(--duration-fast)" onmouseover="this.style.background='var(--color-soft)'" onmouseout="this.style.background='transparent'">
+            <div class="d-flex items-center justify-center font-display font-bold text-white text-xs shrink-0" style="width:32px;height:32px;border-radius:50%;background:var(--grad-primary)">
               ${(p.cliente || '?').charAt(0).toUpperCase()}
             </div>
             <div>
-              <p style="font-size:var(--text-sm);font-weight:600;color:var(--color-text);">${p.cliente || '—'}</p>
-              <p style="font-size:var(--text-xs);color:var(--color-text-muted);">${p.cliente_cel || ''}</p>
+              <p class="text-sm font-semibold text-ink">${p.cliente || '—'}</p>
+              <p class="text-xs text-muted">${p.cliente_cel || ''}</p>
             </div>
           </a>
         </td>
-        <td style="font-size:var(--text-xs);color:var(--color-text-muted);">${p.vendedor || '—'}</td>
-        <td style="font-weight:600;color:var(--color-violet);">${formatPrice(p.valor_venta)}</td>
-        <td style="font-size:var(--text-xs);color:var(--color-text-muted);">${p.medio_pago || '—'}</td>
+        <td class="text-xs text-muted">${p.vendedor || '—'}</td>
+        <td class="font-semibold text-violet">${formatPrice(p.valor_venta)}</td>
+        <td class="text-xs text-muted">${p.medio_pago || '—'}</td>
         <td>
-          <select class="form-input" data-pedido-id="${p.id}" data-action="cambiar-estado"
-            style="font-size:var(--text-xs);padding:5px 28px 5px 8px;height:auto;min-width:110px;">
+          <select class="form-input text-xs" data-pedido-id="${p.id}" data-action="cambiar-estado" style="padding:5px 28px 5px 8px;height:auto;min-width:110px">
             ${Object.entries(ESTADO_CONFIG).map(([val, cfg]) =>
               `<option value="${val}" ${p.estado === val ? 'selected' : ''}>${cfg.label}</option>`
             ).join('')}
           </select>
         </td>
-        <td style="font-size:var(--text-xs);color:var(--color-text-muted);">${formatDate(p.fecha_venta)}</td>
-        <td style="font-size:var(--text-xs);color:${p.fecha_entrega ? 'var(--color-violet)' : 'var(--color-text-light)'};">${formatDate(p.fecha_entrega) || '—'}</td>
+        <td class="text-xs text-muted">${formatDate(p.fecha_venta)}</td>
+        <td class="text-xs" style="color:${p.fecha_entrega ? 'var(--color-violet)' : 'var(--color-text-light)'}">${formatDate(p.fecha_entrega) || '—'}</td>
         <td>
-          <div style="display:flex;gap:var(--s-2);">
+          <div class="d-flex gap-2">
             <button class="btn btn--sm btn--outline btn--icon" data-action="edit" data-id="${p.id}" aria-label="Editar pedido">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             </button>
@@ -140,7 +136,7 @@ async function abrirModalCostosPedido(pedidoId) {
 
 async function renderModalCostosPedido() {
   const body = document.getElementById('modalCostosPedidoBody');
-  body.innerHTML = '<p style="text-align:center;color:var(--color-text-muted);">Cargando...</p>';
+  body.innerHTML = '<p class="text-center text-muted">Cargando...</p>';
 
   let datos = { domicilio: [], comision: [], otros: [] };
   let listaDoms = [], listaComisiones = [], listaConceptos = [];
@@ -154,17 +150,16 @@ async function renderModalCostosPedido() {
   } catch {}
 
   function seccionLabel(texto) {
-    return `<p style="font-size:var(--text-xs);font-weight:var(--weight-semibold);text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-light);margin-bottom:var(--s-3);">${texto}</p>`;
+    return `<p class="text-xs font-semibold uppercase text-light mb-3" style="letter-spacing:0.08em">${texto}</p>`;
   }
 
   function filaRegistro(nombre, valor, tipo, id) {
     return `
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:var(--s-2) var(--s-3);background:var(--color-fog);border-radius:var(--r-sm);">
-        <span style="font-size:var(--text-sm);">${nombre}</span>
-        <div style="display:flex;align-items:center;gap:var(--s-3);">
-          <span style="font-size:var(--text-sm);font-weight:var(--weight-semibold);">${formatPrice(valor)}</span>
-          <button data-costo-tipo="${tipo}" data-costo-id="${id}" data-costo-action="eliminar"
-            class="btn btn--sm btn--danger btn--icon" style="width:28px;height:28px;flex-shrink:0;">
+      <div class="d-flex items-center justify-between p-2-3 radius-sm" style="background:var(--color-fog)">
+        <span class="text-sm">${nombre}</span>
+        <div class="d-flex items-center gap-3">
+          <span class="text-sm font-semibold">${formatPrice(valor)}</span>
+          <button data-costo-tipo="${tipo}" data-costo-id="${id}" data-costo-action="eliminar" class="btn btn--sm btn--danger btn--icon size-28 shrink-0">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
               <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
             </svg>
@@ -175,9 +170,9 @@ async function renderModalCostosPedido() {
 
   function filaNuevo(tipo, campos) {
     return `
-      <div style="display:flex;gap:var(--s-2);margin-top:var(--s-3);align-items:flex-end;">
+      <div class="d-flex gap-2 mt-3 items-end">
         ${campos.map(c => `
-          <div class="form-group" style="flex:1;">
+          <div class="form-group flex-1">
             <label class="form-label ${c.required ? 'form-label--required' : ''}">${c.label}</label>
             ${c.select ? `
               <select class="form-input" id="${c.id}">
@@ -188,16 +183,15 @@ async function renderModalCostosPedido() {
                 value="${c.value || ''}" placeholder="${c.placeholder || '0'}" min="0"/>` : `
               <input class="form-input" id="${c.id}" placeholder="${c.placeholder || ''}"/>`}
           </div>`).join('')}
-        <button data-costo-tipo="${tipo}" data-costo-action="agregar"
-          class="btn btn--primary btn--sm" style="flex-shrink:0;">Agregar</button>
+        <button data-costo-tipo="${tipo}" data-costo-action="agregar" class="btn btn--primary btn--sm shrink-0">Agregar</button>
       </div>`;
   }
 
   body.innerHTML = `
-    <div style="display:flex;flex-direction:column;gap:var(--s-5);">
+    <div class="d-flex flex-col gap-5">
       <div>
         ${seccionLabel('Domicilio')}
-        <div data-costo-lista="domicilio" style="display:flex;flex-direction:column;gap:var(--s-2);">
+        <div class="d-flex flex-col gap-2" data-costo-lista="domicilio">
           ${datos.domicilio.map(e => filaRegistro(e.domiciliario || 'Sin nombre', e.valor_domicilio, 'domicilio', e.id)).join('')}
         </div>
         ${filaNuevo('domicilio', [
@@ -207,7 +201,7 @@ async function renderModalCostosPedido() {
       </div>
       <div>
         ${seccionLabel('Comisión')}
-        <div data-costo-lista="comision" style="display:flex;flex-direction:column;gap:var(--s-2);">
+        <div class="d-flex flex-col gap-2" data-costo-lista="comision">
           ${datos.comision.map(c => filaRegistro(c.nombre_vendedor || 'Sin nombre', c.valor_comision, 'comision', c.id)).join('')}
         </div>
         ${filaNuevo('comision', [
@@ -217,7 +211,7 @@ async function renderModalCostosPedido() {
       </div>
       <div>
         ${seccionLabel('Otros')}
-        <div data-costo-lista="otros" style="display:flex;flex-direction:column;gap:var(--s-2);">
+        <div class="d-flex flex-col gap-2" data-costo-lista="otros">
           ${datos.otros.map(o => filaRegistro(o.nombre, o.valor, 'otros', o.id)).join('')}
         </div>
         ${filaNuevo('otros', [

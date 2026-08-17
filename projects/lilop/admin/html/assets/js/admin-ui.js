@@ -97,7 +97,7 @@ const AdminConfirm = {
           </button>
         </div>
         <div class="modal__body">
-          <p style="font-size:var(--text-sm);color:var(--color-text-muted);line-height:var(--leading-relaxed);">${message}</p>
+          <p class="text-sm text-muted" style="line-height:var(--leading-relaxed)">${message}</p>
         </div>
         <div class="modal__footer">
           <button class="btn btn--ghost btn--sm" id="confirmCancel">Cancelar</button>
@@ -211,35 +211,33 @@ function initNotifications() {
     `;
 
     const header = `
-      <div style="padding:14px 16px;border-bottom:1px solid var(--color-border);display:flex;justify-content:space-between;align-items:center;">
-        <span style="font-family:var(--font-display);font-size:var(--text-base);font-weight:600;">Notificaciones</span>
-        <span style="font-size:var(--text-xs);color:var(--color-violet);font-weight:600;">${pendientes.length} pendiente${pendientes.length !== 1 ? 's' : ''}</span>
+      <div class="d-flex justify-between items-center" style="padding:14px 16px;border-bottom:1px solid var(--color-border)">
+        <span class="font-display text-base font-semibold">Notificaciones</span>
+        <span class="text-xs text-violet font-semibold">${pendientes.length} pendiente${pendientes.length !== 1 ? 's' : ''}</span>
       </div>
     `;
 
     const items = pendientes.length
       ? pendientes.slice(0, 5).map(p => `
-          <a href="pedidos.html" style="display:flex;gap:12px;padding:12px 16px;text-decoration:none;transition:background 150ms;border-bottom:1px solid var(--color-border);"
-             onmouseover="this.style.background='var(--color-fog)'"
-             onmouseout="this.style.background=''">
-            <div style="width:36px;height:36px;border-radius:50%;background:var(--color-warning-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <a class="d-flex" href="pedidos.html" style="gap:12px;padding:12px 16px;text-decoration:none;transition:background 150ms;border-bottom:1px solid var(--color-border)" onmouseover="this.style.background='var(--color-fog)'" onmouseout="this.style.background=''">
+            <div class="size-36 d-flex items-center justify-center shrink-0" style="border-radius:50%;background:var(--color-warning-bg)">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-warning)" stroke-width="2">
                 <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
               </svg>
             </div>
-            <div style="flex:1;min-width:0;">
-              <p style="font-size:var(--text-sm);font-weight:600;color:var(--color-text);">Pedido ${p.numero}</p>
-              <p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:2px;">${p.cliente?.nombre || '—'} · ${window.AdminStore.formatPrice(p.total)}</p>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-semibold text-ink">Pedido ${p.numero}</p>
+              <p class="text-xs text-muted" style="margin-top:2px">${p.cliente?.nombre || '—'} · ${window.AdminStore.formatPrice(p.total)}</p>
             </div>
-            <span style="font-size:10px;color:var(--color-warning);font-weight:600;background:var(--color-warning-bg);padding:2px 8px;border-radius:var(--r-pill);align-self:center;white-space:nowrap;">Pendiente</span>
+            <span class="text-warning font-semibold radius-pill nowrap" style="font-size:10px;background:var(--color-warning-bg);padding:2px 8px;align-self:center">Pendiente</span>
           </a>
         `).join('')
-      : `<div style="padding:32px 16px;text-align:center;color:var(--color-text-muted);font-size:var(--text-sm);">
+      : `<div class="text-center text-muted text-sm" style="padding:32px 16px">
            <p>✓ Sin notificaciones pendientes</p>
          </div>`;
 
     const footer = pendientes.length
-      ? `<a href="pedidos.html" style="display:block;padding:12px 16px;text-align:center;font-size:var(--text-sm);font-weight:600;color:var(--color-violet);text-decoration:none;background:var(--color-fog);">
+      ? `<a class="d-block text-center text-sm font-semibold text-violet" href="pedidos.html" style="padding:12px 16px;text-decoration:none;background:var(--color-fog)">
            Ver todos los pedidos →
          </a>`
       : '';
@@ -284,35 +282,33 @@ function initNotifications() {
     `;
 
     const header = `
-      <div style="padding:14px 16px;border-bottom:1px solid var(--color-border);display:flex;justify-content:space-between;align-items:center;">
-        <span style="font-family:var(--font-display);font-size:var(--text-base);font-weight:600;">Notificaciones</span>
-        <span style="font-size:var(--text-xs);color:var(--color-violet);font-weight:600;">${pendientes.length} pendiente${pendientes.length !== 1 ? 's' : ''}</span>
+      <div class="d-flex justify-between items-center" style="padding:14px 16px;border-bottom:1px solid var(--color-border)">
+        <span class="font-display text-base font-semibold">Notificaciones</span>
+        <span class="text-xs text-violet font-semibold">${pendientes.length} pendiente${pendientes.length !== 1 ? 's' : ''}</span>
       </div>
     `;
 
     const items = pendientes.length
       ? pendientes.slice(0, 5).map(p => `
-          <a href="pedidos.html" style="display:flex;gap:12px;padding:12px 16px;text-decoration:none;transition:background 150ms;border-bottom:1px solid var(--color-border);"
-             onmouseover="this.style.background='var(--color-fog)'"
-             onmouseout="this.style.background=''">
-            <div style="width:36px;height:36px;border-radius:50%;background:var(--color-warning-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <a class="d-flex" href="pedidos.html" style="gap:12px;padding:12px 16px;text-decoration:none;transition:background 150ms;border-bottom:1px solid var(--color-border)" onmouseover="this.style.background='var(--color-fog)'" onmouseout="this.style.background=''">
+            <div class="size-36 d-flex items-center justify-center shrink-0" style="border-radius:50%;background:var(--color-warning-bg)">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-warning)" stroke-width="2">
                 <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
               </svg>
             </div>
-            <div style="flex:1;min-width:0;">
-              <p style="font-size:var(--text-sm);font-weight:600;color:var(--color-text);">Pedido ${p.numero}</p>
-              <p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:2px;">${p.cliente?.nombre || '—'} · ${window.AdminStore.formatPrice(p.total)}</p>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-semibold text-ink">Pedido ${p.numero}</p>
+              <p class="text-xs text-muted" style="margin-top:2px">${p.cliente?.nombre || '—'} · ${window.AdminStore.formatPrice(p.total)}</p>
             </div>
-            <span style="font-size:10px;color:var(--color-warning);font-weight:600;background:var(--color-warning-bg);padding:2px 8px;border-radius:var(--r-pill);align-self:center;white-space:nowrap;">Pendiente</span>
+            <span class="text-warning font-semibold radius-pill nowrap" style="font-size:10px;background:var(--color-warning-bg);padding:2px 8px;align-self:center">Pendiente</span>
           </a>
         `).join('')
-      : `<div style="padding:32px 16px;text-align:center;color:var(--color-text-muted);font-size:var(--text-sm);">
+      : `<div class="text-center text-muted text-sm" style="padding:32px 16px">
            <p>✓ Sin notificaciones pendientes</p>
          </div>`;
 
     const footer = pendientes.length
-      ? `<a href="pedidos.html" style="display:block;padding:12px 16px;text-align:center;font-size:var(--text-sm);font-weight:600;color:var(--color-violet);text-decoration:none;background:var(--color-fog);">
+      ? `<a class="d-block text-center text-sm font-semibold text-violet" href="pedidos.html" style="padding:12px 16px;text-decoration:none;background:var(--color-fog)">
            Ver todos los pedidos →
          </a>`
       : '';
@@ -374,9 +370,9 @@ window.AdminLightbox = (() => {
     lb.id = 'lightbox';
     lb.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;align-items:center;justify-content:center;overflow:hidden;';
     lb.innerHTML = `
-      <button id="lbClose" style="position:absolute;top:20px;right:24px;background:none;border:none;color:#fff;font-size:2rem;cursor:pointer;line-height:1;z-index:10001;" aria-label="Cerrar">&#x2715;</button>
-      <div id="lbContainer" style="position:relative;display:flex;align-items:center;justify-content:center;width:100%;height:100%;overflow:hidden;">
-        <img id="lbImg" src="" alt="" style="max-width:90vw;max-height:90vh;object-fit:contain;border-radius:4px;box-shadow:0 8px 40px rgba(0,0,0,0.6);transform-origin:center center;transition:transform 0.1s ease;user-select:none;-webkit-user-drag:none;"/>
+      <button class="pos-absolute cursor-pointer" id="lbClose" style="top:20px;right:24px;background:none;border:none;color:#fff;font-size:2rem;line-height:1;z-index:10001" aria-label="Cerrar">&#x2715;</button>
+      <div class="pos-relative d-flex items-center justify-center" id="lbContainer" style="width:100%;height:100%;overflow:hidden">
+        <img class="select-none" id="lbImg" src="" alt="" style="max-width:90vw;max-height:90vh;object-fit:contain;border-radius:4px;box-shadow:0 8px 40px rgba(0,0,0,0.6);transform-origin:center center;transition:transform 0.1s ease;-webkit-user-drag:none" />
       </div>
     `;
     document.body.appendChild(lb);
