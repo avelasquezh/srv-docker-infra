@@ -134,7 +134,7 @@
     text-align: left; /* anula .text-center u otras clases pensadas para la tabla de escritorio */
   }
 
-  .admin-table td::before {
+  .admin-table td[data-label]::before {
     content: attr(data-label);
     font-size: var(--text-xs);
     font-weight: var(--weight-semibold);
