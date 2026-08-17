@@ -185,6 +185,28 @@
   </main>
 </div>
 
+<!-- Modal nuevo producto de catálogo -->
+<div class="modal-overlay" id="modalNuevoProductoCat" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal__header">
+      <h3 class="modal__title">Nuevo producto</h3>
+      <button class="modal__close" data-modal-close>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal__body">
+      <div class="form-group">
+        <label class="form-label form-label--required">Nombre del producto</label>
+        <input class="form-input" id="ncpNombre" autocomplete="off"/>
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost btn--sm" data-modal-close>Cancelar</button>
+      <button class="btn btn--primary btn--sm" id="btnGuardarNuevoProductoCat">Crear producto</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal usuario -->
 <div class="modal-overlay" id="modalUsuario" role="dialog" aria-modal="true">
   <div class="modal">

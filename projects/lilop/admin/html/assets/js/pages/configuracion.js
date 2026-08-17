@@ -303,15 +303,26 @@ document.addEventListener('DOMContentLoaded', () => {
       await loadConceptos();
     } catch (err) { window.AdminToast?.error('Error', err.message); }
   });
-  document.getElementById('btnNuevoProductoCat')?.addEventListener('click', async () => {
-    const nombre = prompt('Nombre del nuevo producto:');
+  document.getElementById('btnNuevoProductoCat')?.addEventListener('click', () => {
+    document.getElementById('ncpNombre').value = '';
+    window.AdminModal.open('modalNuevoProductoCat');
+    document.getElementById('ncpNombre').focus();
+  });
+
+  async function guardarNuevoProductoCat() {
+    const nombre = document.getElementById('ncpNombre')?.value;
     if (!nombre?.trim()) return;
     try {
       await api.post('/catalogo', { nombre: nombre.trim() });
       window.AdminToast?.success('Producto creado');
+      window.AdminModal.close('modalNuevoProductoCat');
       await loadCatalogo();
     } catch (err) {
       window.AdminToast?.error('Error', err.message);
     }
+  }
+  document.getElementById('btnGuardarNuevoProductoCat')?.addEventListener('click', guardarNuevoProductoCat);
+  document.getElementById('ncpNombre')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') guardarNuevoProductoCat();
   });
 });
