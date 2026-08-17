@@ -218,7 +218,7 @@
 @media (max-width: 768px) {
   .cliente-header {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch; /* anula la utility class .items-center inline: stretch permite que el bloque Info tome el 100% del ancho y su fila interna de campos envuelva correctamente */
   }
   .cliente-header > .shrink-0:last-child { width: 100%; }
   .cliente-header .btn { width: 100%; justify-content: center; }
