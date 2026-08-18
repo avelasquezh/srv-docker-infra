@@ -204,7 +204,7 @@ function renderDisenosGrid(gridId, claseOpt, disenoActivo, prefijo) {
 function renderProductoCard(prod) {
   const est = ESTADO_PRODUCTO_MAP[prod.estado] || { label: prod.estado, cls: '' };
   return `
-    <div class="shrink-0 radius-lg d-flex flex-col pos-relative" style="width:180px;background:var(--color-white);border:1px solid var(--color-border);overflow:hidden;transition:box-shadow var(--duration-base) var(--ease),border-color var(--duration-base)" onmouseover="this.style.boxShadow='var(--shadow-sm)';this.style.borderColor='var(--color-lilac)';this.querySelector('.prod-actions').style.opacity='1'" onmouseout="this.style.boxShadow='';this.style.borderColor='var(--color-border)';this.querySelector('.prod-actions').style.opacity='0'">
+    <div class="pedido-producto-card shrink-0 radius-lg d-flex flex-col pos-relative" style="background:var(--color-white);border:1px solid var(--color-border);overflow:hidden;transition:box-shadow var(--duration-base) var(--ease),border-color var(--duration-base)" onmouseover="this.style.boxShadow='var(--shadow-sm)';this.style.borderColor='var(--color-lilac)';this.querySelector('.prod-actions').style.opacity='1'" onmouseout="this.style.boxShadow='';this.style.borderColor='var(--color-border)';this.querySelector('.prod-actions').style.opacity='0'">
 
       <!-- Botones acción -->
       <div class="prod-actions pos-absolute d-flex" style="top:var(--s-2);right:var(--s-2);gap:4px;opacity:0;transition:opacity var(--duration-fast);z-index:1">
@@ -279,7 +279,7 @@ function renderProductoCard(prod) {
 ───────────────────────────────────────────────────────────── */
 function renderAddCard(pedidoId) {
   return `
-    <div class="shrink-0 radius-lg cursor-pointer d-flex flex-col items-center justify-center gap-3" data-action="abrir-modal-producto" data-pedido-id="${pedidoId}" style="width:180px;min-height:240px;border:2px dashed var(--color-lilac);background:transparent;transition:all var(--duration-base) var(--ease)" onmouseover="this.style.borderColor='var(--color-violet)';this.style.background='var(--color-soft)'" onmouseout="this.style.borderColor='var(--color-lilac)';this.style.background='transparent'" role="button" tabindex="0" aria-label="Agregar producto">
+    <div class="pedido-producto-card shrink-0 radius-lg cursor-pointer d-flex flex-col items-center justify-center gap-3" data-action="abrir-modal-producto" data-pedido-id="${pedidoId}" style="min-height:240px;border:2px dashed var(--color-lilac);background:transparent;transition:all var(--duration-base) var(--ease)" onmouseover="this.style.borderColor='var(--color-violet)';this.style.background='var(--color-soft)'" onmouseout="this.style.borderColor='var(--color-lilac)';this.style.background='transparent'" role="button" tabindex="0" aria-label="Agregar producto">
       <div class="d-flex items-center justify-center" style="width:44px;height:44px;border-radius:50%;background:var(--color-soft)">
         <svg class="text-violet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
           <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
@@ -362,7 +362,7 @@ function renderPedidoCard(pedido) {
 
         <!-- Panel derecho: productos con scroll horizontal -->
         <div class="pedido-panel-right flex-1 min-w-0 p-5" style="overflow-x:auto">
-          <div class="d-flex gap-4" style="min-width:max-content" id="grid-${pedido.id}">
+          <div class="pedido-productos-grid d-flex gap-4" id="grid-${pedido.id}">
             ${productos.map(p => renderProductoCard(p)).join('')}
             ${renderAddCard(pedido.id)}
           </div>

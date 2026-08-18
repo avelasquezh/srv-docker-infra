@@ -61,7 +61,7 @@
 @media (max-width: 480px) {
   .admin-content { padding: var(--s-3); }
 
-  .stat-cards { gap: var(--s-2); }
+  .stat-cards { grid-template-columns: 1fr; gap: var(--s-2); }
   .stat-card { padding: var(--s-3); }
   .stat-card__icon { width: 36px; height: 36px; }
   .stat-card__icon svg { width: 18px; height: 18px; }
@@ -265,6 +265,11 @@
 
   .admin-toasts { left: var(--s-4); right: var(--s-4); bottom: var(--s-4); }
   .admin-toast { min-width: unset; max-width: 100%; }
+
+  /* Productos de pedido: de carrusel horizontal a lista vertical 100% ancho */
+  .pedido-panel-right { overflow-x: visible; }
+  .pedido-productos-grid { flex-direction: column; min-width: unset; }
+  .pedido-producto-card { width: 100%; }
 }
 
 /* ─── SUBMENÚ NAV (no depende de breakpoint) ──────────────── */
