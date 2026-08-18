@@ -958,3 +958,11 @@ textarea.form-input { resize: vertical; min-height: 80px; }
   z-index: calc(var(--z-fixed) - 1);
 }
 
+/* ─── AVATAR MINI (lista de clientes recientes) ────────────── */
+.client-avatar-mini {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--grad-primary);
+}
+

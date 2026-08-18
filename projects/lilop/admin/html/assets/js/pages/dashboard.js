@@ -421,7 +421,7 @@ function renderRecentClients(clientes, pedidos) {
       <tr class="cursor-pointer">
         <td>
           <div class="d-flex items-center gap-3">
-            <div class="d-flex items-center justify-center text-sm font-bold text-white shrink-0" style="width:34px;height:34px;border-radius:50%;background:var(--grad-primary)">
+            <div class="d-flex items-center justify-center text-sm font-bold text-white shrink-0 client-avatar-mini">
               ${(c.nombre || '?').charAt(0).toUpperCase()}
             </div>
             <div>
