@@ -305,7 +305,7 @@ function renderPedidoCard(pedido) {
       <div class="pedido-layout d-flex" style="min-height:0">
 
         <!-- Panel izquierdo (~30%) -->
-        <div class="pedido-panel-left shrink-0 p-5 d-flex flex-col gap-4" style="width:30%;min-width:200px;border-right:1px solid var(--color-border)">
+        <div class="pedido-panel-left shrink-0 p-5 d-flex flex-col gap-4">
 
 
 

@@ -970,3 +970,10 @@ textarea.form-input { resize: vertical; min-height: 80px; }
 .pedido-productos-grid { min-width: max-content; }
 .pedido-producto-card { width: 180px; }
 
+/* ─── PANEL IZQUIERDO PEDIDO (info) — 30% en desktop ───────── */
+.pedido-panel-left {
+  width: 30%;
+  min-width: 200px;
+  border-right: 1px solid var(--color-border);
+}
+
