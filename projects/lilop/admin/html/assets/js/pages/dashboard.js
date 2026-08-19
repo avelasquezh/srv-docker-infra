@@ -661,8 +661,9 @@ function renderRetencion(clientes, pedidos) {
 }
 
 /* ── INIT ────────────────────────────────────────────────── */
+if (window.AdminLayout) window.AdminLayout.init('Dashboard');
+
 document.addEventListener('DOMContentLoaded', async () => {
-  if (window.AdminLayout) window.AdminLayout.init('Dashboard');
   showLoadingStates();
 
   let pedidos = [], clientes = [];

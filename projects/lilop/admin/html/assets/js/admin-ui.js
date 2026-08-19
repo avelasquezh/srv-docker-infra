@@ -182,22 +182,23 @@ window.AdminModal   = AdminModal;
 window.AdminConfirm = AdminConfirm;
 
 /* ─── NOTIFICACIONES ──────────────────────────────────────── */
-function initNotifications() {
-  const btn = document.querySelector('.admin-topbar__btn[aria-label="Notificaciones"]');
-  if (!btn) return;
-
+/* Delegación en document: el botón puede crearse después de este
+   script (ej. cliente.js lo crea tras un fetch async), así que no
+   se busca una sola vez al cargar sino en cada clic. */
+(function initNotifications() {
   let dropdown = null;
 
-  btn.addEventListener('click', (e) => {
-    e.stopPropagation();
+  function closeDropdown() {
+    dropdown?.remove();
+    dropdown = null;
+  }
 
-    if (dropdown) { dropdown.remove(); dropdown = null; return; }
-
+  function buildDropdown(btn) {
     const pedidos    = window.AdminStore?.getPedidos() || [];
     const pendientes = pedidos.filter(p => p.estado === 'pendiente');
 
-    dropdown = document.createElement('div');
-    dropdown.style.cssText = `
+    const el = document.createElement('div');
+    el.style.cssText = `
       position:fixed;
       top:${btn.getBoundingClientRect().bottom + 8}px;
       right:16px;
@@ -242,86 +243,26 @@ function initNotifications() {
          </a>`
       : '';
 
-    dropdown.innerHTML = header + items + footer;
-    document.body.appendChild(dropdown);
+    el.innerHTML = header + items + footer;
+    return el;
+  }
 
-    const close = () => { dropdown?.remove(); dropdown = null; document.removeEventListener('click', close); };
-    setTimeout(() => document.addEventListener('click', close), 0);
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.admin-topbar__btn[aria-label="Notificaciones"]');
+
+    if (btn) {
+      e.stopPropagation();
+      if (dropdown) { closeDropdown(); return; }
+      dropdown = buildDropdown(btn);
+      document.body.appendChild(dropdown);
+      return;
+    }
+
+    if (dropdown) closeDropdown();
   });
-}
+})();
 
-document.addEventListener('DOMContentLoaded', initNotifications);
 
-/* ─── NOTIFICACIONES ──────────────────────────────────────── */
-function initNotifications() {
-  const btn = document.querySelector('.admin-topbar__btn[aria-label="Notificaciones"]');
-  if (!btn) return;
-
-  let dropdown = null;
-
-  btn.addEventListener('click', (e) => {
-    e.stopPropagation();
-
-    if (dropdown) { dropdown.remove(); dropdown = null; return; }
-
-    const pedidos    = window.AdminStore?.getPedidos() || [];
-    const pendientes = pedidos.filter(p => p.estado === 'pendiente');
-
-    dropdown = document.createElement('div');
-    dropdown.style.cssText = `
-      position:fixed;
-      top:${btn.getBoundingClientRect().bottom + 8}px;
-      right:16px;
-      width:320px;
-      background:var(--color-white);
-      border:1px solid var(--color-border);
-      border-radius:var(--r-xl);
-      box-shadow:var(--shadow-xl);
-      z-index:var(--z-dropdown);
-      overflow:hidden;
-    `;
-
-    const header = `
-      <div class="d-flex justify-between items-center" style="padding:14px 16px;border-bottom:1px solid var(--color-border)">
-        <span class="font-display text-base font-semibold">Notificaciones</span>
-        <span class="text-xs text-violet font-semibold">${pendientes.length} pendiente${pendientes.length !== 1 ? 's' : ''}</span>
-      </div>
-    `;
-
-    const items = pendientes.length
-      ? pendientes.slice(0, 5).map(p => `
-          <a class="d-flex" href="pedidos.html" style="gap:12px;padding:12px 16px;text-decoration:none;transition:background 150ms;border-bottom:1px solid var(--color-border)" onmouseover="this.style.background='var(--color-fog)'" onmouseout="this.style.background=''">
-            <div class="size-36 d-flex items-center justify-center shrink-0" style="border-radius:50%;background:var(--color-warning-bg)">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-warning)" stroke-width="2">
-                <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
-              </svg>
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-semibold text-ink">Pedido ${p.numero}</p>
-              <p class="text-xs text-muted" style="margin-top:2px">${p.cliente?.nombre || '—'} · ${window.AdminStore.formatPrice(p.total)}</p>
-            </div>
-            <span class="text-warning font-semibold radius-pill nowrap" style="font-size:10px;background:var(--color-warning-bg);padding:2px 8px;align-self:center">Pendiente</span>
-          </a>
-        `).join('')
-      : `<div class="text-center text-muted text-sm" style="padding:32px 16px">
-           <p>✓ Sin notificaciones pendientes</p>
-         </div>`;
-
-    const footer = pendientes.length
-      ? `<a class="d-block text-center text-sm font-semibold text-violet" href="pedidos.html" style="padding:12px 16px;text-decoration:none;background:var(--color-fog)">
-           Ver todos los pedidos →
-         </a>`
-      : '';
-
-    dropdown.innerHTML = header + items + footer;
-    document.body.appendChild(dropdown);
-
-    const close = () => { dropdown?.remove(); dropdown = null; document.removeEventListener('click', close); };
-    setTimeout(() => document.addEventListener('click', close), 0);
-  });
-}
-
-document.addEventListener('DOMContentLoaded', initNotifications);
 
 /* ── AdminLightbox ─────────────────────────────────────────── */
 window.AdminLightbox = (() => {
