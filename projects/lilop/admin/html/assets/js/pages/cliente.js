@@ -249,7 +249,7 @@ function renderProductoCard(prod) {
 
         <!-- Sección expandible financiera -->
         <div class="mt-2" style="border-top:1px solid var(--color-border);padding-top:var(--s-2)">
-          <button class="d-flex items-center justify-between cursor-pointer" style="width:100%;background:none;border:none;padding:0">
+          <button class="d-flex items-center justify-between cursor-pointer" data-action="toggle-costos-producto" style="width:100%;background:none;border:none;padding:0">
             <span class="font-semibold uppercase text-light" style="font-size:10px;letter-spacing:0.07em">Detalle costos</span>
             <svg class="exp-icon text-light shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" style="transition:transform var(--duration-fast)">
               <polyline points="6 9 12 15 18 9"/>
@@ -460,6 +460,16 @@ function bindEventos() {
       const pedido = pedidosData.find(p => (p.productos || []).some(pr => pr.id === btn.dataset.productoId));
       if (pedido) pedidoActivo = pedido.id;
       abrirModalCostos(btn.dataset.productoId, btn.dataset.productoNombre);
+    });
+  });
+
+  document.querySelectorAll('[data-action="toggle-costos-producto"]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const panel = btn.nextElementSibling;
+      const icon  = btn.querySelector('.exp-icon');
+      panel.classList.toggle('d-none');
+      icon.style.transform = panel.classList.contains('d-none') ? '' : 'rotate(180deg)';
     });
   });
 
