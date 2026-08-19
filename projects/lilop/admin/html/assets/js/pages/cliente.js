@@ -84,7 +84,7 @@ function renderClienteHeader(c) {
             ${c.origen_venta ? `<span class="items-center radius-pill text-xs font-medium text-violet shrink-0 nowrap" style="display:inline-flex;padding:2px var(--s-3);background:var(--color-soft)">${c.origen_venta}</span>` : ''}
           </div>
           <p class="text-xs text-light mb-3" style="font-family:var(--font-mono)">${c.id}</p>
-          <div class="d-flex flex-wrap gap-5">
+          <div class="d-flex flex-col cliente-datos-lista">
             ${campoHeader('Celular',     c.celular)}
             ${campoHeader('Ciudad',      c.ciudad ? `${c.ciudad}${c.departamento ? ', '+c.departamento : ''}` : null)}
             ${campoHeader('Localidad',   c.localidad)}
@@ -95,12 +95,11 @@ function renderClienteHeader(c) {
 
         <!-- Acciones -->
         <div class="shrink-0">
-          <button class="btn btn--outline btn--sm" id="btnEditarCliente">
+          <button class="btn btn--outline btn--sm btn--icon" id="btnEditarCliente" aria-label="Editar">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
               <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
               <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
             </svg>
-            Editar
           </button>
         </div>
 
@@ -112,9 +111,9 @@ function renderClienteHeader(c) {
 function campoHeader(label, valor) {
   if (!valor) return '';
   return `
-    <div class="d-flex flex-col" style="gap:2px">
+    <div class="d-flex justify-between items-center cliente-dato-fila" style="padding:10px 0;border-bottom:1px solid var(--color-border)">
       <span class="text-xs font-semibold uppercase text-light" style="letter-spacing:0.07em">${label}</span>
-      <span class="text-sm text-ink font-medium">${valor}</span>
+      <span class="text-sm text-ink font-medium text-right">${valor}</span>
     </div>`;
 }
 

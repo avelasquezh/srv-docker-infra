@@ -90,6 +90,7 @@
 .text-light { color: var(--color-text-light); }
 .text-md { font-size: var(--text-md); }
 .text-muted { color: var(--color-text-muted); }
+.text-right { text-align: right; }
 .text-sm { font-size: var(--text-sm); }
 .text-success { color: var(--color-success); }
 .text-violet { color: var(--color-violet); }

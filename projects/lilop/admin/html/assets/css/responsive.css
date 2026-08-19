@@ -130,6 +130,7 @@
     padding: var(--s-1) 0;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: var(--s-2);
     text-align: left; /* anula .text-center u otras clases pensadas para la tabla de escritorio */
   }
@@ -218,8 +219,7 @@
     flex-direction: column;
     align-items: stretch; /* anula la utility class .items-center inline: stretch permite que el bloque Info tome el 100% del ancho y su fila interna de campos envuelva correctamente */
   }
-  .cliente-header > .shrink-0:last-child { width: 100%; }
-  .cliente-header .btn { width: 100%; justify-content: center; }
+  .cliente-header > .shrink-0:last-child { width: 100%; display: flex; justify-content: flex-end; }
 
   .pedido-layout { flex-direction: column; }
   .pedido-panel-left {
@@ -253,7 +253,7 @@
 
 /* ─── GRÁFICA DASHBOARD ────────────────────────────────────── */
 @media (max-width: 480px) {
-  #salesChart { max-height: 160px; }
+  .chart-wrapper { height: 180px; }
 }
 
 /* ─── PAGINACIÓN / EMPTY STATE / TOAST ────────────────────── */

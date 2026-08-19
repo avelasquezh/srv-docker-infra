@@ -48,6 +48,7 @@ for key in ['light','regular','medium','semibold','bold']:
 reg('font-weight:600', 'font-semibold')
 reg('font-weight:700', 'font-bold')
 reg('text-align:center', 'text-center')
+reg('text-align:right', 'text-right')
 reg('font-family:var(--font-display)', 'font-display')
 reg('white-space:nowrap', 'nowrap')
 reg('text-transform:uppercase', 'uppercase')

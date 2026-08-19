@@ -977,3 +977,13 @@ textarea.form-input { resize: vertical; min-height: 80px; }
   border-right: 1px solid var(--color-border);
 }
 
+/* ─── LISTA DE DATOS DEL CLIENTE (header de cliente.html) ──── */
+.cliente-datos-lista .cliente-dato-fila:last-child { border-bottom: none; }
+
+/* ─── GRÁFICA DASHBOARD ─────────────────────────────────────
+   Altura fija en el contenedor: sin esto, Chart.js con
+   responsive:true entra en bucle de resize (el canvas cambia de
+   tamaño -> el contenedor se ajusta -> Chart.js lo detecta y
+   vuelve a redimensionar). */
+.chart-wrapper { position: relative; height: 300px; }
+

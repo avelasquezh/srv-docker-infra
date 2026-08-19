@@ -289,6 +289,7 @@ function renderChart(pedidos, days = 7) {
     },
     options: {
       responsive: true,
+      maintainAspectRatio: false,
       plugins: {
         legend: {
           display: true, position: 'top',
