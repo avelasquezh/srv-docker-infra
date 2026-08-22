@@ -267,6 +267,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
       window.AdminModal.close('modalDiseno');
       await loadData();
+      if (window.opener && !window.opener.closed) {
+        try {
+          window.close();
+          setTimeout(() => { window.location.href = '/disenos.html'; }, 300);
+        } catch { window.location.href = '/disenos.html'; }
+      }
     } catch (err) {
       window.AdminToast?.error('Error', err.message);
     }

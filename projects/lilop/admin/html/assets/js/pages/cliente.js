@@ -5,6 +5,7 @@
    ============================================================ */
 
 'use strict';
+const IS_TOUCH = window.matchMedia('(hover:none)').matches;
 
 const session = window.AdminAuth.guard();
 if (!session) throw new Error('No auth');
@@ -203,48 +204,41 @@ function renderDisenosGrid(gridId, claseOpt, disenoActivo, prefijo) {
 function renderProductoCard(prod) {
   const est = ESTADO_PRODUCTO_MAP[prod.estado] || { label: prod.estado, cls: '' };
   return `
-    <div class="pedido-producto-card shrink-0 radius-lg d-flex flex-col pos-relative" style="background:var(--color-white);border:1px solid var(--color-border);overflow:hidden;transition:box-shadow var(--duration-base) var(--ease),border-color var(--duration-base)" onmouseover="this.style.boxShadow='var(--shadow-sm)';this.style.borderColor='var(--color-lilac)';this.querySelector('.prod-actions').style.opacity='1'" onmouseout="this.style.boxShadow='';this.style.borderColor='var(--color-border)';this.querySelector('.prod-actions').style.opacity='0'">
-
-      <!-- Botones acción -->
-      <div class="prod-actions pos-absolute d-flex" style="top:var(--s-2);right:var(--s-2);gap:4px;opacity:0;transition:opacity var(--duration-fast);z-index:1">
-        <button class="size-26 radius-sm text-violet cursor-pointer d-flex items-center justify-center" data-action="editar-producto" data-producto-id="${prod.id}" data-producto-nombre="${prod.nombre}" data-producto-tamanio="${prod.tamanio || ''}" data-producto-diseno="${prod.diseno || ''}" data-producto-override="${prod.valor_venta_override ?? ''}" style="border:none;background:rgba(255,255,255,0.92);transition:background var(--duration-fast)" onmouseover="this.style.background='var(--color-soft)'" onmouseout="this.style.background='rgba(255,255,255,0.92)'" aria-label="Editar producto">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13">
-            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-          </svg>
-        </button>
-        <button class="size-26 radius-sm cursor-pointer d-flex items-center justify-center" data-action="abrir-costos" data-producto-id="${prod.id}" data-producto-nombre="${prod.nombre}" style="border:none;background:rgba(255,255,255,0.92);color:#b8860b;transition:background var(--duration-fast)" onmouseover="this.style.background='#fef3c7'" onmouseout="this.style.background='rgba(255,255,255,0.92)'" aria-label="Agregar costo">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13">
-            <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
-          </svg>
-        </button>
-        <button class="size-26 radius-sm text-error cursor-pointer d-flex items-center justify-center" data-action="eliminar-producto" data-producto-id="${prod.id}" data-producto-nombre="${prod.nombre}" style="border:none;background:rgba(255,255,255,0.92);transition:background var(--duration-fast)" onmouseover="this.style.background='var(--color-error-bg)'" onmouseout="this.style.background='rgba(255,255,255,0.92)'" aria-label="Eliminar producto">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13">
-            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
-        </button>
-      </div>
-
-      <!-- Imagen / placeholder -->
-      <div class="pos-relative d-flex flex-col items-center justify-center gap-2 p-3" style="width:100%;aspect-ratio:3/4;background:var(--grad-card);overflow:hidden">
-        ${(() => {
-          const d = DISENOS.find(x => x.nombre === prod.diseno);
-          return d?.imagen
-            ? `<img class="pos-absolute" src="https://api.lilop.store${d.imagen}" alt="${prod.diseno}" data-lightbox="https://api.lilop.store${d.imagen}" style="inset:0;width:100%;height:100%;object-fit:cover;cursor:zoom-in" loading="lazy" />`
-            : `<svg class="text-lavender" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32">
-                 <rect x="3" y="3" width="18" height="18" rx="2"/>
-                 <circle cx="8.5" cy="8.5" r="1.5"/>
-                 <polyline points="21 15 16 10 5 21"/>
-               </svg>
-               <span class="text-xs text-light text-center" style="line-height:var(--leading-snug)">${prod.diseno || 'Sin diseño'}</span>`;
-        })()}
-      </div>
+    <div class="pedido-producto-card shrink-0 radius-lg d-flex flex-col pos-relative" style="background:var(--color-white);border:1px solid var(--color-border);overflow:hidden;transition:box-shadow var(--duration-base) var(--ease),border-color var(--duration-base)" onmouseover="this.style.boxShadow='var(--shadow-sm)';this.style.borderColor='var(--color-lilac)'" onmouseout="this.style.boxShadow='';this.style.borderColor='var(--color-border)'">
 
       <!-- Datos -->
       <div class="p-3-4 flex-1 d-flex flex-col gap-1">
-        <p class="text-sm font-semibold text-ink" style="line-height:var(--leading-snug)">${prod.nombre}${prod.tamanio ? ` — ${prod.tamanio}` : ''}</p>
-        <div class="mt-2">
-          <span class="status-badge ${est.cls} cursor-pointer select-none" data-action="cambiar-estado-producto" data-producto-id="${prod.id}" data-estado="${prod.estado}" style="font-size:10px;padding:2px 8px" title="Clic para cambiar estado">${est.label}</span>
+        <div class="d-flex items-center justify-between" style="gap:var(--s-2)">
+          <span class="status-badge ${est.cls} cursor-pointer select-none" data-action="cambiar-estado-producto" data-producto-id="${prod.id}" data-estado="${prod.estado}" style="font-size:10px;padding:2px 8px;flex-shrink:0" title="Clic para cambiar estado">${est.label}</span>
+          <div class="d-flex items-center" style="gap:4px;flex-shrink:0">
+            <button class="btn btn--sm btn--outline btn--icon" data-action="editar-producto" data-producto-id="${prod.id}" data-producto-nombre="${prod.nombre}" data-producto-tamanio="${prod.tamanio || ''}" data-producto-diseno="${prod.diseno || ''}" data-producto-override="${prod.valor_venta_override ?? ''}" aria-label="Editar producto">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button class="btn btn--sm btn--outline btn--icon" data-action="abrir-costos" data-producto-id="${prod.id}" data-producto-nombre="${prod.nombre}" style="color:#b8860b;border-color:#b8860b" aria-label="Costos producto">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            </button>
+            <button class="btn btn--sm btn--danger btn--icon" data-action="eliminar-producto" data-producto-id="${prod.id}" data-producto-nombre="${prod.nombre}" aria-label="Eliminar producto">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
         </div>
+
+        <!-- Imagen / placeholder -->
+        <div class="pos-relative d-flex flex-col items-center justify-center gap-2 mt-2" style="width:100%;aspect-ratio:3/4;background:var(--grad-card);overflow:hidden;border-radius:var(--r-md)">
+          ${(() => {
+            const d = DISENOS.find(x => x.nombre === prod.diseno);
+            return d?.imagen
+              ? `<img class="pos-absolute" src="https://api.lilop.store${d.imagen}" alt="${prod.diseno}" data-lightbox="https://api.lilop.store${d.imagen}" style="inset:0;width:100%;height:100%;object-fit:cover;cursor:zoom-in" loading="lazy" />`
+              : `<svg class="text-lavender" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32">
+                   <rect x="3" y="3" width="18" height="18" rx="2"/>
+                   <circle cx="8.5" cy="8.5" r="1.5"/>
+                   <polyline points="21 15 16 10 5 21"/>
+                 </svg>
+                 <span class="text-xs text-light text-center" style="line-height:var(--leading-snug)">${prod.diseno || 'Sin diseño'}</span>`;
+          })()}
+        </div>
+
+        <p class="text-sm font-semibold text-ink mt-2" style="line-height:var(--leading-snug)">${prod.nombre}${prod.tamanio ? ` — ${prod.tamanio}` : ''}</p>
 
         <!-- Sección expandible financiera -->
         <div class="mt-2" style="border-top:1px solid var(--color-border);padding-top:var(--s-2)">
@@ -607,7 +601,13 @@ function abrirModalProducto(pedidoId) {
     </div>
 
     <div class="d-flex flex-col gap-3">
-      <p class="text-xs font-semibold uppercase text-light" style="letter-spacing:0.08em;padding-bottom:var(--s-2);border-bottom:1px solid var(--color-border)">Diseño <span class="font-regular" style="text-transform:none;letter-spacing:0">(selecciona uno)</span></p>
+      <div class="d-flex items-center justify-between" style="padding-bottom:var(--s-2);border-bottom:1px solid var(--color-border)">
+        <p class="text-xs font-semibold uppercase text-light" style="letter-spacing:0.08em;margin:0">Diseño <span class="font-regular" style="text-transform:none;letter-spacing:0">(selecciona uno)</span></p>
+        <button type="button" class="btn btn--ghost btn--sm" id="btnAgregarDisenoRapido" style="font-size:var(--text-xs);padding:3px 10px;gap:4px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Agregar diseño
+        </button>
+      </div>
       ${htmlFiltrosDisenos('add')}
       <div class="d-grid gap-3 p-1" style="grid-template-columns:repeat(auto-fill,minmax(110px,1fr));max-height:240px;overflow-y:auto" id="addDisenosGrid"></div>
       <div class="d-none items-center gap-3 p-3-4 radius-md" id="disenoPreview" style="background:var(--color-soft);border:1px solid var(--color-lilac)">
@@ -619,6 +619,22 @@ function abrirModalProducto(pedidoId) {
 
   renderDisenosGrid('addDisenosGrid', 'diseno-opt', null, 'add');
   bindDisenoOpts();
+
+  document.getElementById('btnAgregarDisenoRapido')?.addEventListener('click', () => {
+    const popup = window.open(
+      '/disenos.html?nuevo=1',
+      'nuevo-diseno',
+      'width=600,height=700,scrollbars=yes,resizable=yes'
+    );
+    const timer = setInterval(async () => {
+      if (popup.closed) {
+        clearInterval(timer);
+        DISENOS = await api.get('/disenos');
+        renderDisenosGrid('addDisenosGrid', 'diseno-opt', disenoSeleccionado, 'add');
+        bindDisenoOpts();
+      }
+    }, 500);
+  });
 
   ['addSearch','addCol','addEst'].forEach(id => {
     document.getElementById(id)?.addEventListener(id === 'addSearch' ? 'input' : 'change', () => {
@@ -753,8 +769,9 @@ async function cargarDatos() {
     } catch {}
 
   } catch (err) {
+    console.error('cargarDatos ERROR:', err);
     if (err.message?.includes('404')) window.location.href = '/clientes.html';
-    else window.AdminToast?.error('Error', 'No se pudo cargar el cliente');
+    else window.AdminToast?.error('Error', 'No se pudo cargar el cliente: ' + err.message);
   }
 }
 
@@ -1012,7 +1029,21 @@ async function renderModalCostosPedido() {
       <div>
         ${seccionLabel('Comisión')}
         <div class="d-flex flex-col gap-2" data-costo-lista="comision">
-          ${datos.comision.map(c => filaRegistro(c.nombre_vendedor || 'Sin nombre', c.valor_comision, 'comision', c.id)).join('')}
+          ${datos.comision.map(c => {
+            const estadoCls = c.estado === 'Pagada' ? 'badge--success' : 'badge--warning';
+            return '<div class="d-flex items-center justify-between p-2-3 radius-sm" style="background:var(--color-fog)">'
+              + '<span class="text-sm">' + (c.nombre_vendedor || 'Sin nombre') + '</span>'
+              + '<div class="d-flex items-center gap-2">'
+              + '<span class="text-sm font-semibold">' + formatPrice(c.valor_comision) + '</span>'
+              + '<span class="status-badge ' + estadoCls + ' cursor-pointer select-none"'
+              + ' data-costo-action="toggle-comision" data-comision-id="' + c.id + '" data-comision-estado="' + c.estado + '"'
+              + ' style="font-size:9px;padding:2px 8px" title="Clic para cambiar estado">' + c.estado + '</span>'
+              + '<button data-costo-tipo="comision" data-costo-id="' + c.id + '" data-costo-action="eliminar" class="btn btn--sm btn--danger btn--icon size-28 shrink-0">'
+              + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">'
+              + '<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>'
+              + '</svg></button>'
+              + '</div></div>';
+          }).join('')}
         </div>
         ${filaNuevo('comision', [
           { id: 'comNombre', label: 'Vendedor', select: true, options: listaComisiones.map(v => ({ id: v.nombre, nombre: v.nombre })), required: true },
@@ -1092,6 +1123,12 @@ async function renderModalCostosPedido() {
       try {
         if (action === 'eliminar') await eliminarCosto(tipo, id);
         if (action === 'agregar')  await agregarCosto(tipo);
+        if (action === 'toggle-comision') {
+          const nuevoEstado = btn.dataset.comisionEstado === 'Pagada' ? 'Pendiente' : 'Pagada';
+          await api.patch(`/pedidos/${pedidoCostosActivo}/costos/comision/${btn.dataset.comisionId}/estado`, { estado: nuevoEstado });
+          window.AdminToast?.success(`Comisión marcada como ${nuevoEstado}`);
+          await renderModalCostosPedido();
+        }
       } catch (err) {
         window.AdminToast?.error('Error', err.message);
       }

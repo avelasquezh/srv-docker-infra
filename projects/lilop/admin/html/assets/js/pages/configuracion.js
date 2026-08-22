@@ -119,11 +119,11 @@ async function loadUsuarios() {
     tbody.querySelectorAll('[data-action="eliminar-usuario"]').forEach(btn =>
       btn.addEventListener('click', () => {
         window.AdminConfirm.show(
-          `¿Desactivar a <strong>${btn.dataset.nombre}</strong>?`,
+          `¿Eliminar a <strong>${btn.dataset.nombre}</strong>? Esta acción no se puede deshacer.`,
           async () => {
             try {
               await api.delete(`/usuarios/${btn.dataset.id}`);
-              window.AdminToast?.success('Usuario desactivado');
+              window.AdminToast?.success('Usuario eliminado');
               await loadUsuarios();
             } catch (err) { window.AdminToast?.error('Error', err.message); }
           }
@@ -164,7 +164,7 @@ function abrirModalUsuario(id) {
     </div>
     ${!u ? `
     <div class="form-group">
-      <label class="form-label form-label--required">Contraseña</label>
+      <label class="form-label">Contraseña <span class="text-muted" style="font-weight:normal;font-size:var(--text-xs)">(opcional — solo si tendrá acceso al panel)</span></label>
       <input class="form-input" type="password" id="uPassword"/>
     </div>` : ''}
     ${u ? `

@@ -37,17 +37,17 @@ const crear = async (req, res) => {
   const { nombre: _nombre, celular, email, password, rol, comision_pct } = req.body;
   const nombre = toTitleCase(_nombre);
 
-  if (!nombre || !email || !password) {
-    return res.status(400).json({ error: 'Nombre, email y contraseña son requeridos' });
+  if (!nombre) {
+    return res.status(400).json({ error: 'El nombre es requerido' });
   }
 
   try {
-    const hash = await bcrypt.hash(password, 10);
+    const hash = password ? await bcrypt.hash(password, 10) : null;
     const result = await pool.query(
       `INSERT INTO usuarios (nombre, celular, email, password, rol, comision_pct)
        VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING id, nombre, celular, email, rol, comision_pct, activo`,
-      [nombre, celular || null, email, hash, rol || 'vendedor', comision_pct ?? 20]
+      [nombre, celular || null, email || null, hash, rol || 'vendedor', comision_pct ?? 20]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
@@ -118,13 +118,13 @@ const eliminar = async (req, res) => {
   const { id } = req.params;
   try {
     const result = await pool.query(
-      'UPDATE usuarios SET activo = false WHERE id = $1 RETURNING id',
+      'DELETE FROM usuarios WHERE id = $1 RETURNING id',
       [id]
     );
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
-    res.json({ mensaje: 'Usuario desactivado correctamente' });
+    res.json({ ok: true });
   } catch (err) {
     console.error('Error al eliminar usuario:', err.message);
     res.status(500).json({ error: 'Error interno del servidor' });

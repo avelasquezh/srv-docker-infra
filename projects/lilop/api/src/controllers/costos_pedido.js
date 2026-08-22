@@ -101,6 +101,25 @@ const eliminarDomicilio = async (req, res) => {
   }
 };
 
+const cambiarEstadoComision = async (req, res) => {
+  const { id } = req.params;
+  const { estado } = req.body;
+  if (!['Pendiente', 'Pagada'].includes(estado)) {
+    return res.status(400).json({ error: 'Estado inválido' });
+  }
+  try {
+    const result = await pool.query(
+      'UPDATE comisiones SET estado = $1 WHERE id = $2 RETURNING *',
+      [estado, id]
+    );
+    if (!result.rows.length) return res.status(404).json({ error: 'Comisión no encontrada' });
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Error al cambiar estado comisión:', err.message);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+};
+
 const eliminarComision = async (req, res) => {
   const { id } = req.params;
   try {
@@ -137,11 +156,11 @@ const listaVendedoresComision = async (req, res) => {
 const listaConceptosOtros = async (req, res) => {
   try {
     const result = await pool.query(
-      "SELECT DISTINCT nombre FROM costos_pedido WHERE nombre IS NOT NULL ORDER BY nombre"
+      "SELECT nombre FROM conceptos_costo ORDER BY nombre"
     );
     res.json(result.rows.map(r => r.nombre));
   } catch (err) {
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 };
-module.exports = { listar, agregarDomicilio, agregarComision, eliminarComision, agregarOtro, eliminarOtro, eliminarDomicilio, listaDomiciliarios, listaVendedoresComision, listaConceptosOtros };
+module.exports = { listar, agregarDomicilio, agregarComision, eliminarComision, cambiarEstadoComision, agregarOtro, eliminarOtro, eliminarDomicilio, listaDomiciliarios, listaVendedoresComision, listaConceptosOtros };
