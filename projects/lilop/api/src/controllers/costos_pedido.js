@@ -101,6 +101,25 @@ const eliminarDomicilio = async (req, res) => {
   }
 };
 
+const cambiarEstadoPagoDomicilio = async (req, res) => {
+  const { id } = req.params;
+  const { estado_pago } = req.body;
+  if (!['Pendiente', 'Pagado'].includes(estado_pago)) {
+    return res.status(400).json({ error: 'Estado de pago inválido' });
+  }
+  try {
+    const result = await pool.query(
+      'UPDATE entregas SET estado_pago = $1 WHERE id = $2 RETURNING *',
+      [estado_pago, id]
+    );
+    if (!result.rows.length) return res.status(404).json({ error: 'Entrega no encontrada' });
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Error al cambiar estado pago domicilio:', err.message);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+};
+
 const cambiarEstadoComision = async (req, res) => {
   const { id } = req.params;
   const { estado } = req.body;
@@ -163,4 +182,4 @@ const listaConceptosOtros = async (req, res) => {
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 };
-module.exports = { listar, agregarDomicilio, agregarComision, eliminarComision, cambiarEstadoComision, agregarOtro, eliminarOtro, eliminarDomicilio, listaDomiciliarios, listaVendedoresComision, listaConceptosOtros };
+module.exports = { listar, agregarDomicilio, agregarComision, eliminarComision, cambiarEstadoComision, cambiarEstadoPagoDomicilio, agregarOtro, eliminarOtro, eliminarDomicilio, listaDomiciliarios, listaVendedoresComision, listaConceptosOtros };

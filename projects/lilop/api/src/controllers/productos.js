@@ -42,7 +42,7 @@ const obtener = async (req, res) => {
 
 const crear = async (req, res) => {
   const { pedido_id } = req.params;
-  const { nombre, tamanio, diseno, estado } = req.body;
+  const { nombre, tamanio, diseno, estado, cantidad } = req.body;
 
   if (!nombre) {
     return res.status(400).json({ error: 'El nombre del producto es requerido' });
@@ -65,13 +65,14 @@ const crear = async (req, res) => {
        LIMIT 1`,
       [nombre, tamanio || null]
     );
-    const precioBase = precioResult.rows[0]?.precio ?? null;
+    const cant = parseInt(cantidad) || 1;
+    const precioBase = precioResult.rows[0]?.precio ? precioResult.rows[0].precio * cant : null;
 
     const result = await pool.query(
-      `INSERT INTO productos (pedido_id, nombre, tamanio, diseno, estado, valor_venta_override)
-       VALUES ($1, $2, $3, $4, $5, $6)
+      `INSERT INTO productos (pedido_id, nombre, tamanio, diseno, estado, valor_venta_override, cantidad)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING *`,
-      [pedido_id, nombre, tamanio || null, diseno || null, estado || 'Por Comprar', precioBase]
+      [pedido_id, nombre, tamanio || null, diseno || null, estado || 'Por Comprar', precioBase, cant]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
@@ -82,7 +83,7 @@ const crear = async (req, res) => {
 
 const actualizar = async (req, res) => {
   const { id } = req.params;
-  const { nombre, tamanio, diseno, estado, valor_venta_override } = req.body;
+  const { nombre, tamanio, diseno, estado, valor_venta_override, cantidad } = req.body;
 
   try {
     let overrideFinal = valor_venta_override !== undefined ? valor_venta_override : null;
@@ -108,10 +109,11 @@ const actualizar = async (req, res) => {
            tamanio              = COALESCE($2, tamanio),
            diseno               = COALESCE($3, diseno),
            estado               = COALESCE($4, estado),
-           valor_venta_override = $5
-       WHERE id = $6
+           valor_venta_override = $5,
+           cantidad             = COALESCE($6, cantidad)
+       WHERE id = $7
        RETURNING *`,
-      [nombre, tamanio, diseno, estado, overrideFinal, id]
+      [nombre, tamanio, diseno, estado, overrideFinal, cantidad || null, id]
     );
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Producto no encontrado' });

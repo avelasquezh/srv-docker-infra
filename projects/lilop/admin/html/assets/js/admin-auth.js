@@ -51,9 +51,11 @@ const AdminAuth = {
   guard() {
     const session = this.getSession();
     if (!session) {
+      document.body.style.visibility = 'visible';
       window.location.href = '/login.html';
       return false;
     }
+    document.body.style.visibility = 'visible';
     return session;
   },
 

@@ -1,7 +1,7 @@
 const router = require('express').Router({ mergeParams: true });
 const { auth } = require('../middleware/auth');
 const {
-  listar, agregarDomicilio, agregarComision, eliminarComision, cambiarEstadoComision, agregarOtro, eliminarOtro, eliminarDomicilio, listaDomiciliarios, listaVendedoresComision, listaConceptosOtros
+  listar, agregarDomicilio, agregarComision, eliminarComision, cambiarEstadoComision, cambiarEstadoPagoDomicilio, agregarOtro, eliminarOtro, eliminarDomicilio, listaDomiciliarios, listaVendedoresComision, listaConceptosOtros
 } = require('../controllers/costos_pedido');
 
 router.get('/',                  auth, listar);
@@ -11,7 +11,8 @@ router.post('/otros',            auth, agregarOtro);
 router.delete('/otros/:id',      auth, eliminarOtro);
 router.delete('/domicilio/:id',  auth, eliminarDomicilio);
 router.delete('/comision/:id',       auth, eliminarComision);
-router.patch('/comision/:id/estado', auth, cambiarEstadoComision);
+router.patch('/comision/:id/estado',   auth, cambiarEstadoComision);
+router.patch('/domicilio/:id/estado-pago', auth, cambiarEstadoPagoDomicilio);
 router.get('/listas/domiciliarios', auth, listaDomiciliarios);
 router.get('/listas/comisiones',    auth, listaVendedoresComision);
 router.get('/listas/conceptos',     auth, listaConceptosOtros);

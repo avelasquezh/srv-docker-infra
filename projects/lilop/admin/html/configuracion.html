@@ -4,8 +4,12 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Configuración — Lilop Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap"/>
+  
   <link rel="stylesheet" href="/assets/css/tokens.css"/>
-  <link rel="stylesheet" href="/assets/css/admin.css?v=7"/>
+  <link rel="stylesheet" href="/assets/css/admin.css?v=8"/>
   <link rel="stylesheet" href="/assets/css/utilities.css?v=3"/>
   <link rel="stylesheet" href="/assets/css/responsive.css?v=6"/>
 </head>
@@ -141,6 +145,19 @@
       <!-- Conceptos de costo -->
       <div class="admin-panel" data-seccion="maestros">
         <div class="admin-panel__header">
+          <h3 class="admin-panel__title">Categorías de productos</h3>
+        </div>
+        <div class="admin-panel__body">
+          <div class="d-flex flex-col gap-2 mb-4" id="categoriasLista"></div>
+          <div class="d-flex gap-2 mt-2">
+            <input class="form-input" id="nuevaCatNombre" placeholder="Nombre…"/>
+            <input class="form-input" id="nuevaCatSlug" placeholder="slug-url…" style="max-width:160px"/>
+            <button class="btn btn--primary btn--sm shrink-0" id="btnAgregarCategoria">Agregar</button>
+          </div>
+        </div>
+      </div>
+      <div class="admin-panel" data-seccion="maestros">
+        <div class="admin-panel__header">
           <h3 class="admin-panel__title">Conceptos de costo</h3>
         </div>
         <div class="admin-panel__body">
@@ -148,6 +165,18 @@
           <div class="d-flex gap-2">
             <input class="form-input" id="nuevoConceptoInput" placeholder="Nuevo concepto…"/>
             <button class="btn btn--primary btn--sm" id="btnAgregarConcepto">Agregar</button>
+          </div>
+        </div>
+      </div>
+      <div class="admin-panel" data-seccion="maestros">
+        <div class="admin-panel__header">
+          <h3 class="admin-panel__title">Conceptos de producto</h3>
+        </div>
+        <div class="admin-panel__body">
+          <div class="d-flex flex-col gap-2 mb-4" id="conceptosCompraLista"></div>
+          <div class="d-flex gap-2">
+            <input class="form-input" id="nuevoConceptoCompraInput" placeholder="Nuevo concepto…"/>
+            <button class="btn btn--primary btn--sm" id="btnAgregarConceptoCompra">Agregar</button>
           </div>
         </div>
       </div>
@@ -225,11 +254,63 @@
 </div>
 
 <div class="admin-toasts" id="adminToasts"></div>
+
+<!-- Modal Editar Categoría -->
+<div class="modal-overlay" id="modalEditarCatMaestro" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal__header">
+      <h3 class="modal__title">Editar categoría</h3>
+      <button class="modal__close" data-modal-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal__body">
+      <input type="hidden" id="editCatMaestroId"/>
+      <div class="form-group">
+        <label class="form-label form-label--required">Nombre</label>
+        <input class="form-input" id="editCatMaestroNombre"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label form-label--required">Slug <span class="text-muted text-xs">(usado en URLs)</span></label>
+        <input class="form-input" id="editCatMaestroSlug"/>
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost btn--sm" data-modal-close>Cancelar</button>
+      <button class="btn btn--primary btn--sm" id="btnGuardarEditCatMaestro">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Editar Producto Catálogo -->
+<div class="modal-overlay" id="modalEditarCat" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal__header">
+      <h3 class="modal__title">Editar producto</h3>
+      <button class="modal__close" data-modal-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal__body">
+      <input type="hidden" id="editCatId"/>
+      <div class="form-group">
+        <label class="form-label form-label--required">Nombre</label>
+        <input class="form-input" id="editCatNombre"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Categoría</label>
+        <select class="form-input" id="editCatCategoria">
+          <option value="">Sin categoría</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost btn--sm" data-modal-close>Cancelar</button>
+      <button class="btn btn--primary btn--sm" id="btnGuardarEditCat">Guardar</button>
+    </div>
+  </div>
+</div>
 <script src="/assets/js/admin-auth.js"></script>
 <script src="/assets/js/admin-store.js"></script>
 <script src="/assets/js/admin-api.js?v=2"></script>
 <script src="/assets/js/admin-layout.js?v=12"></script>
 <script src="/assets/js/admin-ui.js?v=1"></script>
-<script src="/assets/js/pages/configuracion.js?v=8"></script>
+<script src="/assets/js/pages/configuracion.js?v=14"></script>
 </body>
 </html>

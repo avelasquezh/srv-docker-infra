@@ -33,9 +33,17 @@ function renderCatalogo(productos) {
             <input type="number" min="0" class="form-input text-xs" style="width:100px;padding:6px 8px" data-catalogo-id="${p.id}" data-tamanio="${t}" value="${preciosMap[t] ? preciosMap[t].precio : ''}" placeholder="—" />
           </td>`).join('')}
         <td>
-          <button data-action="toggle" data-id="${p.id}" class="btn btn--sm ${p.activo ? 'btn--primary' : 'btn--ghost'} text-xs">
-            ${p.activo ? 'Activo' : 'Inactivo'}
-          </button>
+          <div class="d-flex gap-2">
+            <button data-action="toggle" data-id="${p.id}" class="btn btn--sm ${p.activo ? 'btn--primary' : 'btn--ghost'} text-xs">
+              ${p.activo ? 'Activo' : 'Inactivo'}
+            </button>
+            <button data-action="editar-cat" data-id="${p.id}" class="btn btn--sm btn--outline btn--icon" title="Editar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button data-action="eliminar-cat" data-id="${p.id}" data-nombre="${p.nombre}" class="btn btn--sm btn--danger btn--icon" title="Eliminar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+            </button>
+          </div>
         </td>
       </tr>`;
   }).join('');
@@ -68,12 +76,50 @@ function renderCatalogo(productos) {
       }
     });
   });
+
+  /* Bind editar */
+  tbody.querySelectorAll('[data-action="editar-cat"]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset.id;
+      const prod = window._catalogoCache?.find(p => p.id === id);
+      document.getElementById('editCatId').value = id;
+      document.getElementById('editCatNombre').value = prod?.nombre || '';
+      const sel = document.getElementById('editCatCategoria');
+      if (sel) {
+        try {
+          const cats = await api.get('/maestros/categorias');
+          sel.innerHTML = '<option value="">Sin categoría</option>' +
+            cats.map(c => `<option value="${c.slug}" ${prod?.categoria === c.slug ? 'selected' : ''}>${c.nombre}</option>`).join('');
+        } catch {}
+      }
+      window.AdminModal.open('modalEditarCat');
+    });
+  });
+
+  /* Bind eliminar */
+  tbody.querySelectorAll('[data-action="eliminar-cat"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      window.AdminConfirm.show(
+        `¿Eliminar el producto <strong>${btn.dataset.nombre}</strong>? Esta acción no se puede deshacer.`,
+        async () => {
+          try {
+            await api.delete(`/catalogo/${btn.dataset.id}`);
+            window.AdminToast?.success('Producto eliminado');
+            await loadCatalogo();
+          } catch (err) {
+            window.AdminToast?.error('Error', err.message);
+          }
+        }
+      );
+    });
+  });
 }
 
 /* ─── CARGAR CATÁLOGO ─────────────────────────────────────── */
 async function loadCatalogo() {
   try {
     const data = await api.get('/catalogo');
+    window._catalogoCache = data;
     renderCatalogo(data);
   } catch (err) {
     window.AdminToast?.error('Error', 'No se pudo cargar el catálogo');
@@ -192,12 +238,17 @@ async function loadOrigenes() {
         </button>
       </div>`).join('') : '<p class="text-sm text-muted">Sin orígenes registrados</p>';
     lista.querySelectorAll('[data-action="eliminar-origen"]').forEach(btn =>
-      btn.addEventListener('click', async () => {
-        try {
-          await api.delete(`/maestros/origenes/${btn.dataset.id}`);
-          window.AdminToast?.success('Origen eliminado');
-          await loadOrigenes();
-        } catch (err) { window.AdminToast?.error('Error', err.message); }
+      btn.addEventListener('click', () => {
+        window.AdminConfirm.show(
+          '¿Eliminar este origen de venta? Esta acción no se puede deshacer.',
+          async () => {
+            try {
+              await api.delete(`/maestros/origenes/${btn.dataset.id}`);
+              window.AdminToast?.success('Origen eliminado');
+              await loadOrigenes();
+            } catch (err) { window.AdminToast?.error('Error', err.message); }
+          }
+        );
       })
     );
   } catch (err) { window.AdminToast?.error('Error', 'No se pudieron cargar los orígenes'); }
@@ -216,15 +267,50 @@ async function loadConceptos() {
         </button>
       </div>`).join('') : '<p class="text-sm text-muted">Sin conceptos registrados</p>';
     lista.querySelectorAll('[data-action="eliminar-concepto"]').forEach(btn =>
-      btn.addEventListener('click', async () => {
-        try {
-          await api.delete(`/maestros/conceptos/${btn.dataset.id}`);
-          window.AdminToast?.success('Concepto eliminado');
-          await loadConceptos();
-        } catch (err) { window.AdminToast?.error('Error', err.message); }
+      btn.addEventListener('click', () => {
+        window.AdminConfirm.show(
+          '¿Eliminar este concepto de costo? Esta acción no se puede deshacer.',
+          async () => {
+            try {
+              await api.delete(`/maestros/conceptos/${btn.dataset.id}`);
+              window.AdminToast?.success('Concepto eliminado');
+              await loadConceptos();
+            } catch (err) { window.AdminToast?.error('Error', err.message); }
+          }
+        );
       })
     );
   } catch (err) { window.AdminToast?.error('Error', 'No se pudieron cargar los conceptos'); }
+}
+async function loadConceptosCompra() {
+  try {
+    const data = await api.get('/maestros/conceptos-compra');
+    const lista = document.getElementById('conceptosCompraLista');
+    if (!lista) return;
+    lista.innerHTML = data.length ? data.map(c => `
+      <div class="d-flex items-center justify-between p-2-3 radius-sm" style="background:var(--color-fog)">
+        <span class="text-sm">${c.nombre}</span>
+        <button class="btn btn--sm btn--danger btn--icon" data-id="${c.id}" data-action="eliminar-concepto-compra">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+            <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+          </svg>
+        </button>
+      </div>`).join('') : '<p class="text-sm text-muted">Sin conceptos registrados</p>';
+    lista.querySelectorAll('[data-action="eliminar-concepto-compra"]').forEach(btn =>
+      btn.addEventListener('click', () => {
+        window.AdminConfirm.show(
+          '¿Eliminar este concepto de producto? Esta acción no se puede deshacer.',
+          async () => {
+            try {
+              await api.delete(`/maestros/conceptos-compra/${btn.dataset.id}`);
+              window.AdminToast?.success('Concepto eliminado');
+              await loadConceptosCompra();
+            } catch (err) { window.AdminToast?.error('Error', err.message); }
+          }
+        );
+      })
+    );
+  } catch (err) { window.AdminToast?.error('Error', 'No se pudieron cargar los conceptos de producto'); }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -249,7 +335,7 @@ document.addEventListener('DOMContentLoaded', () => {
     api.get('/usuarios').then(d => window._usuariosCache = d);
     loadUsuarios();
   }
-  if (seccion === 'maestros') { loadOrigenes(); loadConceptos(); }
+  if (seccion === 'maestros') { loadOrigenes(); loadConceptos(); loadConceptosCompra(); loadCategorias(); }
 
   document.getElementById('btnNuevoUsuario')?.addEventListener('click', () => abrirModalUsuario(null));
 
@@ -293,6 +379,84 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (err) { window.AdminToast?.error('Error', err.message); }
   });
 
+  /* ── Categorías ── */
+  async function loadCategorias() {
+    try {
+      const data = await api.get('/maestros/categorias');
+      const lista = document.getElementById('categoriasLista');
+      if (!lista) return;
+      lista.innerHTML = data.length ? data.map(c => `
+        <div class="d-flex items-center justify-between p-2-3 radius-sm" style="background:var(--color-fog)">
+          <div class="d-flex flex-col gap-1">
+            <span class="text-sm font-medium">${c.nombre}</span>
+            <span class="text-xs text-muted" style="font-family:var(--font-mono)">${c.slug}</span>
+          </div>
+          <div class="d-flex items-center gap-2">
+            <span class="status-badge ${c.activo ? 'badge--success' : 'badge--inactive'} text-xs">${c.activo ? 'Activa' : 'Inactiva'}</span>
+            <button class="btn btn--sm btn--outline btn--icon" data-action="editar-cat-maestro" data-id="${c.id}" data-nombre="${c.nombre}" data-slug="${c.slug}" title="Editar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button class="btn btn--sm btn--danger btn--icon" data-action="eliminar-cat-maestro" data-id="${c.id}" data-nombre="${c.nombre}" title="Eliminar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+            </button>
+          </div>
+        </div>`).join('') : '<p class="text-sm text-muted">Sin categorías</p>';
+
+      lista.querySelectorAll('[data-action="editar-cat-maestro"]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.getElementById('editCatMaestroId').value    = btn.dataset.id;
+          document.getElementById('editCatMaestroNombre').value = btn.dataset.nombre;
+          document.getElementById('editCatMaestroSlug').value   = btn.dataset.slug;
+          window.AdminModal.open('modalEditarCatMaestro');
+        });
+      });
+
+      lista.querySelectorAll('[data-action="eliminar-cat-maestro"]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          window.AdminConfirm.show(
+            `¿Eliminar la categoría <strong>${btn.dataset.nombre}</strong>?`,
+            async () => {
+              try {
+                await api.delete(`/maestros/categorias/${btn.dataset.id}`);
+                window.AdminToast?.success('Categoría eliminada');
+                await loadCategorias();
+              } catch (err) { window.AdminToast?.error('Error', err.message); }
+            }
+          );
+        });
+      });
+    } catch (err) { window.AdminToast?.error('Error', 'No se pudieron cargar las categorías'); }
+  }
+
+  document.getElementById('btnAgregarCategoria')?.addEventListener('click', async () => {
+    const nombre = document.getElementById('nuevaCatNombre')?.value.trim();
+    const slug   = document.getElementById('nuevaCatSlug')?.value.trim()
+      || nombre.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+    if (!nombre) { window.AdminToast?.error('Campo requerido', 'Ingresa un nombre'); return; }
+    try {
+      await api.post('/maestros/categorias', { nombre, slug });
+      window.AdminToast?.success('Categoría creada');
+      document.getElementById('nuevaCatNombre').value = '';
+      document.getElementById('nuevaCatSlug').value   = '';
+      await loadCategorias();
+    } catch (err) { window.AdminToast?.error('Error', err.message); }
+  });
+
+  document.getElementById('nuevaCatNombre')?.addEventListener('input', e => {
+    const slug = e.target.value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+    document.getElementById('nuevaCatSlug').value = slug;
+  });
+
+  document.getElementById('btnAgregarConceptoCompra')?.addEventListener('click', async () => {
+    const nombre = document.getElementById('nuevoConceptoCompraInput')?.value.trim();
+    if (!nombre) { window.AdminToast?.error('Campo requerido', 'Ingresa un nombre'); return; }
+    try {
+      await api.post('/maestros/conceptos-compra', { nombre });
+      window.AdminToast?.success('Concepto agregado');
+      document.getElementById('nuevoConceptoCompraInput').value = '';
+      await loadConceptosCompra();
+    } catch (err) { window.AdminToast?.error('Error', err.message); }
+  });
   document.getElementById('btnAgregarConcepto')?.addEventListener('click', async () => {
     const nombre = document.getElementById('nuevoConceptoInput')?.value.trim();
     if (!nombre) { window.AdminToast?.error('Campo requerido', 'Ingresa un concepto'); return; }
@@ -303,6 +467,32 @@ document.addEventListener('DOMContentLoaded', () => {
       await loadConceptos();
     } catch (err) { window.AdminToast?.error('Error', err.message); }
   });
+  document.getElementById('btnGuardarEditCatMaestro')?.addEventListener('click', async () => {
+    const id     = document.getElementById('editCatMaestroId')?.value;
+    const nombre = document.getElementById('editCatMaestroNombre')?.value.trim();
+    const slug   = document.getElementById('editCatMaestroSlug')?.value.trim();
+    if (!nombre || !slug) { window.AdminToast?.error('Campos requeridos', 'Nombre y slug son obligatorios'); return; }
+    try {
+      await api.put(`/maestros/categorias/${id}`, { nombre, slug });
+      window.AdminToast?.success('Categoría actualizada');
+      window.AdminModal.close('modalEditarCatMaestro');
+      await loadCategorias();
+    } catch (err) { window.AdminToast?.error('Error', err.message); }
+  });
+
+  document.getElementById('btnGuardarEditCat')?.addEventListener('click', async () => {
+    const id     = document.getElementById('editCatId')?.value;
+    const nombre = document.getElementById('editCatNombre')?.value.trim();
+    if (!nombre) { window.AdminToast?.error('Campo requerido', 'El nombre es obligatorio'); return; }
+    try {
+      const cat = document.getElementById('editCatCategoria')?.value || null;
+      await api.put(`/catalogo/${id}`, { nombre, categoria: cat, categoria_label: cat ? null : null });
+      window.AdminToast?.success('Producto actualizado');
+      window.AdminModal.close('modalEditarCat');
+      await loadCatalogo();
+    } catch (err) { window.AdminToast?.error('Error', err.message); }
+  });
+
   document.getElementById('btnNuevoProductoCat')?.addEventListener('click', () => {
     document.getElementById('ncpNombre').value = '';
     window.AdminModal.open('modalNuevoProductoCat');

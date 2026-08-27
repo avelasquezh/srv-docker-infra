@@ -31,7 +31,27 @@ const state = {
 };
 
 /* ─── LABELS DE CATEGORÍA ─────────────────────────────────── */
-const CATEGORY_LABELS = {
+let CATEGORY_LABELS = {};
+
+async function loadCategorias() {
+  try {
+    const res  = await fetch('https://api.lilop.store/api/public/categorias');
+    const cats = await res.json();
+    cats.forEach(c => { CATEGORY_LABELS[c.slug] = c.nombre; });
+
+    const container = document.getElementById('filterCategory');
+    if (container) {
+      container.innerHTML = cats.map(c => `
+        <label class="filter-option">
+          <input type="checkbox" name="category" value="${c.slug}" />
+          <span>${c.nombre}</span>
+          <span class="filter-option__count" data-cat="${c.slug}"></span>
+        </label>`).join('');
+    }
+  } catch {}
+}
+
+const CATEGORY_LABELS_LEGACY = {
   sabanas:     'Sábanas',
   edredones:   'Edredones',
   almohadas:   'Almohadas',
@@ -549,7 +569,7 @@ function updateFilterCounts() {
 /* ─── CARGAR PRODUCTOS ────────────────────────────────────── */
 async function loadProducts() {
   try {
-    const res = await fetch('/data/products.json');
+    const res = await fetch('https://api.lilop.store/api/public/productos');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     state.allProducts = await res.json();
     updateFilterCounts();
@@ -578,7 +598,8 @@ async function loadProducts() {
 }
 
 /* ─── INIT ────────────────────────────────────────────────── */
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadCategorias();
   initFilterAccordions();
   initFiltersDrawer();
   initFilterEvents();

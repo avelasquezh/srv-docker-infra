@@ -506,7 +506,7 @@ async function loadProduct() {
   }
 
   try {
-    const res = await fetch('/data/products.json');
+    const res = await fetch('https://api.lilop.store/api/public/productos');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     state.allProducts = await res.json();
 

@@ -70,43 +70,68 @@ function syncDatalist(id, set) {
 function renderClienteHeader(c) {
   const inicial = c.nombre.charAt(0).toUpperCase();
   return `
-    <div class="admin-panel mb-6">
-      <div class="cliente-header p-6 d-flex items-center gap-6 flex-wrap">
-
-        <!-- Avatar -->
-        <div class="d-flex items-center justify-center font-display text-2xl font-bold text-white shrink-0" style="width:64px;height:64px;border-radius:50%;background:var(--grad-primary)">
-          ${inicial}
-        </div>
-
-        <!-- Info -->
-        <div class="flex-1 min-w-0">
-          <div class="d-flex items-center gap-3 flex-wrap mb-1">
-            <h1 class="font-display text-xl font-semibold text-ink">${c.nombre}</h1>
-            ${c.origen_venta ? `<span class="items-center radius-pill text-xs font-medium text-violet shrink-0 nowrap" style="display:inline-flex;padding:2px var(--s-3);background:var(--color-soft)">${c.origen_venta}</span>` : ''}
+    <div class="d-flex gap-4 mb-6 items-stretch">
+      <div class="admin-panel flex-1">
+        <div class="cliente-header p-6 d-flex items-center gap-6 flex-wrap">
+          <div class="d-flex items-center justify-center font-display text-2xl font-bold text-white shrink-0" style="width:64px;height:64px;border-radius:50%;background:var(--grad-primary)">
+            ${inicial}
           </div>
-          <p class="text-xs text-light mb-3" style="font-family:var(--font-mono)">${c.id}</p>
-          <div class="d-flex flex-col cliente-datos-lista">
-            ${campoHeader('Celular',     c.celular)}
-            ${campoHeader('Ciudad',      c.ciudad ? `${c.ciudad}${c.departamento ? ', '+c.departamento : ''}` : null)}
-            ${campoHeader('Localidad',   c.localidad)}
-            ${campoHeader('Barrio',      c.barrio)}
-            ${campoHeader('Dirección',   c.direccion)}
+          <div class="flex-1 min-w-0">
+            <div class="d-flex items-center gap-3 flex-wrap mb-1">
+              <h1 class="font-display text-xl font-semibold text-ink">${c.nombre}</h1>
+              ${c.origen_venta ? `<span class="items-center radius-pill text-xs font-medium text-violet shrink-0 nowrap" style="display:inline-flex;padding:2px var(--s-3);background:var(--color-soft)">${c.origen_venta}</span>` : ''}
+            </div>
+            <p class="text-xs text-light mb-3" style="font-family:var(--font-mono)">${c.id}</p>
+            <div class="d-flex flex-col cliente-datos-lista">
+              ${campoHeader('Celular',     c.celular)}
+              ${campoHeader('Ciudad',      c.ciudad ? `${c.ciudad}${c.departamento ? ', '+c.departamento : ''}` : null)}
+              ${campoHeader('Localidad',   c.localidad)}
+              ${campoHeader('Barrio',      c.barrio)}
+              ${campoHeader('Dirección',   c.direccion)}
+            </div>
+          </div>
+          <div class="shrink-0">
+            <button class="btn btn--outline btn--sm btn--icon" id="btnEditarCliente" aria-label="Editar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+            </button>
           </div>
         </div>
-
-        <!-- Acciones -->
-        <div class="shrink-0">
-          <button class="btn btn--outline btn--sm btn--icon" id="btnEditarCliente" aria-label="Editar">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-              <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-            </svg>
-          </button>
-        </div>
-
       </div>
+      ${c.direccion ? `
+      <div id="mapa-cliente" class="radius-lg shrink-0" style="width:320px;min-height:200px;overflow:hidden;position:relative;z-index:0;border:1px solid var(--color-border);"></div>` : ''}
     </div>
   `;
+}
+
+/* ── Mapa cliente con Leaflet + Nominatim ── */
+let _mapaLeaflet = null;
+async function initMapaCliente(c) {
+  const query = [c.direccion, c.barrio, c.localidad, c.ciudad, 'Bogotá', 'Colombia'].filter(Boolean).join(', ');
+  try {
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`, {
+      headers: { 'Accept-Language': 'es' }
+    });
+    const data = await res.json();
+    const el = document.getElementById('mapa-cliente');
+    if (!el) return;
+    const lat = data[0]?.lat ? parseFloat(data[0].lat) : 4.7110;
+    const lon = data[0]?.lon ? parseFloat(data[0].lon) : -74.0721;
+
+    if (_mapaLeaflet) { _mapaLeaflet.remove(); _mapaLeaflet = null; }
+
+    el.style.zIndex = '0';
+    _mapaLeaflet = L.map(el, { zoomControl: true, scrollWheelZoom: false }).setView([lat, lon], 16);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap',
+      maxZoom: 19,
+    }).addTo(_mapaLeaflet);
+    L.marker([lat, lon]).addTo(_mapaLeaflet)
+      .bindPopup(`<b>${c.nombre}</b><br>${c.direccion}`)
+      .openPopup();
+  } catch {}
 }
 
 function campoHeader(label, valor) {
@@ -211,7 +236,7 @@ function renderProductoCard(prod) {
         <div class="d-flex items-center justify-between" style="gap:var(--s-2)">
           <span class="status-badge ${est.cls} cursor-pointer select-none" data-action="cambiar-estado-producto" data-producto-id="${prod.id}" data-estado="${prod.estado}" style="font-size:10px;padding:2px 8px;flex-shrink:0" title="Clic para cambiar estado">${est.label}</span>
           <div class="d-flex items-center" style="gap:4px;flex-shrink:0">
-            <button class="btn btn--sm btn--outline btn--icon" data-action="editar-producto" data-producto-id="${prod.id}" data-producto-nombre="${prod.nombre}" data-producto-tamanio="${prod.tamanio || ''}" data-producto-diseno="${prod.diseno || ''}" data-producto-override="${prod.valor_venta_override ?? ''}" aria-label="Editar producto">
+            <button class="btn btn--sm btn--outline btn--icon" data-action="editar-producto" data-producto-id="${prod.id}" data-producto-nombre="${prod.nombre}" data-producto-tamanio="${prod.tamanio || ''}" data-producto-diseno="${prod.diseno || ''}" data-producto-override="${prod.valor_venta_override ?? ''}" data-producto-cantidad="${prod.cantidad || 1}" aria-label="Editar producto">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             </button>
             <button class="btn btn--sm btn--outline btn--icon" data-action="abrir-costos" data-producto-id="${prod.id}" data-producto-nombre="${prod.nombre}" style="color:#b8860b;border-color:#b8860b" aria-label="Costos producto">
@@ -259,6 +284,13 @@ function renderProductoCard(prod) {
               <span class="text-muted" style="font-size:10px">${formatPrice(c.valor)}</span>
             </div>`).join('')}
             ${!(prod.compras || []).length ? `<p class="text-light text-center" style="font-size:10px">Sin costos</p>` : ''}
+            ${prod.valor_venta_override && (prod.compras || []).length ? `
+            <div class="d-flex justify-between mt-1" style="border-top:1px solid var(--color-border);padding-top:4px">
+              <span class="font-semibold" style="font-size:10px;color:var(--color-text)">Parcial</span>
+              <span class="font-semibold" style="font-size:10px;color:${(parseFloat(prod.valor_venta_override) - parseFloat(prod.costo_total || 0)) >= 0 ? 'var(--color-success)' : 'var(--color-error)'}">
+                ${formatPrice(parseFloat(prod.valor_venta_override) - parseFloat(prod.costo_total || 0))}
+              </span>
+            </div>` : ''}
           </div>
         </div>
 
@@ -287,11 +319,15 @@ function renderAddCard(pedidoId) {
    RENDER TARJETA DE PEDIDO
 ───────────────────────────────────────────────────────────── */
 function renderPedidoCard(pedido) {
-  const est       = ESTADO_PEDIDO_MAP[pedido.estado] || { label: pedido.estado, cls: '' };
-  const productos = pedido.productos || [];
-  const ganancia  = pedido.ganancias != null
-    ? pedido.ganancias
-    : (pedido.valor_venta - (pedido.costo || 0) - (pedido.valor_domicilio || 0) - (pedido.comision || 0) - (pedido.costos_otros || 0));
+  const est         = ESTADO_PEDIDO_MAP[pedido.estado] || { label: pedido.estado, cls: '' };
+  const productos   = pedido.productos  || [];
+  const domicilios  = pedido.domicilios || [];
+  const comisiones  = pedido.comisiones || [];
+  const domPagado   = domicilios.filter(d => d.estado_pago === 'Pagado').reduce((s, d) => s + parseFloat(d.valor_domicilio || 0), 0);
+  const domPendiente= domicilios.filter(d => d.estado_pago === 'Pendiente').reduce((s, d) => s + parseFloat(d.valor_domicilio || 0), 0);
+  const comPagada   = comisiones.filter(c => c.estado === 'Pagada').reduce((s, c) => s + parseFloat(c.valor_comision || 0), 0);
+  const comPendiente= comisiones.filter(c => c.estado === 'Pendiente').reduce((s, c) => s + parseFloat(c.valor_comision || 0), 0);
+  const ganancia    = pedido.valor_venta - (pedido.costo || 0) - domPagado - comPagada - (pedido.costos_otros || 0);
 
   return `
     <div class="admin-panel mb-5">
@@ -340,8 +376,32 @@ function renderPedidoCard(pedido) {
           <div class="p-3 radius-md d-flex flex-col gap-2" style="background:var(--color-fog)">
             ${campoFinanciero('Total',     formatPrice(pedido.valor_venta), 'var(--color-text)', true)}
             ${campoFinanciero('Costo',     formatPrice(pedido.costo || 0))}
-            ${campoFinanciero('Domicilio', formatPrice(pedido.valor_domicilio || 0))}
-            ${campoFinanciero('Comisión',  formatPrice(pedido.comision || 0))}
+            <div class="d-flex justify-between items-center">
+              <div class="d-flex items-center gap-2">
+                <span class="text-xs text-light">Domicilio</span>
+                ${domicilios.map(d => '<span class="cursor-pointer select-none d-flex items-center gap-1" data-action="toggle-dom-pago" data-entrega-id="' + d.id + '" data-pedido-id="' + pedido.id + '" data-estado-pago="' + d.estado_pago + '" title="Clic para cambiar estado pago">'
+  + '<span style="width:8px;height:8px;border-radius:50%;display:inline-block;background:' + (d.estado_pago === 'Pagado' ? 'var(--color-success)' : 'var(--color-error)') + ';flex-shrink:0"></span>'
+  + '<span style="font-size:9px;color:' + (d.estado_pago === 'Pagado' ? 'var(--color-success)' : 'var(--color-error)') + '">' + d.estado_pago + '</span>'
+  + '</span>').join('')}
+              </div>
+              <div class="d-flex items-center gap-2">
+                ${domPendiente > 0 ? '<span class="text-xs font-semibold" style="color:var(--color-error)">-' + formatPrice(domPendiente) + '</span>' : ''}
+                ${domPagado > 0 ? '<span class="text-xs font-semibold text-muted">-' + formatPrice(domPagado) + '</span>' : domPendiente === 0 ? '<span class="text-xs text-muted">' + formatPrice(0) + '</span>' : ''}
+              </div>
+            </div>
+            <div class="d-flex justify-between items-center">
+              <div class="d-flex items-center gap-2">
+                <span class="text-xs text-light">Comisión</span>
+                ${comisiones.map(c => '<span class="cursor-pointer select-none d-flex items-center gap-1" data-action="toggle-com-pago" data-comision-id="' + c.id + '" data-pedido-id="' + pedido.id + '" data-comision-estado="' + c.estado + '" title="Clic para cambiar estado pago">'
+  + '<span style="width:8px;height:8px;border-radius:50%;display:inline-block;background:' + (c.estado === 'Pagada' ? 'var(--color-success)' : 'var(--color-error)') + ';flex-shrink:0"></span>'
+  + '<span style="font-size:9px;color:' + (c.estado === 'Pagada' ? 'var(--color-success)' : 'var(--color-error)') + '">' + c.estado + '</span>'
+  + '</span>').join('')}
+              </div>
+              <div class="d-flex items-center gap-2">
+                ${comPendiente > 0 ? '<span class="text-xs font-semibold" style="color:var(--color-error)">-' + formatPrice(comPendiente) + '</span>' : ''}
+                ${comPagada > 0 ? '<span class="text-xs font-semibold text-muted">-' + formatPrice(comPagada) + '</span>' : comPendiente === 0 ? '<span class="text-xs text-muted">' + formatPrice(0) + '</span>' : ''}
+              </div>
+            </div>
             ${campoFinanciero('Otros',     formatPrice(pedido.costos_otros || 0))}
             <div class="mt-1" style="border-top:1px solid var(--color-border);padding-top:var(--s-2)">
               ${campoFinanciero('Ganancia', formatPrice(ganancia), ganancia >= 0 ? 'var(--color-success)' : 'var(--color-error)', true)}
@@ -442,7 +502,8 @@ function bindEventos() {
         btn.dataset.productoNombre,
         btn.dataset.productoTamanio,
         btn.dataset.productoDiseno,
-        btn.dataset.productoOverride || null
+        btn.dataset.productoOverride || null,
+        btn.dataset.productoCantidad || 1
       );
     });
   });
@@ -513,6 +574,32 @@ function bindEventos() {
       try {
         await api.patch(`/pedidos/${sel.dataset.pedidoId}/estado`, { estado: sel.value });
         window.AdminToast?.success('Estado actualizado');
+        await cargarDatos();
+      } catch (err) {
+        window.AdminToast?.error('Error', err.message);
+      }
+    });
+  });
+
+  document.querySelectorAll('[data-action="toggle-dom-pago"]').forEach(el => {
+    el.addEventListener('click', async () => {
+      const nuevoEstado = el.dataset.estadoPago === 'Pagado' ? 'Pendiente' : 'Pagado';
+      try {
+        await api.patch(`/pedidos/${el.dataset.pedidoId}/costos/domicilio/${el.dataset.entregaId}/estado-pago`, { estado_pago: nuevoEstado });
+        window.AdminToast?.success(`Domicilio marcado como ${nuevoEstado}`);
+        await cargarDatos();
+      } catch (err) {
+        window.AdminToast?.error('Error', err.message);
+      }
+    });
+  });
+
+  document.querySelectorAll('[data-action="toggle-com-pago"]').forEach(el => {
+    el.addEventListener('click', async () => {
+      const nuevoEstado = el.dataset.comisionEstado === 'Pagada' ? 'Pendiente' : 'Pagada';
+      try {
+        await api.patch(`/pedidos/${el.dataset.pedidoId}/costos/comision/${el.dataset.comisionId}/estado`, { estado: nuevoEstado });
+        window.AdminToast?.success(`Comisión marcada como ${nuevoEstado}`);
         await cargarDatos();
       } catch (err) {
         window.AdminToast?.error('Error', err.message);
@@ -596,6 +683,10 @@ function abrirModalProducto(pedidoId) {
             <option value="Queen">Queen</option>
             <option value="King">King</option>
           </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cantidad</label>
+          <input class="form-input" type="number" id="pCantidad" min="1" value="1" placeholder="1"/>
         </div>
       </div>
     </div>
@@ -692,11 +783,13 @@ document.getElementById('btnGuardarProducto')?.addEventListener('click', async (
     return;
   }
   try {
+    const cantidad = parseInt(document.getElementById('pCantidad')?.value) || 1;
     await api.post(`/pedidos/${pedidoActivo}/productos`, {
       nombre,
-      tamanio: tamanio || null,
-      diseno:  disenoSeleccionado || null,
-      estado:  'Por Comprar',
+      tamanio:  tamanio || null,
+      diseno:   disenoSeleccionado || null,
+      estado:   'Por Comprar',
+      cantidad,
     });
     if (nombre)  { catalogoProductos.add(nombre);  syncDatalist('dl-productos', catalogoProductos); }
     if (tamanio) { catalogoTamanios.add(tamanio);   syncDatalist('dl-tamanios',  catalogoTamanios);  }
@@ -744,13 +837,21 @@ async function cargarDatos() {
     pedidosData = await Promise.all(
       pedidosData.map(async pedido => {
         try {
-          const det = await api.get(`/pedidos/${pedido.id}`);
+          const [det, costos] = await Promise.all([
+            api.get(`/pedidos/${pedido.id}`),
+            api.get(`/pedidos/${pedido.id}/costos`),
+          ]);
           (det.productos || []).forEach(p => {
             if (p.nombre)  catalogoProductos.add(p.nombre);
             if (p.tamanio) catalogoTamanios.add(p.tamanio);
           });
-          return { ...pedido, productos: det.productos || [] };
-        } catch { return { ...pedido, productos: [] }; }
+          return {
+            ...pedido,
+            productos:  det.productos || [],
+            domicilios: costos.domicilio || [],
+            comisiones: costos.comision  || [],
+          };
+        } catch { return { ...pedido, productos: [], domicilios: [], comisiones: [] }; }
       })
     );
 
@@ -759,6 +860,7 @@ async function cargarDatos() {
 
     window.AdminLayout.init(clienteData.nombre);
     renderDetalle();
+    if (clienteData.direccion) initMapaCliente(clienteData);
 
     /* Datalist de orígenes */
     try {
@@ -1071,10 +1173,19 @@ async function renderModalCostosPedido() {
       otros:     `/pedidos/${pedidoCostosActivo}/costos/otros/${id}`,
     };
     const labels = { domicilio: 'Domicilio', comision: 'Comisión', otros: 'Costo' };
-    await api.delete(urls[tipo]);
-    window.AdminToast?.success(`${labels[tipo]} eliminado`);
-    await renderModalCostosPedido();
-    await cargarDatos();
+    window.AdminConfirm.show(
+      `¿Eliminar este <strong>${labels[tipo]}</strong>? Esta acción no se puede deshacer.`,
+      async () => {
+        try {
+          await api.delete(urls[tipo]);
+          window.AdminToast?.success(`${labels[tipo]} eliminado`);
+          await renderModalCostosPedido();
+          await cargarDatos();
+        } catch (err) {
+          window.AdminToast?.error('Error', err.message);
+        }
+      }
+    );
   }
 
   /* ── Handler unificado agregar ── */
@@ -1142,7 +1253,7 @@ async function renderModalCostosPedido() {
 ───────────────────────────────────────────────────────────── */
 let productoEditandoId = null;
 
-function abrirModalEditarProducto(productoId, nombre, tamanio, diseno, override) {
+function abrirModalEditarProducto(productoId, nombre, tamanio, diseno, override, cantidad) {
   productoEditandoId = productoId;
   window._editProductoNombre = nombre;
   const tieneOverride = override !== null && override !== '' && override !== undefined;
@@ -1156,6 +1267,10 @@ function abrirModalEditarProducto(productoId, nombre, tamanio, diseno, override)
           `<option value="${t}" ${tamanio === t ? 'selected' : ''}>${t}</option>`
         ).join('')}
       </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Cantidad</label>
+      <input class="form-input" type="number" id="epCantidad" min="1" value="${parseInt(cantidad) || 1}"/>
     </div>
     <div class="form-group">
       <label class="form-label">Valor de venta (COP)</label>
@@ -1224,10 +1339,12 @@ function abrirModalEditarProducto(productoId, nombre, tamanio, diseno, override)
     if (!tamanioVal) { window.AdminToast?.error('Campo requerido', 'Selecciona un tamaño'); return; }
     if (!disenoEdit) { window.AdminToast?.error('Campo requerido', 'Selecciona un diseño'); return; }
     try {
+      const cantidadVal = parseInt(document.getElementById('epCantidad')?.value) || 1;
       await api.put(`/pedidos/${pedidoActivo}/productos/${productoEditandoId}`, {
-        tamanio: tamanioVal,
-        diseno:  disenoEdit,
+        tamanio:  tamanioVal,
+        diseno:   disenoEdit,
         valor_venta_override: overrideValor > 0 ? overrideValor : null,
+        cantidad: cantidadVal,
       });
       window.AdminToast?.success('Producto actualizado');
       window.AdminModal.close('modalEditarProducto');
@@ -1243,7 +1360,7 @@ function abrirModalEditarProducto(productoId, nombre, tamanio, diseno, override)
 /* ─────────────────────────────────────────────────────────────
    MODAL COSTOS PRODUCTO
 ───────────────────────────────────────────────────────────── */
-const CONCEPTOS = ['Tela', 'Acolchado', 'Confección', 'Insumos', 'Otro'];
+let CONCEPTOS = ['Tela', 'Acolchado', 'Confección', 'Insumos', 'Otro'];
 let productoActivoCostos = null;
 let costosActuales = [];
 
@@ -1280,6 +1397,10 @@ function renderFilaCosto(idx, costo = null) {
 }
 
 async function abrirModalCostos(productoId, productoNombre) {
+  try {
+    const cs = await api.get('/maestros/conceptos-compra');
+    if (cs?.length) CONCEPTOS = cs.map(x => x.nombre);
+  } catch {}
   productoActivoCostos = productoId;
   document.getElementById('modalCostosTitle').textContent = `Costos — ${productoNombre}`;
   try {
@@ -1329,16 +1450,21 @@ function renderModalCostos() {
   `;
 
   body.querySelectorAll('[data-action="eliminar-costo"]').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      try {
-        await api.delete(`/pedidos/${pedidoActivo}/productos/${productoActivoCostos}/compras/${btn.dataset.costoId}`);
-        costosActuales = costosActuales.filter(c => c.id !== btn.dataset.costoId);
-        renderModalCostos();
-        await cargarDatos();
-        window.AdminToast?.success('Costo eliminado');
-      } catch (err) {
-        window.AdminToast?.error('Error', err.message);
-      }
+    btn.addEventListener('click', () => {
+      window.AdminConfirm.show(
+        '¿Eliminar este costo? Esta acción no se puede deshacer.',
+        async () => {
+          try {
+            await api.delete(`/pedidos/${pedidoActivo}/productos/${productoActivoCostos}/compras/${btn.dataset.costoId}`);
+            costosActuales = costosActuales.filter(c => c.id !== btn.dataset.costoId);
+            renderModalCostos();
+            await cargarDatos();
+            window.AdminToast?.success('Costo eliminado');
+          } catch (err) {
+            window.AdminToast?.error('Error', err.message);
+          }
+        }
+      );
     });
   });
 

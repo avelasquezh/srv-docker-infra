@@ -12,6 +12,9 @@ services:
       - N8N_PROXY_HOPS=1
       - GENERIC_TIMEZONE=America/Bogota
       - TZ=America/Bogota
+      - META_APP_SECRET=b1db36f9465b8f4467c3eab641d6cb68
+      - NODE_FUNCTION_ALLOW_BUILTIN=crypto
+      - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
     volumes:
       - ./data:/home/node/.n8n
     restart: unless-stopped

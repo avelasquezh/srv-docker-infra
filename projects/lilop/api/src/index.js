@@ -29,6 +29,23 @@ const { catalogo } = require('./controllers/productos');
 app.get('/api/productos/catalogo', auth, catalogo);
 app.use('/api/comisiones', require('./routes/comisiones'));
 app.use('/api/catalogo',   require('./routes/catalogo'));
+
+/* Endpoints públicos sin autenticación */
+const { listarCategorias } = require('./controllers/maestros');
+app.get('/api/public/categorias', async (req, res) => {
+  try {
+    const pool = require('./config/db');
+    const r = await pool.query('SELECT id, nombre, slug FROM categorias WHERE activo = true ORDER BY nombre');
+    res.set('Cache-Control', 'public, max-age=60');
+    res.json(r.rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+/* Endpoint público sin autenticación */
+const { listarPublico } = require('./controllers/catalogo');
+app.get('/api/public/productos', listarPublico);
 app.use('/api/demo',        require('./routes/demo'));
 app.use('/api/disenos',    require('./routes/disenos'));
 app.use('/api/imagenes',   require('./routes/imagenes'));

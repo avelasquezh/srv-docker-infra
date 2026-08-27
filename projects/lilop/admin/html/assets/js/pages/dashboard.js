@@ -120,7 +120,7 @@ function renderStatCards(pedidos, todosLosPedidos) {
     : null;
 
   /* Comisiones y domicilios */
-  const comisionPend = activos.reduce((s, p) => s + (+p.comision || 0), 0);
+  const comisionPend = pedidos.reduce((s, p) => s + (+p.comision_pendiente || 0), 0);
   const domPend      = pedidos.filter(p => p.estado === 'por_entregar' && +p.valor_domicilio > 0);
   const domTotal     = domPend.reduce((s, p) => s + (+p.valor_domicilio || 0), 0);
 
@@ -147,7 +147,7 @@ function renderStatCards(pedidos, todosLosPedidos) {
 
   const cards = [
     {
-      label: 'Ingresos del mes',
+      label: 'Ventas del mes',
       value: fmtShort(ventas),
       sub:   `Proyección: ${fmtShort(proyeccion)}`,
       icon:  'M12 2a10 10 0 100 20A10 10 0 0012 2zm1 14.93V18a1 1 0 11-2 0v-1.07A7.002 7.002 0 015.07 11H4a1 1 0 110-2h1.07A7.002 7.002 0 0111 5.07V4a1 1 0 112 0v1.07A7.002 7.002 0 0118.93 11H20a1 1 0 110 2h-1.07A7.002 7.002 0 0113 16.93z',
