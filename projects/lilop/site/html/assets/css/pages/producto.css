@@ -329,6 +329,75 @@
   display: flex;
 }
 
+/* ─── ATRIBUTOS (switches con sobreprecio) ────────────────── */
+.product-attributes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+
+.attribute-switch {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  cursor: pointer;
+  user-select: none;
+  width: fit-content;
+}
+
+.attribute-switch__input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.attribute-switch__track {
+  position: relative;
+  width: 40px;
+  height: 24px;
+  flex-shrink: 0;
+  border-radius: var(--r-pill);
+  background: var(--color-border);
+  transition: background var(--duration-fast) var(--ease);
+}
+
+.attribute-switch__track::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--color-white);
+  box-shadow: var(--shadow-xs);
+  transition: transform var(--duration-fast) var(--ease);
+}
+
+.attribute-switch__input:checked + .attribute-switch__track {
+  background: var(--grad-primary);
+}
+
+.attribute-switch__input:checked + .attribute-switch__track::before {
+  transform: translateX(16px);
+}
+
+.attribute-switch__input:focus-visible + .attribute-switch__track {
+  box-shadow: var(--shadow-focus);
+}
+
+.attribute-switch__label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-text);
+}
+
+.attribute-switch__extra {
+  font-weight: var(--weight-regular);
+  color: var(--color-violet);
+}
+
 /* ─── ACCIONES DE COMPRA ──────────────────────────────────── */
 .product-actions {
   display: flex;

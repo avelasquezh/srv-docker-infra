@@ -133,16 +133,6 @@ function renderInfo(product) {
   updateWhatsAppLink();
 }
 /* ─── PRECIO CON ATRIBUTOS (recalculable) ────────────────── */
-function getBasePrice() {
-  const product = state.product;
-  if (!product) return 0;
-  const talla = state.selectedVariants['Tamaño'];
-  if (talla && Array.isArray(product.precios)) {
-    const match = product.precios.find(p => p.tamanio === talla);
-    if (match) return match.precio;
-  }
-  return product.price;
-}
 function getAttributesExtra() {
   const product = state.product;
   if (!product) return 0;
@@ -155,7 +145,7 @@ function updatePriceDisplay() {
   const priceWrap = document.getElementById('productPriceWrap');
   if (!product || !priceWrap) return;
   const extra      = getAttributesExtra();
-  const finalPrice = getBasePrice() + extra;
+  const finalPrice = product.price + extra;
   const hasSale = product.originalPrice && product.originalPrice > product.price;
   const saving  = hasSale
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
@@ -264,7 +254,6 @@ function renderVariants(product) {
       groupEl?.classList.remove('has-error');
 
       /* Actualizar WhatsApp */
-      updatePriceDisplay();
       updateWhatsAppLink();
     });
   });
@@ -304,7 +293,7 @@ function updateWhatsAppLink() {
   const msg = encodeURIComponent(
     `Hola, estoy interesado/a en:\n\n*${product.name}*\n` +
     (variantStr ? `Opciones: ${variantStr}\n` : '') +
-    `Precio: ${store.formatPrice(getBasePrice() + getAttributesExtra())}\n\n` +
+    `Precio: ${store.formatPrice(product.price + getAttributesExtra())}\n\n` +
     `¿Está disponible?`
   );
 
@@ -414,7 +403,7 @@ function renderRelated(product, allProducts) {
         aria-label="${p.name}, ${store.formatPrice(p.price)}"
       >
         <div class="product-card__img-wrap">
-          <img class="product-card__img" src="${store.getDisplayImage(p)}" alt="${p.name}" loading="lazy" />
+          <img class="product-card__img" src="${p.images[0]}" alt="${p.name}" loading="lazy" />
           ${p.badge ? `<div class="product-card__badge"><span class="badge badge--${p.badgeType || 'new'}">${p.badge}</span></div>` : ''}
           <button class="product-card__quick-add" data-product-id="${p.id}" aria-label="Agregar ${p.name} al carrito">+ Agregar</button>
         </div>
@@ -508,7 +497,7 @@ function initAddToCart() {
     store.addToCart({
       id:      product.id,
       name:    product.name,
-      price:   getBasePrice() + getAttributesExtra(),
+      price:   product.price + getAttributesExtra(),
       image:   product.images[0],
       variant: variantStr,
     });

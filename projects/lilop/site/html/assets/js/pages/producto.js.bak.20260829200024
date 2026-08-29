@@ -414,7 +414,7 @@ function renderRelated(product, allProducts) {
         aria-label="${p.name}, ${store.formatPrice(p.price)}"
       >
         <div class="product-card__img-wrap">
-          <img class="product-card__img" src="${store.getDisplayImage(p)}" alt="${p.name}" loading="lazy" />
+          <img class="product-card__img" src="${p.images[0]}" alt="${p.name}" loading="lazy" />
           ${p.badge ? `<div class="product-card__badge"><span class="badge badge--${p.badgeType || 'new'}">${p.badge}</span></div>` : ''}
           <button class="product-card__quick-add" data-product-id="${p.id}" aria-label="Agregar ${p.name} al carrito">+ Agregar</button>
         </div>

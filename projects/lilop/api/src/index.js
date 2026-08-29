@@ -43,11 +43,16 @@ app.get('/api/public/categorias', async (req, res) => {
   }
 });
 
+/* Atributos públicos por producto */
+const { listarPorProducto } = require('./controllers/atributos');
+app.get('/api/public/atributos/:catalogo_id', listarPorProducto);
+
 /* Endpoint público sin autenticación */
 const { listarPublico } = require('./controllers/catalogo');
 app.get('/api/public/productos', listarPublico);
 app.use('/api/demo',        require('./routes/demo'));
 app.use('/api/disenos',    require('./routes/disenos'));
+app.use('/api/atributos',  require('./routes/atributos'));
 app.use('/api/imagenes',   require('./routes/imagenes'));
 
 // ── 404 ───────────────────────────────────────────────────

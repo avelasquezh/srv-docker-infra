@@ -13,7 +13,7 @@ const api = window.AdminApi;
 let allProductos = [];
 let filtered     = [];
 let currentPage  = 1;
-const PER_PAGE   = 50;
+const PER_PAGE   = 12;
 let editingId    = null;
 
 let CATEGORIAS = {};
@@ -211,12 +211,6 @@ async function openModal(id) {
       </div>
     </div>
     <div class="form-group">
-      <label class="form-label">Diseños</label>
-      <div class="d-grid gap-3 p-3 radius-md" id="pDisenosWrap" style="background:var(--color-fog);grid-template-columns:repeat(auto-fill,minmax(90px,1fr));max-height:320px;overflow-y:auto;">
-        <p class="text-xs text-muted">Cargando diseños…</p>
-      </div>
-    </div>
-    <div class="form-group">
       <label class="form-label font-semibold">Precios por tamaño (COP)</label>
       <div class="d-grid gap-2" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))">
         ${TAMANIOS.map(t => `
@@ -252,26 +246,6 @@ async function openModal(id) {
     document.getElementById('pCategoriasWrap').innerHTML = '<p class="text-xs text-muted">Error al cargar categorías</p>';
   }
 
-  try {
-    const disenos = await api.get('/disenos');
-    document.getElementById('pDisenosWrap').innerHTML = disenos.length ? disenos.map(d => {
-      const thumb = d.imagen ? `https://api.lilop.store${d.imagen}` : null;
-      const checked = editingId ? (d.catalogo_ids || []).includes(editingId) : false;
-      return `
-      <label class="prod-thumb-check">
-        <input type="checkbox" class="diseno-check" value="${d.id}" ${checked ? 'checked' : ''} hidden/>
-        <div class="prod-thumb-check__img">
-          ${thumb
-            ? `<img src="${thumb}" alt="${d.nombre}" loading="lazy"/>`
-            : `<div class="prod-thumb-check__no-img"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>`}
-        </div>
-        <span class="prod-thumb-check__name">${d.nombre}</span>
-      </label>`;
-    }).join('') : '<p class="text-xs text-muted">No hay diseños configurados</p>';
-  } catch (err) {
-    document.getElementById('pDisenosWrap').innerHTML = '<p class="text-xs text-muted">Error al cargar diseños</p>';
-  }
-
   window.AdminModal.open('modalProducto');
 }
 
@@ -281,7 +255,6 @@ document.getElementById('btnGuardarProducto')?.addEventListener('click', async (
   if (!nombre) { window.AdminToast?.error('Campo requerido', 'El nombre es obligatorio'); return; }
 
   const categoria_ids = [...document.querySelectorAll('.cat-check:checked')].map(c => parseInt(c.value));
-  const diseno_ids = [...document.querySelectorAll('.diseno-check:checked')].map(c => c.value);
   const atributo_ids = [...document.querySelectorAll('.atributo-check:checked')].map(c => parseInt(c.value));
   const data = {
     descripcion:       document.getElementById('pDesc')?.value.trim()      || null,
@@ -294,7 +267,6 @@ document.getElementById('btnGuardarProducto')?.addEventListener('click', async (
     badge_tipo:  document.getElementById('pBadgeTipo')?.value        || null,
     precio_original: parseFloat(document.getElementById('pPrecioOriginal')?.value) || null,
     categoria_ids,
-    diseno_ids,
   };
 
   try {

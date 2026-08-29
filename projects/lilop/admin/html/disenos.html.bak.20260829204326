@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap"/>
   
   <link rel="stylesheet" href="/assets/css/tokens.css"/>
-  <link rel="stylesheet" href="/assets/css/admin.css?v=9"/>
+  <link rel="stylesheet" href="/assets/css/admin.css?v=8"/>
   <link rel="stylesheet" href="/assets/css/utilities.css?v=3"/>
   <link rel="stylesheet" href="/assets/css/responsive.css?v=6"/>
   <style>
@@ -27,6 +27,13 @@
     .upload-zone:hover { border-color:var(--color-violet);background:var(--color-soft); }
     .upload-zone__icon { width:56px;height:56px;border-radius:var(--r-lg);background:var(--color-soft);display:flex;align-items:center;justify-content:center;margin:0 auto var(--s-4); }
     .upload-zone__icon svg { width:26px;height:26px;color:var(--color-violet); }
+    .prod-thumb-check { display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;padding:8px;border-radius:var(--r-lg);border:2px solid transparent;transition:all var(--duration-base) var(--ease); }
+    .prod-thumb-check:hover { background:var(--color-white); }
+    .prod-thumb-check:has(input:checked) { border-color:var(--color-violet);background:var(--color-white); }
+    .prod-thumb-check__img { width:64px;height:64px;border-radius:var(--r-md);overflow:hidden;background:var(--color-white);border:1px solid var(--color-border); }
+    .prod-thumb-check__img img { width:100%;height:100%;object-fit:cover; }
+    .prod-thumb-check__no-img { width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--color-lilac); }
+    .prod-thumb-check__name { font-size:var(--text-xs);text-align:center;line-height:1.2;max-width:80px; }
   </style>
 </head>
 <body>

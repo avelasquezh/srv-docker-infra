@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap"/>
   
   <link rel="stylesheet" href="/assets/css/tokens.css"/>
-  <link rel="stylesheet" href="/assets/css/admin.css?v=8"/>
+  <link rel="stylesheet" href="/assets/css/admin.css?v=9"/>
   <link rel="stylesheet" href="/assets/css/utilities.css?v=3"/>
   <link rel="stylesheet" href="/assets/css/responsive.css?v=6"/>
 </head>
@@ -158,6 +158,23 @@
       </div>
       <div class="admin-panel" data-seccion="maestros">
         <div class="admin-panel__header">
+          <h3 class="admin-panel__title">Atributos de producto</h3>
+        </div>
+        <div class="admin-panel__body">
+          <div class="d-flex flex-col gap-2 mb-4" id="atributosLista"></div>
+          <div class="d-flex gap-2 flex-wrap mt-2">
+            <input class="form-input" id="nuevoAtributoNombre" placeholder="Nombre del atributo…"/>
+            <select class="form-input" id="nuevoAtributoTipo" style="max-width:140px">
+              <option value="booleano">Booleano</option>
+              <option value="seleccion">Selección</option>
+            </select>
+            <input class="form-input" type="number" id="nuevoAtributoSobreprecio" placeholder="Sobreprecio COP" style="max-width:160px"/>
+            <button class="btn btn--primary btn--sm shrink-0" id="btnAgregarAtributo">Agregar</button>
+          </div>
+        </div>
+      </div>
+      <div class="admin-panel" data-seccion="maestros">
+        <div class="admin-panel__header">
           <h3 class="admin-panel__title">Conceptos de costo</h3>
         </div>
         <div class="admin-panel__body">
@@ -255,6 +272,31 @@
 
 <div class="admin-toasts" id="adminToasts"></div>
 
+<!-- Modal Editar Atributo -->
+<div class="modal-overlay" id="modalEditarAtributo" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal__header">
+      <h3 class="modal__title">Editar atributo</h3>
+      <button class="modal__close" data-modal-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal__body">
+      <input type="hidden" id="editAtributoId"/>
+      <div class="form-group">
+        <label class="form-label form-label--required">Nombre</label>
+        <input class="form-input" id="editAtributoNombre"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Sobreprecio (COP)</label>
+        <input class="form-input" type="number" id="editAtributoSobreprecio"/>
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost btn--sm" data-modal-close>Cancelar</button>
+      <button class="btn btn--primary btn--sm" id="btnGuardarEditAtributo">Guardar</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal Editar Categoría -->
 <div class="modal-overlay" id="modalEditarCatMaestro" role="dialog" aria-modal="true">
   <div class="modal">
@@ -294,10 +336,10 @@
         <input class="form-input" id="editCatNombre"/>
       </div>
       <div class="form-group">
-        <label class="form-label">Categoría</label>
-        <select class="form-input" id="editCatCategoria">
-          <option value="">Sin categoría</option>
-        </select>
+        <label class="form-label">Categorías</label>
+        <div class="d-flex flex-col gap-2 p-3 radius-md" id="editCatCategoriasWrap" style="background:var(--color-fog)">
+          <p class="text-xs text-muted">Cargando…</p>
+        </div>
       </div>
     </div>
     <div class="modal__footer">
@@ -306,11 +348,11 @@
     </div>
   </div>
 </div>
-<script src="/assets/js/admin-auth.js"></script>
-<script src="/assets/js/admin-store.js"></script>
-<script src="/assets/js/admin-api.js?v=2"></script>
-<script src="/assets/js/admin-layout.js?v=12"></script>
-<script src="/assets/js/admin-ui.js?v=1"></script>
-<script src="/assets/js/pages/configuracion.js?v=14"></script>
+<script src="/assets/js/admin-auth.js?v=e12b3a5f"></script>
+<script src="/assets/js/admin-store.js?v=e54e4434"></script>
+<script src="/assets/js/admin-api.js?v=dfeefe29"></script>
+<script src="/assets/js/admin-layout.js?v=79fc7f0b"></script>
+<script src="/assets/js/admin-ui.js?v=b1bbcb09"></script>
+<script src="/assets/js/pages/configuracion.js?v=ffa86826"></script>
 </body>
 </html>

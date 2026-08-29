@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap"/>
   
   <link rel="stylesheet" href="/assets/css/tokens.css"/>
-  <link rel="stylesheet" href="/assets/css/admin.css?v=9"/>
+  <link rel="stylesheet" href="/assets/css/admin.css?v=8"/>
   <link rel="stylesheet" href="/assets/css/utilities.css?v=3"/>
   <link rel="stylesheet" href="/assets/css/responsive.css?v=6"/>
   <style>
@@ -116,7 +116,7 @@
       </div>
       <div class="form-group">
         <label class="form-label">Aplica para</label>
-        <div class="d-grid gap-3 p-3 radius-md" id="dProductosChecks" style="background:var(--color-fog);border:1px solid var(--color-border);grid-template-columns:repeat(auto-fill,minmax(90px,1fr));max-height:320px;overflow-y:auto;">
+        <div class="d-flex flex-wrap gap-3 p-3 radius-md" id="dProductosChecks" style="background:var(--color-fog);border:1px solid var(--color-border)">
           <span class="text-xs text-muted">Cargando...</span>
         </div>
       </div>
@@ -137,6 +137,6 @@
 <script src="/assets/js/admin-store.js?v=e54e4434"></script>
 <script src="/assets/js/admin-layout.js?v=79fc7f0b"></script>
 <script src="/assets/js/admin-ui.js?v=b1bbcb09"></script>
-<script src="/assets/js/pages/disenos.js?v=68f6454c"></script>
+<script src="/assets/js/pages/disenos.js?v=ccfcfb72"></script>
 </body>
 </html>

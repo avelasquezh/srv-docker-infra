@@ -84,12 +84,18 @@ function renderCatalogo(productos) {
       const prod = window._catalogoCache?.find(p => p.id === id);
       document.getElementById('editCatId').value = id;
       document.getElementById('editCatNombre').value = prod?.nombre || '';
-      const sel = document.getElementById('editCatCategoria');
-      if (sel) {
+      const wrap = document.getElementById('editCatCategoriasWrap');
+      if (wrap) {
         try {
           const cats = await api.get('/maestros/categorias');
-          sel.innerHTML = '<option value="">Sin categoría</option>' +
-            cats.map(c => `<option value="${c.slug}" ${prod?.categoria === c.slug ? 'selected' : ''}>${c.nombre}</option>`).join('');
+          const sel  = (prod?.categorias || []).map(c => c.id);
+          wrap.innerHTML = cats.map(c => `
+            <label class="d-flex items-center gap-3 cursor-pointer">
+              <input type="checkbox" class="edit-cat-check" value="${c.id}"
+                ${sel.includes(c.id) ? 'checked' : ''}
+                style="width:16px;height:16px;accent-color:var(--color-violet);cursor:pointer;"/>
+              <span class="text-sm">${c.nombre}</span>
+            </label>`).join('');
         } catch {}
       }
       window.AdminModal.open('modalEditarCat');
@@ -335,7 +341,7 @@ document.addEventListener('DOMContentLoaded', () => {
     api.get('/usuarios').then(d => window._usuariosCache = d);
     loadUsuarios();
   }
-  if (seccion === 'maestros') { loadOrigenes(); loadConceptos(); loadConceptosCompra(); loadCategorias(); }
+  if (seccion === 'maestros') { loadOrigenes(); loadConceptos(); loadConceptosCompra(); loadCategorias(); loadAtributos(); }
 
   document.getElementById('btnNuevoUsuario')?.addEventListener('click', () => abrirModalUsuario(null));
 
@@ -376,6 +382,82 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('nuevoOrigenInput').value = '';
       window.AdminToast?.success('Origen agregado');
       await loadOrigenes();
+    } catch (err) { window.AdminToast?.error('Error', err.message); }
+  });
+
+  /* ── Atributos ── */
+  async function loadAtributos() {
+    try {
+      const data = await api.get('/atributos');
+      const lista = document.getElementById('atributosLista');
+      if (!lista) return;
+      lista.innerHTML = data.length ? data.map(a => `
+        <div class="d-flex items-center justify-between p-2-3 radius-sm" style="background:var(--color-fog)">
+          <div class="d-flex flex-col gap-1">
+            <span class="text-sm font-medium">${a.nombre}</span>
+            <span class="text-xs text-muted">${a.tipo} · +${new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',minimumFractionDigits:0}).format(a.sobreprecio)}</span>
+          </div>
+          <div class="d-flex items-center gap-2">
+            <span class="status-badge ${a.activo ? 'badge--success' : 'badge--inactive'} text-xs">${a.activo ? 'Activo' : 'Inactivo'}</span>
+            <button class="btn btn--sm btn--outline btn--icon" data-action="editar-atributo" data-id="${a.id}" data-nombre="${a.nombre}" data-sobreprecio="${a.sobreprecio}" title="Editar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button class="btn btn--sm btn--danger btn--icon" data-action="eliminar-atributo" data-id="${a.id}" data-nombre="${a.nombre}" title="Eliminar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+            </button>
+          </div>
+        </div>`).join('') : '<p class="text-sm text-muted">Sin atributos</p>';
+
+      lista.querySelectorAll('[data-action="editar-atributo"]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.getElementById('editAtributoId').value = btn.dataset.id;
+          document.getElementById('editAtributoNombre').value = btn.dataset.nombre;
+          document.getElementById('editAtributoSobreprecio').value = btn.dataset.sobreprecio;
+          window.AdminModal.open('modalEditarAtributo');
+        });
+      });
+
+      lista.querySelectorAll('[data-action="eliminar-atributo"]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          window.AdminConfirm.show(
+            `¿Eliminar el atributo <strong>${btn.dataset.nombre}</strong>?`,
+            async () => {
+              try {
+                await api.delete(`/atributos/${btn.dataset.id}`);
+                window.AdminToast?.success('Atributo eliminado');
+                await loadAtributos();
+              } catch (err) { window.AdminToast?.error('Error', err.message); }
+            }
+          );
+        });
+      });
+    } catch (err) { window.AdminToast?.error('Error', 'No se pudieron cargar los atributos'); }
+  }
+
+  document.getElementById('btnAgregarAtributo')?.addEventListener('click', async () => {
+    const nombre      = document.getElementById('nuevoAtributoNombre')?.value.trim();
+    const tipo        = document.getElementById('nuevoAtributoTipo')?.value;
+    const sobreprecio = parseFloat(document.getElementById('nuevoAtributoSobreprecio')?.value) || 0;
+    if (!nombre) { window.AdminToast?.error('Campo requerido', 'Ingresa un nombre'); return; }
+    try {
+      await api.post('/atributos', { nombre, tipo, sobreprecio });
+      window.AdminToast?.success('Atributo creado');
+      document.getElementById('nuevoAtributoNombre').value = '';
+      document.getElementById('nuevoAtributoSobreprecio').value = '';
+      await loadAtributos();
+    } catch (err) { window.AdminToast?.error('Error', err.message); }
+  });
+
+  document.getElementById('btnGuardarEditAtributo')?.addEventListener('click', async () => {
+    const id          = document.getElementById('editAtributoId')?.value;
+    const nombre      = document.getElementById('editAtributoNombre')?.value.trim();
+    const sobreprecio = parseFloat(document.getElementById('editAtributoSobreprecio')?.value) || 0;
+    if (!nombre) { window.AdminToast?.error('Campo requerido', 'El nombre es obligatorio'); return; }
+    try {
+      await api.put(`/atributos/${id}`, { nombre, sobreprecio });
+      window.AdminToast?.success('Atributo actualizado');
+      window.AdminModal.close('modalEditarAtributo');
+      await loadAtributos();
     } catch (err) { window.AdminToast?.error('Error', err.message); }
   });
 
@@ -485,8 +567,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const nombre = document.getElementById('editCatNombre')?.value.trim();
     if (!nombre) { window.AdminToast?.error('Campo requerido', 'El nombre es obligatorio'); return; }
     try {
-      const cat = document.getElementById('editCatCategoria')?.value || null;
-      await api.put(`/catalogo/${id}`, { nombre, categoria: cat, categoria_label: cat ? null : null });
+      const categoria_ids = [...document.querySelectorAll('.edit-cat-check:checked')].map(c => parseInt(c.value));
+      await api.put(`/catalogo/${id}`, { nombre, categoria_ids });
       window.AdminToast?.success('Producto actualizado');
       window.AdminModal.close('modalEditarCat');
       await loadCatalogo();

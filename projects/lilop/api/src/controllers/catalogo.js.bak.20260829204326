@@ -80,7 +80,7 @@ const actualizarProducto = async (req, res) => {
   const { id } = req.params;
   const {
     nombre, descripcion, descripcion_corta, materiales, cuidados,
-    tags, featured, badge, badge_tipo, precio_original, categoria_ids, diseno_ids,
+    tags, featured, badge, badge_tipo, precio_original, categoria_ids,
   } = req.body;
   try {
     const result = await pool.query(`
@@ -115,16 +115,6 @@ const actualizarProducto = async (req, res) => {
         await pool.query(
           `INSERT INTO catalogo_productos_categorias (catalogo_id, categoria_id) VALUES ${vals}`,
           [id, ...categoria_ids]
-        );
-      }
-    }
-    if (Array.isArray(diseno_ids)) {
-      await pool.query('DELETE FROM disenos_catalogo_productos WHERE catalogo_id = $1', [id]);
-      if (diseno_ids.length) {
-        const valsD = diseno_ids.map((_, i) => `($${i+2}, $1)`).join(',');
-        await pool.query(
-          `INSERT INTO disenos_catalogo_productos (diseno_id, catalogo_id) VALUES ${valsD}`,
-          [id, ...diseno_ids]
         );
       }
     }
