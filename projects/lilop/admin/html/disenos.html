@@ -89,23 +89,18 @@
       <button class="modal__close" data-modal-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="modal__body">
-      <div class="form-group">
-        <label class="form-label form-label--required">Nombre del diseño</label>
-        <input class="form-input" id="dNombre" placeholder="Ej: Flores rosadas"/>
+      <div class="form-group" id="dDisenosRows"></div>
+      <div class="form-group" id="dAddRowGroup">
+        <button type="button" class="btn btn--outline btn--sm" id="btnAddDisenoRow">+ Agregar otro diseño</button>
       </div>
       <div class="form-group">
-        <label class="form-label form-label--required">Catálogo</label>
+        <label class="form-label">Catálogo</label>
         <select class="form-input" id="dCatalogo">
           <option value="adulto_diseno">Adulto — Diseño</option>
           <option value="adulto_unicolor">Adulto — Unicolor</option>
           <option value="nino">Niño</option>
           <option value="nina">Niña</option>
         </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Imagen</label>
-        <input type="file" class="form-input" id="dImagenFile" accept="image/jpeg,image/png,image/webp"/>
-        <span class="text-xs text-muted">JPG, PNG o WebP — máximo 5MB</span>
       </div>
       <div class="form-group">
         <label class="form-label">Estado</label>
@@ -119,9 +114,6 @@
         <div class="d-grid gap-3 p-3 radius-md" id="dProductosChecks" style="background:var(--color-fog);border:1px solid var(--color-border);grid-template-columns:repeat(auto-fill,minmax(90px,1fr));max-height:320px;overflow-y:auto;">
           <span class="text-xs text-muted">Cargando...</span>
         </div>
-      </div>
-      <div class="d-none" id="dPreview">
-        <img class="radius-lg" id="dPreviewImg" style="width:100%;max-height:200px;object-fit:cover;border:1px solid var(--color-border)" alt="Preview" />
       </div>
     </div>
     <div class="modal__footer">
@@ -137,6 +129,6 @@
 <script src="/assets/js/admin-store.js?v=e54e4434"></script>
 <script src="/assets/js/admin-layout.js?v=79fc7f0b"></script>
 <script src="/assets/js/admin-ui.js?v=b1bbcb09"></script>
-<script src="/assets/js/pages/disenos.js?v=68f6454c"></script>
+<script src="/assets/js/pages/disenos.js?v=8c0a6fd9"></script>
 </body>
 </html>

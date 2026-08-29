@@ -13,7 +13,7 @@ const api = window.AdminApi;
 let allProductos = [];
 let filtered     = [];
 let currentPage  = 1;
-const PER_PAGE   = 12;
+const PER_PAGE   = 50;
 let editingId    = null;
 
 let CATEGORIAS = {};
@@ -281,7 +281,7 @@ document.getElementById('btnGuardarProducto')?.addEventListener('click', async (
   if (!nombre) { window.AdminToast?.error('Campo requerido', 'El nombre es obligatorio'); return; }
 
   const categoria_ids = [...document.querySelectorAll('.cat-check:checked')].map(c => parseInt(c.value));
-  const diseno_ids = [...document.querySelectorAll('.diseno-check:checked')].map(c => parseInt(c.value));
+  const diseno_ids = [...document.querySelectorAll('.diseno-check:checked')].map(c => c.value);
   const atributo_ids = [...document.querySelectorAll('.atributo-check:checked')].map(c => parseInt(c.value));
   const data = {
     descripcion:       document.getElementById('pDesc')?.value.trim()      || null,

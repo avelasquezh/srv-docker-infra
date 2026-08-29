@@ -999,4 +999,3 @@ textarea.form-input { resize: vertical; min-height: 80px; }
 .prod-thumb-star:hover { color:var(--color-lilac); }
 .prod-thumb-star.is-principal { color:#f5a623;background:var(--color-white); }
 .prod-thumb-check__img { position:relative; }
-.prod-thumb-check:not(:has(input:checked)) .prod-thumb-star { display:none; pointer-events:none; }

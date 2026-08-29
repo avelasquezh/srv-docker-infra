@@ -17,6 +17,37 @@ let allDisenos = [];
 let filtered   = [];
 let editingId  = null;
 let catalogoProds = [];
+let rowCount = 0;
+
+function rowTemplate(i, prefill = {}) {
+  const canRemove = i > 0;
+  return `
+    <div class="diseno-row" data-row="${i}" style="border:1px solid var(--color-border);padding:12px;border-radius:8px;margin-bottom:10px;position:relative;">
+      ${canRemove ? `<button type="button" class="btn btn--ghost btn--sm" data-remove-row="${i}" style="position:absolute;top:6px;right:6px;">&times;</button>` : ''}
+      <label class="form-label">Nombre del diseño</label>
+      <input class="form-input diseno-row__nombre" placeholder="Ej: Flores rosadas (opcional)" value="${prefill.nombre || ''}"/>
+      <label class="form-label" style="margin-top:8px;">Imagen</label>
+      <input type="file" class="form-input diseno-row__imagen" accept="image/jpeg,image/png,image/webp"/>
+      <span class="text-xs text-muted">JPG, PNG o WebP — máximo 5MB</span>
+      <img class="diseno-row__preview ${prefill.imagen ? '' : 'd-none'}" src="${prefill.imagen ? `https://api.lilop.store${prefill.imagen}` : ''}" style="width:100%;max-height:150px;object-fit:cover;margin-top:8px;border-radius:6px;border:1px solid var(--color-border);" alt="Preview"/>
+    </div>`;
+}
+
+function resetRows(prefillDiseno) {
+  const container = document.getElementById('dDisenosRows');
+  rowCount = 1;
+  container.innerHTML = rowTemplate(0, prefillDiseno ? { nombre: prefillDiseno.nombre, imagen: prefillDiseno.imagen } : {});
+}
+
+function addRow() {
+  const container = document.getElementById('dDisenosRows');
+  container.insertAdjacentHTML('beforeend', rowTemplate(rowCount));
+  rowCount++;
+}
+
+function removeRow(i) {
+  document.querySelector(`.diseno-row[data-row="${i}"]`)?.remove();
+}
 
 function formatMesAnio(iso) {
   if (!iso) return '—';
@@ -102,12 +133,11 @@ async function openModal(id) {
   const d = id ? allDisenos.find(x => x.id === id) : null;
   editingId = id || null;
   document.getElementById('modalDisenoTitle').textContent = d ? 'Editar diseño' : 'Agregar diseño';
-  document.getElementById('dNombre').value    = d?.nombre    || '';
   document.getElementById('dCatalogo').value = d?.catalogo || 'adulto_diseno';
   document.getElementById('dEstado').value    = d?.estado    || 'Disponible';
 
-  const fileInput = document.getElementById('dImagenFile');
-  if (fileInput) fileInput.value = '';
+  document.getElementById('dAddRowGroup').style.display = editingId ? 'none' : '';
+  resetRows(d);
 
   // Cargar checkboxes de tipos de producto
   const checksContainer = document.getElementById('dProductosChecks');
@@ -137,14 +167,6 @@ async function openModal(id) {
       }).join('');
   }
 
-  const prev = document.getElementById('dPreview');
-  const img  = document.getElementById('dPreviewImg');
-  if (d?.imagen) {
-    img.src = `https://api.lilop.store${d.imagen}`;
-    prev.style.display = 'block';
-  } else {
-    prev.style.display = 'none';
-  }
   window.AdminModal.open('modalDiseno');
 }
 
@@ -221,57 +243,58 @@ document.addEventListener('DOMContentLoaded', () => {
 
   loadData();
 
-  document.getElementById('dImagenFile')?.addEventListener('change', e => {
+  document.getElementById('dDisenosRows')?.addEventListener('change', e => {
+    if (!e.target.classList.contains('diseno-row__imagen')) return;
     const file = e.target.files[0];
-    const prev = document.getElementById('dPreview');
-    const img  = document.getElementById('dPreviewImg');
+    const row  = e.target.closest('.diseno-row');
+    const img  = row.querySelector('.diseno-row__preview');
     if (file) {
       img.src = URL.createObjectURL(file);
-      prev.style.display = 'block';
+      img.classList.remove('d-none');
     } else {
-      prev.style.display = 'none';
+      img.classList.add('d-none');
     }
   });
 
-  document.getElementById('btnGuardarDiseno')?.addEventListener('click', async () => {
-    const nombre = document.getElementById('dNombre')?.value.trim();
-    if (!nombre) {
-      window.AdminToast?.error('Campo requerido', 'El nombre es obligatorio');
-      return;
-    }
+  document.getElementById('dDisenosRows')?.addEventListener('click', e => {
+    const btn = e.target.closest('[data-remove-row]');
+    if (btn) removeRow(btn.dataset.removeRow);
+  });
 
-    const fileInput = document.getElementById('dImagenFile');
-    const file = fileInput?.files[0];
-    let imagenUrl = editingId
-      ? allDisenos.find(x => x.id === editingId)?.imagen || null
-      : null;
+  document.getElementById('btnAddDisenoRow')?.addEventListener('click', addRow);
+
+  document.getElementById('btnGuardarDiseno')?.addEventListener('click', async () => {
+    const catalogo = document.getElementById('dCatalogo')?.value;
+    const estado    = document.getElementById('dEstado')?.value;
+    const checks = document.querySelectorAll('#dProductosChecks input[type=checkbox]:checked');
+    const catalogo_ids = [...checks].map(c => c.value);
+    const rows = [...document.querySelectorAll('#dDisenosRows .diseno-row')];
 
     try {
-      if (file) {
-        window.AdminToast?.info?.('Subiendo imagen...');
-        const resultado = await uploadImagen(file);
-        imagenUrl = resultado.url;
-      }
-
-      const data = {
-        nombre,
-        catalogo: document.getElementById('dCatalogo')?.value,
-        estado:    document.getElementById('dEstado')?.value,
-        imagen:    imagenUrl,
-      };
-
-      let disenoId = editingId;
       if (editingId) {
-        await api.put(`/disenos/${editingId}`, data);
+        const row = rows[0];
+        const nombre = row.querySelector('.diseno-row__nombre')?.value.trim();
+        const file   = row.querySelector('.diseno-row__imagen')?.files[0];
+        let imagenUrl = allDisenos.find(x => x.id === editingId)?.imagen || null;
+        if (file) {
+          window.AdminToast?.info?.('Subiendo imagen...');
+          imagenUrl = (await uploadImagen(file)).url;
+        }
+        await api.put(`/disenos/${editingId}`, { nombre: nombre || null, catalogo, estado, imagen: imagenUrl });
+        await api.put(`/disenos/${editingId}/productos`, { catalogo_ids });
         window.AdminToast?.success('Diseño actualizado');
       } else {
-        const nuevo = await api.post('/disenos', data);
-        disenoId = nuevo.id;
-        window.AdminToast?.success('Diseño agregado');
+        window.AdminToast?.info?.(`Guardando ${rows.length} diseño${rows.length !== 1 ? 's' : ''}...`);
+        for (const row of rows) {
+          const nombre = row.querySelector('.diseno-row__nombre')?.value.trim();
+          const file   = row.querySelector('.diseno-row__imagen')?.files[0];
+          let imagenUrl = null;
+          if (file) imagenUrl = (await uploadImagen(file)).url;
+          const nuevo = await api.post('/disenos', { nombre: nombre || undefined, catalogo, estado, imagen: imagenUrl });
+          if (catalogo_ids.length) await api.put(`/disenos/${nuevo.id}/productos`, { catalogo_ids });
+        }
+        window.AdminToast?.success(`${rows.length} diseño${rows.length !== 1 ? 's' : ''} agregado${rows.length !== 1 ? 's' : ''}`);
       }
-      const checks = document.querySelectorAll('#dProductosChecks input[type=checkbox]:checked');
-      const catalogo_ids = [...checks].map(c => c.value);
-      if (disenoId) await api.put(`/disenos/${disenoId}/productos`, { catalogo_ids });
 
       window.AdminModal.close('modalDiseno');
       await loadData();

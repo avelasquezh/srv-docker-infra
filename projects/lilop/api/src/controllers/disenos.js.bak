@@ -25,15 +25,14 @@ const listar = async (req, res) => {
 };
 
 const crear = async (req, res) => {
-  const { catalogo, imagen, estado } = req.body;
-  let nombre = req.body.nombre?.trim();
-  if (!nombre) nombre = `DISEÑO-${Date.now().toString(36).toUpperCase()}${Math.floor(Math.random() * 900 + 100)}`;
+  const { nombre, catalogo, imagen, estado } = req.body;
+  if (!nombre) return res.status(400).json({ error: 'El nombre es requerido' });
   try {
     const result = await pool.query(
       `INSERT INTO disenos (nombre, catalogo, imagen, estado)
        VALUES ($1, $2, $3, $4)
        RETURNING id, nombre, catalogo, imagen, estado, created_at`,
-      [nombre, catalogo || 'adulto_diseno', imagen || null, estado || 'Disponible']
+      [nombre.trim(), catalogo || 'adulto_diseno', imagen || null, estado || 'Disponible']
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {

@@ -15,6 +15,7 @@ let filtered     = [];
 let currentPage  = 1;
 const PER_PAGE   = 50;
 let editingId    = null;
+let disenoPrincipalId = null;
 
 let CATEGORIAS = {};
 api.get('/maestros/categorias').then(cats => {
@@ -254,9 +255,11 @@ async function openModal(id) {
 
   try {
     const disenos = await api.get('/disenos');
+    disenoPrincipalId = p?.diseno_principal_id || null;
     document.getElementById('pDisenosWrap').innerHTML = disenos.length ? disenos.map(d => {
       const thumb = d.imagen ? `https://api.lilop.store${d.imagen}` : null;
       const checked = editingId ? (d.catalogo_ids || []).includes(editingId) : false;
+      const isPrincipal = d.id === disenoPrincipalId;
       return `
       <label class="prod-thumb-check">
         <input type="checkbox" class="diseno-check" value="${d.id}" ${checked ? 'checked' : ''} hidden/>
@@ -264,10 +267,21 @@ async function openModal(id) {
           ${thumb
             ? `<img src="${thumb}" alt="${d.nombre}" loading="lazy"/>`
             : `<div class="prod-thumb-check__no-img"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>`}
+          <span class="prod-thumb-star ${isPrincipal ? 'is-principal' : ''}" data-diseno-id="${d.id}" title="Marcar como imagen principal">★</span>
         </div>
         <span class="prod-thumb-check__name">${d.nombre}</span>
       </label>`;
     }).join('') : '<p class="text-xs text-muted">No hay diseños configurados</p>';
+
+    document.getElementById('pDisenosWrap').querySelectorAll('.prod-thumb-star').forEach(star => {
+      star.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        disenoPrincipalId = star.dataset.disenoId;
+        document.getElementById('pDisenosWrap').querySelectorAll('.prod-thumb-star')
+          .forEach(s => s.classList.toggle('is-principal', s.dataset.disenoId === disenoPrincipalId));
+      });
+    });
   } catch (err) {
     document.getElementById('pDisenosWrap').innerHTML = '<p class="text-xs text-muted">Error al cargar diseños</p>';
   }
@@ -282,6 +296,7 @@ document.getElementById('btnGuardarProducto')?.addEventListener('click', async (
 
   const categoria_ids = [...document.querySelectorAll('.cat-check:checked')].map(c => parseInt(c.value));
   const diseno_ids = [...document.querySelectorAll('.diseno-check:checked')].map(c => c.value);
+  const diseno_principal_id = diseno_ids.includes(disenoPrincipalId) ? disenoPrincipalId : null;
   const atributo_ids = [...document.querySelectorAll('.atributo-check:checked')].map(c => parseInt(c.value));
   const data = {
     descripcion:       document.getElementById('pDesc')?.value.trim()      || null,
@@ -295,6 +310,7 @@ document.getElementById('btnGuardarProducto')?.addEventListener('click', async (
     precio_original: parseFloat(document.getElementById('pPrecioOriginal')?.value) || null,
     categoria_ids,
     diseno_ids,
+    diseno_principal_id,
   };
 
   try {

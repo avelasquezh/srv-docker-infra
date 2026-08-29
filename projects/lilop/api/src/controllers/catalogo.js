@@ -8,13 +8,13 @@ const listar = async (req, res) => {
         c.descripcion, c.descripcion_corta,
         c.materiales, c.cuidados, c.tags,
         c.featured, c.badge, c.badge_tipo,
-        c.precio_original,
+        c.precio_original, c.diseno_principal_id,
         (
           SELECT json_agg(json_build_object('tamanio', p.tamanio, 'precio', p.precio, 'id', p.id) ORDER BY p.tamanio)
           FROM catalogo_precios p WHERE p.catalogo_id = c.id
         ) AS precios,
         (
-          SELECT json_agg(json_build_object('id', d.id, 'nombre', d.nombre, 'imagen', d.imagen, 'estado', d.estado))
+          SELECT json_agg(json_build_object('id', d.id, 'nombre', d.nombre, 'imagen', d.imagen, 'estado', d.estado) ORDER BY (d.id = c.diseno_principal_id) DESC)
           FROM disenos d
           JOIN disenos_catalogo_productos dcp ON dcp.diseno_id = d.id
           WHERE dcp.catalogo_id = c.id AND d.imagen IS NOT NULL
@@ -80,7 +80,7 @@ const actualizarProducto = async (req, res) => {
   const { id } = req.params;
   const {
     nombre, descripcion, descripcion_corta, materiales, cuidados,
-    tags, featured, badge, badge_tipo, precio_original, categoria_ids, diseno_ids,
+    tags, featured, badge, badge_tipo, precio_original, categoria_ids, diseno_ids, diseno_principal_id,
   } = req.body;
   try {
     const result = await pool.query(`
@@ -94,8 +94,9 @@ const actualizarProducto = async (req, res) => {
         featured          = COALESCE($7,  featured),
         badge             = COALESCE($8,  badge),
         badge_tipo        = COALESCE($9,  badge_tipo),
-        precio_original   = COALESCE($10, precio_original)
-      WHERE id = $11
+        precio_original   = COALESCE($10, precio_original),
+        diseno_principal_id = COALESCE($11, diseno_principal_id)
+      WHERE id = $12
       RETURNING *
     `, [
       nombre || null,
@@ -104,7 +105,7 @@ const actualizarProducto = async (req, res) => {
       cuidados   ? JSON.stringify(cuidados)   : null,
       tags       ? JSON.stringify(tags)       : null,
       featured ?? null, badge || null, badge_tipo || null,
-      precio_original || null, id,
+      precio_original || null, diseno_principal_id || null, id,
     ]);
     if (!result.rows.length) return res.status(404).json({ error: 'Producto no encontrado' });
 
@@ -156,13 +157,13 @@ const listarPublico = async (req, res) => {
         c.descripcion, c.descripcion_corta,
         c.materiales, c.cuidados, c.tags,
         c.featured, c.badge, c.badge_tipo,
-        c.precio_original,
+        c.precio_original, c.diseno_principal_id,
         (
           SELECT json_agg(json_build_object('tamanio', p.tamanio, 'precio', p.precio) ORDER BY p.tamanio)
           FROM catalogo_precios p WHERE p.catalogo_id = c.id
         ) AS precios,
         (
-          SELECT json_agg(json_build_object('id', d.id, 'nombre', d.nombre, 'imagen', d.imagen))
+          SELECT json_agg(json_build_object('id', d.id, 'nombre', d.nombre, 'imagen', d.imagen) ORDER BY (d.id = c.diseno_principal_id) DESC)
           FROM disenos d
           JOIN disenos_catalogo_productos dcp ON dcp.diseno_id = d.id
           WHERE dcp.catalogo_id = c.id AND d.estado = 'Disponible' AND d.imagen IS NOT NULL

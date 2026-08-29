@@ -35,7 +35,7 @@ const { listarCategorias } = require('./controllers/maestros');
 app.get('/api/public/categorias', async (req, res) => {
   try {
     const pool = require('./config/db');
-    const r = await pool.query(`SELECT id, nombre, slug FROM categorias c WHERE activo = true AND EXISTS (SELECT 1 FROM catalogo_productos_categorias cpc JOIN catalogo_productos cp ON cp.id = cpc.catalogo_id WHERE cpc.categoria_id = c.id AND cp.activo = true) ORDER BY nombre`);
+    const r = await pool.query('SELECT id, nombre, slug FROM categorias WHERE activo = true ORDER BY nombre');
     res.set('Cache-Control', 'public, max-age=60');
     res.json(r.rows);
   } catch (err) {
