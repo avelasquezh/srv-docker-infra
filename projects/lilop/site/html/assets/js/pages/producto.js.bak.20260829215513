@@ -268,10 +268,6 @@ function renderVariants(product) {
       updateWhatsAppLink();
     });
   });
-
-  /* Preseleccionar automáticamente el primer tamaño disponible (evita error de obligatoriedad innecesario) */
-  const firstTamanioBtn = container.querySelector('.variant-btn[data-variant-group="Tamaño"]');
-  firstTamanioBtn?.click();
 }
 
 /* ─── VALIDAR VARIANTES ───────────────────────────────────── */
