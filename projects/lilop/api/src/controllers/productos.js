@@ -89,9 +89,10 @@ const actualizar = async (req, res) => {
     let overrideFinal = valor_venta_override !== undefined ? valor_venta_override : null;
 
     if (overrideFinal === null) {
-      const prod = (await pool.query('SELECT nombre, tamanio FROM productos WHERE id = $1', [id])).rows[0];
-      const nombreFinal  = nombre  || prod?.nombre;
-      const tamanioFinal = tamanio || prod?.tamanio;
+      const prod = (await pool.query('SELECT nombre, tamanio, cantidad FROM productos WHERE id = $1', [id])).rows[0];
+      const nombreFinal   = nombre  || prod?.nombre;
+      const tamanioFinal  = tamanio || prod?.tamanio;
+      const cantidadFinal = parseInt(cantidad) || prod?.cantidad || 1;
       const precioResult = await pool.query(
         `SELECT cp.precio
          FROM catalogo_productos cat
@@ -100,7 +101,7 @@ const actualizar = async (req, res) => {
          LIMIT 1`,
         [nombreFinal, tamanioFinal]
       );
-      overrideFinal = precioResult.rows[0]?.precio ?? null;
+      overrideFinal = precioResult.rows[0]?.precio ? precioResult.rows[0].precio * cantidadFinal : null;
     }
 
     const result = await pool.query(

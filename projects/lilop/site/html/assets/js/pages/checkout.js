@@ -20,7 +20,20 @@ const store  = window.LilopStore;
 const router = window.LilopRouter;
 
 const FREE_SHIPPING = 200000;
-const WA_NUMBER     = '573001234567';
+const WA_NUMBER     = '573016006654';
+
+/* ─── FECHA DE ENTREGA: siempre hoy+3 dias calendario, sin importar el dia ─── */
+function formatDateLocal(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+function getMinDeliveryDate() {
+  const d = new Date();
+  d.setDate(d.getDate() + 3);
+  return formatDateLocal(d);
+}
 
 /* ─── REDIRIGIR SI CARRITO VACÍO ──────────────────────────── */
 function guardEmptyCart() {
@@ -109,12 +122,15 @@ function initPaymentMethods() {
 
 /* ─── VALIDACIÓN DEL FORMULARIO ───────────────────────────── */
 const REQUIRED_FIELDS = [
-  { id: 'firstName',  label: 'Nombre' },
-  { id: 'lastName',   label: 'Apellido' },
-  { id: 'email',      label: 'Correo electrónico', type: 'email' },
-  { id: 'phone',      label: 'Teléfono' },
-  { id: 'city',       label: 'Ciudad' },
-  { id: 'address',    label: 'Dirección' },
+  { id: 'firstName',    label: 'Nombre' },
+  { id: 'lastName',     label: 'Apellido' },
+  { id: 'email',        label: 'Correo electrónico', type: 'email' },
+  { id: 'phone',        label: 'Teléfono' },
+  { id: 'department',   label: 'Departamento' },
+  { id: 'city',         label: 'Ciudad' },
+  { id: 'neighborhood', label: 'Barrio' },
+  { id: 'address',      label: 'Dirección' },
+  { id: 'apartment',    label: 'Apto / Casa / Oficina' },
 ];
 
 function clearFieldError(id) {
@@ -187,6 +203,26 @@ function validateForm() {
     }
   });
 
+  /* Validar fecha de entrega: obligatoria y no menor a hoy+3 */
+  const deliveryInput = document.getElementById('deliveryDate');
+  const minDelivery    = getMinDeliveryDate();
+  if (!deliveryInput?.value || deliveryInput.value < minDelivery) {
+    showFieldError('deliveryDate', `Selecciona una fecha a partir del ${minDelivery}`);
+    if (!firstError) firstError = deliveryInput;
+    valid = false;
+  }
+
+  /* Validar localidad (select si es Bogotá D.C., input en los demás casos) */
+  const ciudad = document.getElementById('city')?.value;
+  const esBogota = ciudad === 'Bogotá D.C.';
+  const localidadInput = document.getElementById(esBogota ? 'localidadSel' : 'localidadInput');
+  const localidadValue = localidadInput?.value.trim();
+  if (ciudad && !localidadValue) {
+    showFieldError(esBogota ? 'localidadSel' : 'localidadInput', 'La localidad es obligatoria');
+    if (!firstError) firstError = localidadInput;
+    valid = false;
+  }
+
   if (!valid && firstError) {
     firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
@@ -196,17 +232,25 @@ function validateForm() {
 
 /* ─── RECOPILAR DATOS DEL FORMULARIO ──────────────────────── */
 function collectFormData() {
+  const ciudad = document.getElementById('city')?.value || '';
+  const esBogota = ciudad === 'Bogotá D.C.';
+  const localidad = esBogota
+    ? document.getElementById('localidadSel')?.value.trim()
+    : document.getElementById('localidadInput')?.value.trim();
+
   return {
     firstName:    document.getElementById('firstName')?.value.trim(),
     lastName:     document.getElementById('lastName')?.value.trim(),
     email:        document.getElementById('email')?.value.trim(),
     phone:        document.getElementById('phone')?.value.trim(),
-    city:         document.getElementById('city')?.value.trim(),
-    department:   document.getElementById('department')?.value.trim(),
+    city:         ciudad,
+    department:   document.getElementById('department')?.value || '',
+    localidad:    localidad || '',
     address:      document.getElementById('address')?.value.trim(),
     neighborhood: document.getElementById('neighborhood')?.value.trim(),
     apartment:    document.getElementById('apartment')?.value.trim(),
     notes:        document.getElementById('orderNotes')?.value.trim(),
+    deliveryDate: document.getElementById('deliveryDate')?.value,
     paymentMethod: document.querySelector('input[name="paymentMethod"]:checked')?.value || 'mercadopago',
   };
 }
@@ -257,12 +301,27 @@ function buildWhatsAppMessage(formData, order) {
 }
 
 /* ─── PROCESAR PEDIDO ─────────────────────────────────────── */
+async function saveOrderToApi(formData, order) {
+  try {
+    const res = await fetch('https://api.lilop.store/api/public/pedidos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...formData, items: store.getCart() }),
+    });
+    if (!res.ok) throw new Error(`API respondió ${res.status}`);
+  } catch (err) {
+    console.error('No se pudo guardar el pedido en el servidor:', err);
+    /* No se bloquea el flujo del cliente: el pedido sigue coordinándose por el método elegido */
+  }
+}
+
 async function processOrder(formData) {
   const btn = document.getElementById('submitOrderBtn');
   btn.classList.add('is-loading');
   btn.disabled = true;
 
   const order = saveOrderToStorage(formData);
+  await saveOrderToApi(formData, order);
 
   try {
     if (formData.paymentMethod === 'mercadopago') {
@@ -331,9 +390,26 @@ async function processOrder(formData) {
 
 /* ─── INIT FORMULARIO ─────────────────────────────────────── */
 function initForm() {
-  /* Limpiar errores al escribir */
+  /* Fecha de entrega: minimo hoy+3, sin importar el dia de la semana */
+  const deliveryInput = document.getElementById('deliveryDate');
+  if (deliveryInput) deliveryInput.setAttribute('min', getMinDeliveryDate());
+
+  /* Limpiar errores al escribir/seleccionar */
   REQUIRED_FIELDS.forEach(({ id }) => {
     document.getElementById(id)?.addEventListener('input', () => clearFieldError(id));
+    document.getElementById(id)?.addEventListener('change', () => clearFieldError(id));
+  });
+
+  /* Cascada Departamento -> Ciudad -> Localidad (colombia.js) */
+  window.poblarDepartamentos('department');
+  document.getElementById('department')?.addEventListener('change', () => {
+    window.poblarMunicipios('department', 'city');
+    window.actualizarLocalidad('city', 'localidadWrap', 'localidadSel', 'localidadInput');
+    clearFieldError('department');
+  });
+  document.getElementById('city')?.addEventListener('change', () => {
+    window.actualizarLocalidad('city', 'localidadWrap', 'localidadSel', 'localidadInput');
+    clearFieldError('city');
   });
 
   /* Submit */

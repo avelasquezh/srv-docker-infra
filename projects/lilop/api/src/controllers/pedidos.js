@@ -72,16 +72,22 @@ const crear = async (req, res) => {
   }
 
   try {
+    let medio_pago_id = null;
+    if (medio_pago) {
+      const mp = await pool.query('SELECT id FROM medios_pago WHERE nombre = $1', [medio_pago]);
+      if (!mp.rows.length) return res.status(400).json({ error: 'medio_pago inválido' });
+      medio_pago_id = mp.rows[0].id;
+    }
     const result = await pool.query(
       `INSERT INTO pedidos
          (cliente_id, vendedor_id, fecha_entrega, valor_venta,
-          valor_domicilio, domiciliario, medio_pago, estado, notas)
+          valor_domicilio, domiciliario, medio_pago_id, estado, notas)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
        RETURNING *`,
       [
         cliente_id, vendedor_id, fecha_entrega || null,
         valor_venta, valor_domicilio || 0,
-        domiciliario || null, medio_pago || null,
+        domiciliario || null, medio_pago_id,
         estado || 'pendiente', notas || null
       ]
     );
@@ -100,20 +106,26 @@ const actualizar = async (req, res) => {
   } = req.body;
 
   try {
+    let medio_pago_id = null;
+    if (medio_pago) {
+      const mp = await pool.query('SELECT id FROM medios_pago WHERE nombre = $1', [medio_pago]);
+      if (!mp.rows.length) return res.status(400).json({ error: 'medio_pago inválido' });
+      medio_pago_id = mp.rows[0].id;
+    }
     const result = await pool.query(
       `UPDATE pedidos
        SET fecha_entrega   = COALESCE($1,  fecha_entrega),
            valor_venta     = COALESCE($2,  valor_venta),
            valor_domicilio = COALESCE($3,  valor_domicilio),
            domiciliario    = COALESCE($4,  domiciliario),
-           medio_pago      = COALESCE($5,  medio_pago),
+           medio_pago_id   = COALESCE($5,  medio_pago_id),
            estado          = COALESCE($6,  estado),
            notas           = COALESCE($7,  notas),
            vendedor_id     = COALESCE($8,  vendedor_id)
        WHERE id = $9
        RETURNING *`,
       [fecha_entrega, valor_venta, valor_domicilio,
-       domiciliario, medio_pago, estado, notas, vendedor_id, id]
+       domiciliario, medio_pago_id, estado, notas, vendedor_id, id]
     );
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Pedido no encontrado' });

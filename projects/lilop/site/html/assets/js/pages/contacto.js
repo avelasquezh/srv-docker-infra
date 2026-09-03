@@ -10,7 +10,7 @@
 
 'use strict';
 
-const WA_NUMBER = '573001234567';
+const WA_NUMBER = '573016006654';
 
 /* ─── SCROLL REVEAL ───────────────────────────────────────── */
 function initScrollReveal() {

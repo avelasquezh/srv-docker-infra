@@ -17,36 +17,64 @@ let allDisenos = [];
 let filtered   = [];
 let editingId  = null;
 let catalogoProds = [];
-let rowCount = 0;
+let rowsState = [];
+let nextRowId = 0;
 
-function rowTemplate(i, prefill = {}) {
-  const canRemove = i > 0;
+function newRow(prefill = {}) {
+  return { id: nextRowId++, nombre: prefill.nombre || '', file: null, existingImagen: prefill.imagen || null };
+}
+
+function rowPreviewSrc(row) {
+  if (row.file) return URL.createObjectURL(row.file);
+  if (row.existingImagen) return `https://api.lilop.store${row.existingImagen}`;
+  return '';
+}
+
+function rowTemplate(row, canRemove) {
+  const preview = rowPreviewSrc(row);
   return `
-    <div class="diseno-row" data-row="${i}" style="border:1px solid var(--color-border);padding:12px;border-radius:8px;margin-bottom:10px;position:relative;">
-      ${canRemove ? `<button type="button" class="btn btn--ghost btn--sm" data-remove-row="${i}" style="position:absolute;top:6px;right:6px;">&times;</button>` : ''}
+    <div class="diseno-row" data-id="${row.id}" style="border:1px solid var(--color-border);padding:12px;border-radius:8px;margin-bottom:10px;position:relative;">
+      ${canRemove ? `<button type="button" class="btn btn--ghost btn--sm" data-remove-row="${row.id}" style="position:absolute;top:6px;right:6px;">&times;</button>` : ''}
       <label class="form-label">Nombre del diseño</label>
-      <input class="form-input diseno-row__nombre" placeholder="Ej: Flores rosadas (opcional)" value="${prefill.nombre || ''}"/>
+      <input class="form-input diseno-row__nombre" data-id="${row.id}" placeholder="Ej: Flores rosadas (opcional)" value="${row.nombre}"/>
       <label class="form-label" style="margin-top:8px;">Imagen</label>
-      <input type="file" class="form-input diseno-row__imagen" accept="image/jpeg,image/png,image/webp"/>
-      <span class="text-xs text-muted">JPG, PNG o WebP — máximo 5MB</span>
-      <img class="diseno-row__preview ${prefill.imagen ? '' : 'd-none'}" src="${prefill.imagen ? `https://api.lilop.store${prefill.imagen}` : ''}" style="width:100%;max-height:150px;object-fit:cover;margin-top:8px;border-radius:6px;border:1px solid var(--color-border);" alt="Preview"/>
+      <input type="file" class="form-input diseno-row__imagen" data-id="${row.id}" accept="image/jpeg,image/png,image/webp" multiple/>
+      <span class="text-xs text-muted">JPG, PNG o WebP — máximo 5MB. Puedes seleccionar varias imágenes a la vez para crear un diseño por cada una.</span>
+      <img class="diseno-row__preview ${preview ? '' : 'd-none'}" src="${preview}" style="width:100%;max-height:150px;object-fit:cover;margin-top:8px;border-radius:6px;border:1px solid var(--color-border);" alt="Preview"/>
     </div>`;
 }
 
-function resetRows(prefillDiseno) {
+function renderRows() {
   const container = document.getElementById('dDisenosRows');
-  rowCount = 1;
-  container.innerHTML = rowTemplate(0, prefillDiseno ? { nombre: prefillDiseno.nombre, imagen: prefillDiseno.imagen } : {});
+  container.innerHTML = rowsState.map(r => rowTemplate(r, rowsState.length > 1)).join('');
+}
+
+function resetRows(prefillDiseno) {
+  rowsState = [newRow(prefillDiseno ? { nombre: prefillDiseno.nombre, imagen: prefillDiseno.imagen } : {})];
+  renderRows();
 }
 
 function addRow() {
-  const container = document.getElementById('dDisenosRows');
-  container.insertAdjacentHTML('beforeend', rowTemplate(rowCount));
-  rowCount++;
+  rowsState.push(newRow());
+  renderRows();
 }
 
-function removeRow(i) {
-  document.querySelector(`.diseno-row[data-row="${i}"]`)?.remove();
+function removeRow(id) {
+  rowsState = rowsState.filter(r => r.id !== Number(id));
+  renderRows();
+}
+
+function handleFileSelect(rowId, fileList) {
+  const files = [...fileList];
+  if (!files.length) return;
+  const row = rowsState.find(r => r.id === Number(rowId));
+  if (!row) return;
+  row.file = files[0];
+  row.existingImagen = null;
+  for (let i = 1; i < files.length; i++) {
+    rowsState.push({ id: nextRowId++, nombre: '', file: files[i], existingImagen: null });
+  }
+  renderRows();
 }
 
 function formatMesAnio(iso) {
@@ -244,15 +272,15 @@ document.addEventListener('DOMContentLoaded', () => {
   loadData();
 
   document.getElementById('dDisenosRows')?.addEventListener('change', e => {
-    if (!e.target.classList.contains('diseno-row__imagen')) return;
-    const file = e.target.files[0];
-    const row  = e.target.closest('.diseno-row');
-    const img  = row.querySelector('.diseno-row__preview');
-    if (file) {
-      img.src = URL.createObjectURL(file);
-      img.classList.remove('d-none');
-    } else {
-      img.classList.add('d-none');
+    if (e.target.classList.contains('diseno-row__imagen')) {
+      handleFileSelect(e.target.dataset.id, e.target.files);
+    }
+  });
+
+  document.getElementById('dDisenosRows')?.addEventListener('input', e => {
+    if (e.target.classList.contains('diseno-row__nombre')) {
+      const row = rowsState.find(r => r.id === Number(e.target.dataset.id));
+      if (row) row.nombre = e.target.value;
     }
   });
 
@@ -268,32 +296,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const estado    = document.getElementById('dEstado')?.value;
     const checks = document.querySelectorAll('#dProductosChecks input[type=checkbox]:checked');
     const catalogo_ids = [...checks].map(c => c.value);
-    const rows = [...document.querySelectorAll('#dDisenosRows .diseno-row')];
-
     try {
       if (editingId) {
-        const row = rows[0];
-        const nombre = row.querySelector('.diseno-row__nombre')?.value.trim();
-        const file   = row.querySelector('.diseno-row__imagen')?.files[0];
-        let imagenUrl = allDisenos.find(x => x.id === editingId)?.imagen || null;
-        if (file) {
+        const row = rowsState[0];
+        let imagenUrl = row.existingImagen;
+        if (row.file) {
           window.AdminToast?.info?.('Subiendo imagen...');
-          imagenUrl = (await uploadImagen(file)).url;
+          imagenUrl = (await uploadImagen(row.file)).url;
         }
-        await api.put(`/disenos/${editingId}`, { nombre: nombre || null, catalogo, estado, imagen: imagenUrl });
+        await api.put(`/disenos/${editingId}`, { nombre: row.nombre.trim() || null, catalogo, estado, imagen: imagenUrl });
         await api.put(`/disenos/${editingId}/productos`, { catalogo_ids });
         window.AdminToast?.success('Diseño actualizado');
       } else {
-        window.AdminToast?.info?.(`Guardando ${rows.length} diseño${rows.length !== 1 ? 's' : ''}...`);
-        for (const row of rows) {
-          const nombre = row.querySelector('.diseno-row__nombre')?.value.trim();
-          const file   = row.querySelector('.diseno-row__imagen')?.files[0];
+        window.AdminToast?.info?.(`Guardando ${rowsState.length} diseño${rowsState.length !== 1 ? 's' : ''}...`);
+        for (const row of rowsState) {
           let imagenUrl = null;
-          if (file) imagenUrl = (await uploadImagen(file)).url;
-          const nuevo = await api.post('/disenos', { nombre: nombre || undefined, catalogo, estado, imagen: imagenUrl });
+          if (row.file) imagenUrl = (await uploadImagen(row.file)).url;
+          const nuevo = await api.post('/disenos', { nombre: row.nombre.trim() || undefined, catalogo, estado, imagen: imagenUrl });
           if (catalogo_ids.length) await api.put(`/disenos/${nuevo.id}/productos`, { catalogo_ids });
         }
-        window.AdminToast?.success(`${rows.length} diseño${rows.length !== 1 ? 's' : ''} agregado${rows.length !== 1 ? 's' : ''}`);
+        window.AdminToast?.success(`${rowsState.length} diseño${rowsState.length !== 1 ? 's' : ''} agregado${rowsState.length !== 1 ? 's' : ''}`);
       }
 
       window.AdminModal.close('modalDiseno');

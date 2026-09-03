@@ -26,7 +26,7 @@ const state = {
   currentImageIdx:    0,
 };
 
-const WHATSAPP_NUMBER = '573001234567';
+const WHATSAPP_NUMBER = '573016006654';
 
 /* ─── GALERÍA ─────────────────────────────────────────────── */
 function renderGallery(product) {
@@ -69,6 +69,38 @@ function renderGallery(product) {
   } else if (thumbs) {
     thumbs.innerHTML = '';
   }
+
+  /* Flechas prev/next */
+  const prevBtn = document.getElementById('galleryPrev');
+  const nextBtn = document.getElementById('galleryNext');
+  const hasMultiple = product.images.length > 1;
+
+  if (prevBtn) {
+    prevBtn.style.display = hasMultiple ? '' : 'none';
+    prevBtn.onclick = () => navigateImage(-1);
+  }
+  if (nextBtn) {
+    nextBtn.style.display = hasMultiple ? '' : 'none';
+    nextBtn.onclick = () => navigateImage(1);
+  }
+
+  /* Navegación por teclado en la imagen principal */
+  const mainEl = document.getElementById('galleryMain');
+  if (mainEl && !mainEl.dataset.navBound) {
+    mainEl.dataset.navBound = 'true';
+    mainEl.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft')  { e.preventDefault(); navigateImage(-1); }
+      if (e.key === 'ArrowRight') { e.preventDefault(); navigateImage(1); }
+    });
+  }
+}
+
+function navigateImage(direction) {
+  const product = state.product;
+  if (!product || !product.images.length) return;
+  const total = product.images.length;
+  const next  = (state.currentImageIdx + direction + total) % total;
+  setMainImage(next);
 }
 
 function setMainImage(idx) {
@@ -85,23 +117,17 @@ function setMainImage(idx) {
     const isActive = parseInt(btn.dataset.imgIdx, 10) === idx;
     btn.classList.toggle('is-active', isActive);
     btn.setAttribute('aria-pressed', String(isActive));
+    if (isActive) {
+      btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
   });
 }
 
-/* ─── RENDERIZAR ESTRELLAS ────────────────────────────────── */
-function renderStars(rating, size = 16) {
-  const full  = Math.floor(rating);
-  const empty = 5 - full;
-  const s  = `<svg class="product-info__star" width="${size}" height="${size}" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
-  const se = `<svg class="product-info__star product-info__star--empty" width="${size}" height="${size}" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
-  return s.repeat(full) + se.repeat(empty);
-}
 
 /* ─── RENDERIZAR INFO PRINCIPAL ───────────────────────────── */
 function renderInfo(product) {
   const cat       = document.getElementById('productCategory');
   const title     = document.getElementById('productTitle');
-  const rating    = document.getElementById('productRating');
   const priceWrap = document.getElementById('productPriceWrap');
   const shortDesc = document.getElementById('productShortDesc');
   const crumb     = document.getElementById('breadcrumbProduct');
@@ -116,15 +142,6 @@ function renderInfo(product) {
   const metaDesc = document.getElementById('metaDescription');
   if (metaDesc) metaDesc.content = product.shortDescription;
 
-  /* Rating */
-  if (rating) {
-    rating.innerHTML = `
-      <div class="product-info__stars" aria-hidden="true">${renderStars(product.rating)}</div>
-      <span class="product-info__rating-score">${product.rating}</span>
-      <span class="product-info__rating-count">(${product.reviewCount} reseñas)</span>
-    `;
-    rating.setAttribute('aria-label', `${product.rating} de 5 estrellas, ${product.reviewCount} reseñas`);
-  }
 
   /* Precio */
   updatePriceDisplay();
@@ -418,7 +435,7 @@ function renderRelated(product, allProducts) {
         aria-label="${p.name}, ${store.formatPrice(p.price)}"
       >
         <div class="product-card__img-wrap">
-          <img class="product-card__img" src="${store.getDisplayImage(p)}" alt="${p.name}" loading="lazy" />
+          <img class="product-card__img" src="${p.images[0] || ''}" alt="${p.name}" loading="lazy" />
           ${p.badge ? `<div class="product-card__badge"><span class="badge badge--${p.badgeType || 'new'}">${p.badge}</span></div>` : ''}
           <button class="product-card__quick-add" data-product-id="${p.id}" aria-label="Agregar ${p.name} al carrito">+ Agregar</button>
         </div>
@@ -508,13 +525,17 @@ function initAddToCart() {
       ...attrLabels,
     ].join(' / ');
 
+    /* Diseño activo en la galería al momento de agregar al carrito (no necesariamente el principal) */
+    const activeDesign = product.designNames?.[state.currentImageIdx] || null;
+    const activeImage  = product.images?.[state.currentImageIdx] || product.images[0];
     /* Agregar al store con precio final (base + atributos), fijo desde este punto */
     store.addToCart({
       id:      product.id,
       name:    product.name,
       price:   getBasePrice() + getAttributesExtra(),
-      image:   product.images[0],
+      image:   activeImage,
       variant: variantStr,
+      design:  activeDesign,
     });
 
     /* Abrir el carrito */

@@ -100,6 +100,7 @@ function addToCart(product) {
       price:    product.price,
       image:    product.image || '',
       variant:  product.variant || '',
+      design:   product.design || '',
       quantity: qty,
       addedAt:  Date.now(),
     });
@@ -197,18 +198,6 @@ function formatPrice(amount) {
  * @param {object} product - objeto con .id (string) y .images (array)
  * @returns {string} URL de la imagen a mostrar
  */
-function getDisplayImage(product) {
-  const images = product?.images || [];
-  if (!images.length) return '';
-  let hash = 0;
-  const id = String(product.id || '');
-  for (let i = 0; i < id.length; i++) {
-    hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
-  }
-  const idx = hash % images.length;
-  return images[idx];
-}
-
 /* ─── EXPORTAR API PÚBLICA ────────────────────────────────── */
 window.LilopStore = {
   addToCart,
@@ -220,5 +209,4 @@ window.LilopStore = {
   getTotal,
   isEmpty,
   formatPrice,
-  getDisplayImage,
 };

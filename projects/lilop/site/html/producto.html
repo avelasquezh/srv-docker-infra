@@ -6,11 +6,11 @@
   <meta name="description" id="metaDescription" content="Ropa de cama premium Lilop. Calidad certificada, entrega en todo Colombia." />
   <title id="pageTitle">Producto — Lilop</title>
 
-  <link rel="stylesheet" href="/assets/css/tokens.css" />
-  <link rel="stylesheet" href="/assets/css/global.css" />
-  <link rel="stylesheet" href="/assets/css/components.css" />
-  <link rel="stylesheet" href="/assets/css/pages/home.css" />
-  <link rel="stylesheet" href="/assets/css/pages/producto.css" />
+  <link rel="stylesheet" href="/assets/css/tokens.css?v=aa6d8982" />
+  <link rel="stylesheet" href="/assets/css/global.css?v=eadf803e" />
+  <link rel="stylesheet" href="/assets/css/components.css?v=65ba54ac" />
+  <link rel="stylesheet" href="/assets/css/pages/home.css?v=782226a0" />
+  <link rel="stylesheet" href="/assets/css/pages/producto.css?v=b1aeb67b" />
 </head>
 <body>
 
@@ -71,6 +71,12 @@
             loading="eager"
           />
           <div class="product-gallery__badge" id="galleryBadge"></div>
+          <button type="button" class="product-gallery__arrow product-gallery__arrow--prev" id="galleryPrev" aria-label="Imagen anterior">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          </button>
+          <button type="button" class="product-gallery__arrow product-gallery__arrow--next" id="galleryNext" aria-label="Imagen siguiente">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
         </div>
 
         <div class="product-gallery__thumbs" id="galleryThumbs" role="list" aria-label="Miniaturas del producto">
@@ -85,10 +91,6 @@
         <p class="product-info__category" id="productCategory"></p>
 
         <h1 class="product-info__title" id="productTitle"></h1>
-
-        <div class="product-info__rating" id="productRating" aria-label="Valoración del producto">
-          <!-- Inyectado por producto.js -->
-        </div>
 
         <div class="product-info__price-wrap" id="productPriceWrap">
           <!-- Inyectado por producto.js -->
@@ -182,13 +184,13 @@
   <lilop-footer></lilop-footer>
 
   <!-- Scripts -->
-  <script src="/assets/js/store.js?v=0a53486f"></script>
+  <script src="/assets/js/store.js?v=b48a7b60"></script>
   <script src="/assets/js/router.js?v=8d0bfb43"></script>
   <script src="/assets/js/components/navbar.js?v=5d67e0cc"></script>
-  <script src="/assets/js/components/footer.js?v=8f5f53e5"></script>
+  <script src="/assets/js/components/footer.js?v=bb50c480"></script>
   <script src="/assets/js/components/cart.js?v=049c673d"></script>
   <script src="/assets/js/components/toast.js?v=ca49ca94"></script>
-  <script src="/assets/js/pages/producto.js?v=23beda1e"></script>
+  <script src="/assets/js/pages/producto.js?v=d9f4b4ca"></script>
 
 </body>
 </html>

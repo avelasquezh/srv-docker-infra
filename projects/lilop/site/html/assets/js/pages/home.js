@@ -74,7 +74,7 @@ function renderProductCard(product, index) {
       <div class="product-card__img-wrap">
         <img
           class="product-card__img"
-          src="${store.getDisplayImage(product)}"
+          src="${product.images[0] || ''}"
           alt="${product.name}"
           loading="lazy"
           onerror="this.src='/assets/img/placeholder.jpg'"

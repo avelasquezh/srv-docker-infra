@@ -58,7 +58,7 @@ class LilopFooter extends HTMLElement {
                   </svg>
                 </a>
 
-                <a href="https://wa.me/573001234567"
+                <a href="https://wa.me/573016006654"
                    class="footer__social-link"
                    target="_blank"
                    rel="noopener noreferrer"
@@ -113,7 +113,7 @@ class LilopFooter extends HTMLElement {
               <span class="footer__col-title">Contacto</span>
               <div class="footer__links">
 
-                <a href="https://wa.me/573001234567"
+                <a href="https://wa.me/573016006654"
                    class="footer__contact-item"
                    target="_blank"
                    rel="noopener noreferrer"

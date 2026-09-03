@@ -1,0 +1,105 @@
+'use strict';
+const pool = require('../config/db');
+
+const VENDEDOR_WEB_ID = 'US0002'; // Arley — vendedor asignado a pedidos de lilop.store
+
+const TAMANIOS_VALIDOS = ['Sencillo', 'Doble', 'Queen', 'King', 'Unico', 'Semidoble'];
+
+const MAPA_MEDIO_PAGO = {
+  mercadopago: 'Mercado Pago',
+  transfer:    'Transferencia',
+  whatsapp:    'Contraentrega',
+};
+
+/** Extrae el tamaño válido desde el string variant, ej: "Tamaño: Queen" -> "Queen" */
+function extraerTamanio(variant) {
+  if (!variant) return null;
+  const encontrado = TAMANIOS_VALIDOS.find(t => variant.includes(t));
+  return encontrado || null;
+}
+
+const crearPedidoPublico = async (req, res) => {
+  const {
+    firstName, lastName, email, phone,
+    city, department, address, neighborhood, apartment, notes,
+    paymentMethod, items,
+  } = req.body;
+
+  if (!firstName || !lastName || !phone || !city || !address) {
+    return res.status(400).json({ error: 'Faltan campos obligatorios del cliente' });
+  }
+  if (!Array.isArray(items) || !items.length) {
+    return res.status(400).json({ error: 'El pedido debe tener al menos un producto' });
+  }
+
+  const medioPagoNombre = MAPA_MEDIO_PAGO[paymentMethod] || 'Por confirmar';
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    /* 1. Cliente: reutilizar por celular si ya existe, si no crear */
+    const nombreCompleto = `${firstName} ${lastName}`.trim();
+    let clienteId;
+    const existente = await client.query('SELECT id FROM clientes WHERE celular = $1', [phone]);
+    if (existente.rows.length) {
+      clienteId = existente.rows[0].id;
+      await client.query(
+        `UPDATE clientes SET
+           ciudad = COALESCE($1, ciudad), departamento = COALESCE($2, departamento),
+           direccion = COALESCE($3, direccion), barrio = COALESCE($4, barrio)
+         WHERE id = $5`,
+        [city || null, department || null, address || null, neighborhood || null, clienteId]
+      );
+    } else {
+      const nuevoCliente = await client.query(
+        `INSERT INTO clientes (nombre, celular, ciudad, departamento, direccion, barrio, origen_venta)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)
+         RETURNING id`,
+        [nombreCompleto, phone, city, department || null, address, neighborhood || null, 'Lilop.store']
+      );
+      clienteId = nuevoCliente.rows[0].id;
+    }
+
+    /* 2. Medio de pago */
+    const mp = await client.query('SELECT id FROM medios_pago WHERE nombre = $1', [medioPagoNombre]);
+    const medioPagoId = mp.rows[0]?.id || null;
+
+    /* 3. Notas: incluir email + apartamento + notas del cliente, ya que no tienen columna propia */
+    const notasCompletas = [
+      `Email: ${email || 'no proporcionado'}`,
+      apartment ? `Apto/Interior: ${apartment}` : null,
+      notes ? `Notas del cliente: ${notes}` : null,
+    ].filter(Boolean).join(' | ');
+
+    /* 4. Pedido */
+    const pedido = await client.query(
+      `INSERT INTO pedidos (cliente_id, vendedor_id, medio_pago_id, estado, estado_pago, origen, notas, valor_domicilio)
+       VALUES ($1, $2, $3, 'por_confirmar', 'pendiente', 'Lilop.store', $4, 0)
+       RETURNING id`,
+      [clienteId, VENDEDOR_WEB_ID, medioPagoId, notasCompletas]
+    );
+    const pedidoId = pedido.rows[0].id;
+
+    /* 5. Productos del pedido */
+    for (const item of items) {
+      const tamanio = extraerTamanio(item.variant);
+      await client.query(
+        `INSERT INTO productos (pedido_id, nombre, tamanio, valor_venta_override, cantidad)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [pedidoId, item.name, tamanio, item.price, item.quantity || 1]
+      );
+    }
+
+    await client.query('COMMIT');
+    res.status(201).json({ ok: true, pedido_id: pedidoId, cliente_id: clienteId });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Error al crear pedido público:', err.message);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  } finally {
+    client.release();
+  }
+};
+
+module.exports = { crearPedidoPublico };

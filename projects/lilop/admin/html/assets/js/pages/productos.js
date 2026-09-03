@@ -46,7 +46,9 @@ function renderGrid() {
 
   grid.innerHTML = page.map(p => {
     const precios   = p.precios || [];
-    const precioMin = precios.length ? Math.min(...precios.map(x => parseFloat(x.precio))) : 0;
+    const preciosNum = precios.map(x => parseFloat(x.precio));
+    const precioMin = preciosNum.length ? Math.min(...preciosNum) : 0;
+    const precioMax = preciosNum.length ? Math.max(...preciosNum) : 0;
     const disenos   = (p.disenos || []).filter(d => d.imagen);
     const catLabel  = (p.categorias || []).map(c => c.nombre).join(', ') || '—';
     const carId     = 'car-' + p.id;
@@ -78,7 +80,7 @@ function renderGrid() {
         <h3 class="font-display text-base font-semibold" style="line-height:var(--leading-snug)">${p.nombre}</h3>
         ${p.descripcion_corta ? `<p class="text-xs text-muted" style="line-height:var(--leading-snug)">${p.descripcion_corta}</p>` : ''}
         <div class="d-flex items-center justify-between" style="margin-top:auto;padding-top:var(--s-3);border-top:1px solid var(--color-border)">
-          <span class="font-display text-lg font-bold text-violet">${precioMin ? formatPrice(precioMin) : '—'}</span>
+          <span class="font-display text-lg font-bold text-violet">${!precioMin ? '—' : precioMax > precioMin ? `${formatPrice(precioMin)} - ${formatPrice(precioMax)}` : formatPrice(precioMin)}</span>
           <span class="text-xs text-muted">${precios.length} talla${precios.length !== 1 ? 's' : ''}</span>
         </div>
       </div>
@@ -329,10 +331,11 @@ document.getElementById('btnGuardarProducto')?.addEventListener('click', async (
       window.AdminToast?.success('Producto creado');
     }
 
-    // Guardar precios por tamaño
+    // Guardar precios por tamaño. Campo vacío = mismo efecto que 0: elimina la relación en backend.
     for (const t of TAMANIOS) {
-      const val = parseFloat(document.getElementById(`precio-${t}`)?.value);
-      if (val > 0) {
+      const raw = document.getElementById(`precio-${t}`)?.value;
+      const val = raw === '' ? 0 : parseFloat(raw);
+      if (!isNaN(val) && val >= 0) {
         await api.post(`/catalogo/${catId}/precios`, { tamanio: t, precio: val });
       }
     }

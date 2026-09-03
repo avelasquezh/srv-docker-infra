@@ -48,6 +48,14 @@ const upsertPrecio = async (req, res) => {
     return res.status(400).json({ error: 'tamanio y precio son requeridos' });
   }
   try {
+    /* Precio en 0 (o negativo) = eliminar la relación tamaño/precio, no guardarla como 0 */
+    if (parseFloat(precio) <= 0) {
+      await pool.query(
+        'DELETE FROM catalogo_precios WHERE catalogo_id = $1 AND tamanio = $2',
+        [catalogo_id, tamanio]
+      );
+      return res.json({ ok: true, eliminado: true });
+    }
     const result = await pool.query(`
       INSERT INTO catalogo_precios (catalogo_id, tamanio, precio)
       VALUES ($1, $2, $3)
@@ -208,6 +216,7 @@ const listarPublico = async (req, res) => {
         variants: { Tamaño: precios.map(p => p.tamanio) },
         precios: precios.map(p => ({ tamanio: p.tamanio, precio: parseFloat(p.precio) })),
         images:   (c.disenos || []).map(d => `https://api.lilop.store${d.imagen}`),
+        designNames: (c.disenos || []).map(d => d.nombre),
         featured:    c.featured,
         badge:       c.badge || null,
         badgeType:   c.badge_tipo || null,

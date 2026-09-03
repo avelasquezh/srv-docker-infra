@@ -62,22 +62,25 @@ const CATEGORY_LABELS_LEGACY = {
   decoracion:  'Decoración',
 };
 
-/* ─── RENDERIZAR ESTRELLAS ────────────────────────────────── */
-function renderStars(rating) {
-  const full  = Math.floor(rating);
-  const empty = 5 - full;
-  const s  = `<svg class="product-card__star" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
-  const se = `<svg class="product-card__star product-card__star--empty" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
-  return s.repeat(full) + se.repeat(empty);
+/* ─── RANGO DE PRECIO (según tamaños disponibles) ─────────── */
+function getPriceRange(product) {
+  const precios = (product.precios || []).map(p => p.precio).filter(p => typeof p === 'number');
+  if (!precios.length) return { min: product.price, max: product.price };
+  return { min: Math.min(...precios), max: Math.max(...precios) };
 }
 
 /* ─── TEMPLATE DE TARJETA ─────────────────────────────────── */
 function renderCard(product, index) {
-  const hasSale    = product.originalPrice && product.originalPrice > product.price;
-  const priceHTML  = hasSale
-    ? `<span class="product-card__price-current">${store.formatPrice(product.price)}</span>
-       <span class="product-card__price-original">${store.formatPrice(product.originalPrice)}</span>`
-    : `<span class="product-card__price-current">${store.formatPrice(product.price)}</span>`;
+  const { min: priceMin, max: priceMax } = getPriceRange(product);
+  const hasRange   = priceMax > priceMin;
+  const hasSale    = !hasRange && product.originalPrice && product.originalPrice > product.price;
+
+  const priceHTML  = hasRange
+    ? `<span class="product-card__price-current">${store.formatPrice(priceMin)} - ${store.formatPrice(priceMax)}</span>`
+    : hasSale
+      ? `<span class="product-card__price-current">${store.formatPrice(product.price)}</span>
+         <span class="product-card__price-original">${store.formatPrice(product.originalPrice)}</span>`
+      : `<span class="product-card__price-current">${store.formatPrice(product.price)}</span>`;
 
   const badgeHTML = product.badge
     ? `<div class="product-card__badge">
@@ -97,7 +100,7 @@ function renderCard(product, index) {
       <div class="product-card__img-wrap">
         <img
           class="product-card__img"
-          src="${store.getDisplayImage(product)}"
+          src="${product.images[0] || ''}"
           alt="${product.name}"
           loading="lazy"
           onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 400 400%27%3E%3Crect width=%27400%27 height=%27400%27 fill=%27%23f3f0f8%27/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23a89bc4%22 font-family=%22sans-serif%22 font-size=%2220%22%3ESin imagen%3C/text%3E%3C/svg%3E'"
@@ -117,10 +120,6 @@ function renderCard(product, index) {
         <p class="product-card__short-desc">${product.shortDescription}</p>
         <div class="product-card__footer">
           <div class="product-card__price">${priceHTML}</div>
-          <div class="product-card__rating" aria-label="${product.rating} de 5 estrellas">
-            <div class="product-card__stars">${renderStars(product.rating)}</div>
-            <span>(${product.reviewCount})</span>
-          </div>
         </div>
       </div>
     </article>
