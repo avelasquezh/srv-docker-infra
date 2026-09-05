@@ -396,8 +396,11 @@ contrato realmente aplica** — ver el caso `domicilio` como ejemplo de cuándo 
 heredar), validar con mocks, montar en `index.js`/router padre con una línea, y
 **recién ahí** borrar el controller/route viejo.
 Sugerencia de orden (no decidido): siguientes candidatos simples/aislados —
-`imagenes`, `maestros`, `auth` — antes que los que tienen triggers de Postgres detrás
-(`pedidos`, `comisiones`, `costos_pedido`).
+`maestros`, `auth` — antes que los que tienen triggers de Postgres detrás
+(`pedidos`, `comisiones`, `costos_pedido`). **`auth` deliberadamente al final de
+los "simples":** es pequeño, pero es el gateway de login — un error ahí bloquea
+a todo el equipo del acceso al admin, así que su riesgo real es más alto que su
+tamaño.
 
 **`imagenes` — ✅ migrado.** Sin Postgres (filesystem + `sharp`), mismo criterio que
 `domicilio`: `ImagenRepository` no extiende `BaseRepository` (Liskov), `sharp`/`fs`
@@ -411,11 +414,28 @@ los 5 casos (sin archivo, extensión inválida, happy path, filename inseguro,
 eliminar ok) devuelven exactamente el mismo status/mensaje que el controller viejo
 — sin ningún cambio de comportamiento esta vez, ni siquiera en errores.
 
+**`maestros` — ✅ migrado.** Primer dominio con Postgres real desde `productos`
+(4 catálogos: `origenes_venta`, `conceptos_costo`, `conceptos_compra`,
+`categorias`). Decisión de diseño: `CatalogoSimpleRepository` genérico
+parametrizado por tabla para los 3 catálogos idénticos en forma (`id`, `nombre`)
+— DRY sin forzar `categorias` (que tiene `slug`/`activo`/`actualizar`) dentro del
+mismo molde (habría sido mal uso de la generalización). Duplicados de Postgres
+(`23505`) se traducen a un `RegistroDuplicadoError` de dominio en el service —
+el controller nunca conoce el código de Postgres, solo hace `instanceof`.
+**Inconsistencia preexistente preservada a propósito:** `crearConceptoCompra`
+valida `!nombre` sin `.trim()` (acepta nombre solo-espacios), a diferencia de
+`crearOrigen`/`crearConcepto` que sí exigen `.trim()`. Es un bug real del código
+viejo, pero corregirlo aquí habría mezclado un fix de negocio con el refactor de
+arquitectura — queda anotado para decidir aparte. Validado con pool falso: 13
+endpoints, incluyendo duplicado de Postgres en dos rutas distintas, idénticos al
+controller viejo.
+
 ## 7ter. Pendientes explícitos para la siguiente sesión
 
 1. **Migrar el resto de dominios a POO/SOLID** (sección 7quater) — `productos`,
-   `domicilio` e `imagenes` ya migrados y confirmados en producción (sección 8).
-   Siguientes candidatos simples: `maestros`, `auth`.
+   `domicilio`, `imagenes` y `maestros` ya migrados y confirmados en producción
+   (sección 8). Siguiente candidato: `auth` (pequeño pero alto riesgo — gateway
+   de login, ver nota en 7quater).
 2. **Fase 4-5 de la metodología** — exponer el esquema nuevo en paralelo al viejo desde
    el API (ya arrancado con el dominio `productos`), validar, y solo después hacer
    el corte real en los controllers existentes (`productos.js`, `catalogo.js`, etc.).
@@ -452,6 +472,8 @@ eliminar ok) devuelven exactamente el mismo status/mensaje que el controller vie
 | 7 | Agente 1 | `40c7d04` | Migración dominio `imagenes` a POO/SOLID + des-hardcodeo uploads dir a `IMAGENES_UPLOADS_DIR` | ✅ | ✅ | `sharp`/`fs` falsos (5/5 casos) + `curl -X POST /api/imagenes/upload` sin token en prod → `401` (confirma ruta montada y `auth` activo) | ✅ dominio cerrado |
 | 8 | Agente 1 | `5b8a7cb` | Docs: agregar esta sección de registro por agente | ✅ (solo docs) | N/A | N/A | ✅ |
 | 9 | Agente 1 | `99f29c7` | Docs: regla de pull/relectura del MD antes de cada commit | ✅ (solo docs) | N/A | N/A | ✅ |
+| 10 | Agente 1 | `7979ba4` | Docs: sincronizar tabla — `productos` e `imagenes` confirmados en prod | ✅ (solo docs) | N/A | N/A | ✅ |
+| 11 | Agente 1 | *(pendiente de commit)* | Migración dominio `maestros` a POO/SOLID (4 catálogos: orígenes, conceptos-costo, conceptos-compra, categorías) | ✅ | ⏳ pendiente de deploy/curl real | pool falso: 13 endpoints incluyendo 2 casos de duplicado (`23505`→`RegistroDuplicadoError`) | ✅ en mocks; falta confirmación en prod |
 
 **Nota sobre la entrada #5 (actualizada):** ya no hay pendiente — Agente 1 corrió el
 curl real de verificación (`/api/public/bot/productos/CAT0032` vía Cloudflare) y el

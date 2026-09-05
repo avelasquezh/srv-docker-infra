@@ -19,7 +19,7 @@ app.get('/api/health', (req, res) => {
 // ── Rutas ─────────────────────────────────────────────────
 app.use('/api/auth',       require('./routes/auth'));
 app.use('/api/usuarios',   require('./routes/usuarios'));
-app.use('/api/maestros',   require('./routes/maestros'));
+app.use('/api/maestros',   require('./domains/maestros/maestros.routes'));
 app.use('/api/clientes',   require('./routes/clientes'));
 app.use('/api/pedidos',    require('./routes/pedidos'));
 
