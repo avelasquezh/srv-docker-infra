@@ -434,8 +434,12 @@ controller viejo.
 
 1. **Migrar el resto de dominios a POO/SOLID** (sección 7quater) — `productos`,
    `domicilio`, `imagenes` y `maestros` ya migrados y confirmados en producción
-   (sección 8). Siguiente candidato: `auth` (pequeño pero alto riesgo — gateway
-   de login, ver nota en 7quater).
+   (sección 8). `auth` migrado por Agente 2 (Agente 1 pausado por tokens),
+   validado con mocks (bcrypt/jwt/pool falsos) + arranque real del servidor,
+   **pendiente de confirmación en producción** (ver sección 8, entradas #12-13).
+   Dominios simples restantes: ninguno — con `auth` cerrado, los siguientes
+   candidatos son los que tienen triggers de Postgres detrás (`pedidos`,
+   `comisiones`, `costos_pedido`), que requieren más cuidado.
 2. **Fase 4-5 de la metodología** — exponer el esquema nuevo en paralelo al viejo desde
    el API (ya arrancado con el dominio `productos`), validar, y solo después hacer
    el corte real en los controllers existentes (`productos.js`, `catalogo.js`, etc.).
@@ -474,6 +478,8 @@ controller viejo.
 | 9 | Agente 1 | `99f29c7` | Docs: regla de pull/relectura del MD antes de cada commit | ✅ (solo docs) | N/A | N/A | ✅ |
 | 10 | Agente 1 | `7979ba4` | Docs: sincronizar tabla — `productos` e `imagenes` confirmados en prod | ✅ (solo docs) | N/A | N/A | ✅ |
 | 11 | Agente 1 | *(pendiente de commit)* | Migración dominio `maestros` a POO/SOLID (4 catálogos: orígenes, conceptos-costo, conceptos-compra, categorías) | ✅ | ⏳ pendiente de deploy/curl real | pool falso: 13 endpoints incluyendo 2 casos de duplicado (`23505`→`RegistroDuplicadoError`) | ✅ en mocks; falta confirmación en prod |
+| 12 | Agente 2 | `8717e61` | Fix bloqueante: `index.js` importaba `./controllers/maestros`, eliminado en la migración de `maestros` (entrada #11) pero nunca actualizado en `index.js` — habría tumbado el arranque completo del API en el próximo deploy (`MODULE_NOT_FOUND` síncrono). Import además nunca se usaba. | ✅ | ⏳ pendiente de deploy real (bug no llegó a prod porque #11 tampoco se ha desplegado aún) | `node -c` + arranque real del servidor + `curl /api/public/categorias` (responde, no crashea) | ✅ deja de ser bloqueante para el próximo `git pull` + restart |
+| 13 | Agente 2 | `a53f06c` | Migración dominio `auth` a POO/SOLID (login + vendedores) — Agente 1 pausado por tokens | ✅ | ⏳ pendiente de deploy/curl real | pool/bcrypt/jwt falsos: 8 casos (400 sin credenciales, 401 email inexistente, 401 inactivo, 401 password incorrecto, 200 happy path con shape exacto, vendedores con/sin filtro de rol, validación de deps en constructor) + arranque real del servidor completo + curl real a `/api/auth/login` (400) y `/api/auth/vendedores` sin token (401) | ✅ en mocks y curl local sin BD; falta login real con credenciales existentes vía Cloudflare en prod |
 
 **Nota sobre la entrada #5 (actualizada):** ya no hay pendiente — Agente 1 corrió el
 curl real de verificación (`/api/public/bot/productos/CAT0032` vía Cloudflare) y el
@@ -487,6 +493,15 @@ con logs/curl reales — no basta con que el commit exista en `origin/main`. Un 
 sin fila aquí, o con "⏳", significa que el código existe pero **no está confirmado
 funcionando en producción** — tratarlo como no confirmado hasta que aparezca una
 entrada nueva que lo cierre.
+
+**Nota sobre la entrada #12 (proceso, no solo el bug puntual):** al borrar un
+controller/route viejo tras migrar un dominio (paso final del flujo en 7quater),
+verificar SIEMPRE con `grep -rn "controllers/<dominio>\|routes/<dominio>"` sobre
+todo `api/src` — no solo sobre las rutas que uno mismo tocó — antes de dar el
+dominio por cerrado. El import roto de `maestros` no se detectó en su momento
+porque nadie corrió `node -c`/arrancó el servidor completo después de borrar los
+archivos viejos; solo se habría visto en el próximo deploy real. Agregado a la
+sección 9 como regla de conducta.
 
 ## 9. Reglas de conducta que deben seguir aplicando
 
@@ -504,3 +519,10 @@ entrada nueva que lo cierre.
   corrigió varias veces suposiciones de diseño que parecían razonables pero no
   correspondían a la realidad del negocio — ej. Plumón no era parte del grupo de
   telas, era un flag independiente ya implementado en el front).
+- **Tras borrar un controller/route viejo al cerrar una migración de dominio:**
+  correr `grep -rn "controllers/<dominio>\|routes/<dominio>"` sobre todo `api/src`
+  (no solo sobre lo que uno tocó) Y arrancar el servidor completo (`node src/index.js`
+  con `node_modules` instalados) para confirmar que no queda ningún `require` roto
+  antes de dar el dominio por cerrado (ver entrada #12 de la sección 8: así se
+  encontró un import muerto de la migración de `maestros` que habría tumbado el
+  próximo deploy).
