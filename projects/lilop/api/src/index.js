@@ -54,6 +54,11 @@ app.get('/api/public/productos', listarPublico);
 /* Endpoint público: crear pedido desde el checkout del sitio */
 const { crearPedidoPublico } = require('./controllers/pedidos_publicos');
 app.post('/api/public/pedidos', crearPedidoPublico);
+
+/* Endpoints públicos para el bot de IA (n8n): catálogo con variables/variantes ya resueltas */
+const { listar: listarBotProductos, obtener: obtenerBotProducto } = require('./controllers/productosBot');
+app.get('/api/public/bot/productos', listarBotProductos);
+app.get('/api/public/bot/productos/:id', obtenerBotProducto);
 app.use('/api/demo',        require('./routes/demo'));
 app.use('/api/disenos',    require('./routes/disenos'));
 app.use('/api/atributos',  require('./routes/atributos'));

@@ -232,19 +232,80 @@ puebla el esquema nuevo. No modifica ni borra las tablas viejas. Ya corrido
 exitosamente contra la BD real de producción (`docker exec -it lilop-api node
 src/db/backfill_variables_variantes.js`).
 
-## 7. Pendientes explícitos para la siguiente sesión
+## 7bis. Contrato de respuesta del bot (endpoints nuevos, ya implementados)
 
-1. **Contrato de respuesta del bot** — definir el formato/tono en que el bot de IA
-   (vía n8n) debe presentar productos y variantes al cliente de forma coherente. Este
-   es el siguiente paso inmediato acordado con el dueño, aún sin definir.
-2. **Fase 4-5 de la metodología** — exponer el esquema nuevo en paralelo al viejo desde
-   el API (repositorio/servicio nuevo), validar, y solo después hacer el corte real en
-   los controllers. Ningún controller fue tocado todavía.
+Endpoints públicos sin autenticación, aditivos (una sola línea nueva en
+`index.js`, ningún controller/ruta existente tocado):
+
+- `GET /api/public/bot/productos` — catálogo completo activo.
+- `GET /api/public/bot/productos/:id` — un producto por `catalogo_id` (ej. `CAT0032`).
+
+Capa nueva `repositories/productosBot.js` → `services/productosBot.js` →
+`controllers/productosBot.js` — primera separación real repositorio → servicio →
+controller del proyecto; es el patrón a replicar en el corte real de Fase 5.
+
+**Schema exacto de respuesta** (mismo shape en ambos endpoints; el segundo
+devuelve un objeto suelto, el primero un array de estos objetos):
+
+```json
+{
+  "id": "CAT0032",
+  "nombre": "Edredón Unicolor",
+  "descripcion": "texto corto o null",
+  "variables": [
+    { "nombre": "Tamaño", "tipo": "lista", "valores": ["Sencillo", "Doble", "Queen", "King", "Semidoble"] },
+    { "nombre": "Plumón (extragrueso)", "tipo": "booleano", "valores": null },
+    { "nombre": "Piel de conejo (una cara)", "tipo": "booleano", "valores": null }
+  ],
+  "variantes": [
+    { "id": "VTE0139", "atributos": {"Tamaño": "Sencillo"}, "precio": 125000, "disponible": true },
+    { "id": "VTE0141", "atributos": {"Tamaño": "Sencillo", "Plumón (extragrueso)": true}, "precio": 145000, "disponible": true }
+  ]
+}
+```
+
+Nombres reales en `variables`/`atributos` (nunca IDs internos VAR/VVA/VTE
+expuestos salvo el `id` de la variante, necesario para referenciar el pedido).
+El precio en `variantes[].precio` ya viene calculado (incluye sobreprecio de
+booleanos) — el bot **nunca** debe sumar ni inferir precio por su cuenta.
+
+**Las 7 reglas de comportamiento para el prompt del nodo de IA en n8n:**
+
+1. Presentar siempre el `nombre` del producto y su `descripcion`, nunca el `id`
+   interno (CAT/VTE/VAR), salvo que el cliente ya vaya a confirmar un pedido y
+   se necesite referenciar la variante exacta.
+2. Antes de dar un precio, preguntar por cada variable de tipo `lista` que
+   tenga más de un valor en `valores` (ej. Tamaño) — nunca asumir un valor.
+3. Para variables tipo `booleano`, ofrecerlas como upgrade opcional
+   ("¿lo quieres con Piel de conejo por $X más?"), nunca como pregunta
+   obligatoria si el producto no las tiene.
+4. Si `variables` viene vacío, el producto no tiene nada que preguntar — dar
+   el precio de la única variante en `variantes` directamente.
+5. Nunca combinar dos variables booleanas en la misma variante — el negocio
+   no vende esa combinación (confirmado: son mutuamente excluyentes).
+6. Si `disponible` es `false` en la variante pedida, avisar que no hay stock
+   antes de confirmar, y ofrecer otra variante del mismo producto si existe.
+7. Nunca inventar productos, variantes ni precios que no vengan en la
+   respuesta del endpoint — si el cliente pide algo que no aparece en
+   `/api/public/bot/productos`, decir que no está disponible, no improvisar.
+
+## 7ter. Pendientes explícitos para la siguiente sesión
+
+1. **Fase 4-5 de la metodología** — exponer el esquema nuevo en paralelo al viejo desde
+   el API (ya arrancado con `productosBot.js`, ver 7bis), validar, y solo después hacer
+   el corte real en los controllers existentes (`productos.js`, `catalogo.js`, etc.).
+   Ningún controller viejo fue tocado todavía.
+2. **Conectar los endpoints al nodo de IA en n8n** — los endpoints y el contrato ya
+   existen (sección 7bis); falta configurar el nodo HTTP en el workflow de n8n y pegar
+   las 7 reglas en el prompt del agente.
 3. **Limpieza de `categorias`** — separar las 4 taxonomías mezcladas (tipo, material,
    composición, target/diseño). No bloqueante, marcado explícitamente como fase aparte.
 4. **Etapa 6 (frontend)** — refactor de admin JS + site JS a ES Modules, solo después
    de que el esquema nuevo esté en corte y estable.
-5. **Limpieza final** — drop de `catalogo_precios`/`atributos`/`atributo_opciones`/
+5. **Eliminar los `.bak*` de `admin/html/assets/`, `api/src/controllers/`, `api/src/`
+   y `admin/html/`** que hoy están versionados en git (decisión tomada: se eliminan,
+   no se conservan para rollback).
+6. **Limpieza final** — drop de `catalogo_precios`/`atributos`/`atributo_opciones`/
    `catalogo_atributos` y de los `.bak`/`.bak2` versionados en `admin/html/assets/`,
    solo tras confirmar que ya no se necesitan para rollback.
 
