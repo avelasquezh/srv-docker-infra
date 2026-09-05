@@ -223,6 +223,12 @@ campo directamente.
   37 filas de producto_variables, **169 variantes**. Verificado con query real que
   `atributos_resueltos` resuelve limpio, ej. para `CAT0032`:
   `{"Tamaño": "Doble", "Plumón (extragrueso)": true}` → precio 155000.
+- **No hay stock real trackeado en el negocio** (confirmado con el dueño: productos
+  hechos sobre pedido). El sistema viejo hardcodea `stock: 'available'` en
+  `controllers/catalogo.js` — no hay columna ni dato real de inventario que migrar.
+  `variantes.stock` quedó en su default `0` porque no hay fuente de la que
+  poblarlo; **no representa falta de disponibilidad**. El contrato del bot
+  (sección 7bis) no expone ni usa este campo por esta misma razón.
 
 ### 6.4 Script de backfill
 
@@ -258,8 +264,8 @@ devuelve un objeto suelto, el primero un array de estos objetos):
     { "nombre": "Piel de conejo (una cara)", "tipo": "booleano", "valores": null }
   ],
   "variantes": [
-    { "id": "VTE0139", "atributos": {"Tamaño": "Sencillo"}, "precio": 125000, "disponible": true },
-    { "id": "VTE0141", "atributos": {"Tamaño": "Sencillo", "Plumón (extragrueso)": true}, "precio": 145000, "disponible": true }
+    { "id": "VTE0139", "atributos": {"Tamaño": "Sencillo"}, "precio": 125000 },
+    { "id": "VTE0141", "atributos": {"Tamaño": "Sencillo", "Plumón (extragrueso)": true}, "precio": 145000 }
   ]
 }
 ```
@@ -283,8 +289,10 @@ booleanos) — el bot **nunca** debe sumar ni inferir precio por su cuenta.
    el precio de la única variante en `variantes` directamente.
 5. Nunca combinar dos variables booleanas en la misma variante — el negocio
    no vende esa combinación (confirmado: son mutuamente excluyentes).
-6. Si `disponible` es `false` en la variante pedida, avisar que no hay stock
-   antes de confirmar, y ofrecer otra variante del mismo producto si existe.
+6. **No existe stock real trackeado** (confirmado con el dueño: todo es hecho
+   sobre pedido) — el campo `stock` de `variantes` no se usa ni se expone;
+   toda variante que aparece en la respuesta se asume disponible siempre.
+   No preguntar por disponibilidad ni condicionar la respuesta a `stock`.
 7. Nunca inventar productos, variantes ni precios que no vengan en la
    respuesta del endpoint — si el cliente pide algo que no aparece en
    `/api/public/bot/productos`, decir que no está disponible, no improvisar.

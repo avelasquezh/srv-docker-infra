@@ -34,8 +34,7 @@ async function listarProductosConVariantes() {
         SELECT json_agg(json_build_object(
           'id', vt.id,
           'atributos', vt.atributos_resueltos,
-          'precio', vt.precio,
-          'stock', vt.stock
+          'precio', vt.precio
         ) ORDER BY vt.precio)
         FROM variantes vt
         WHERE vt.producto_id = c.id AND vt.activo = true
@@ -74,8 +73,7 @@ async function obtenerProductoConVariantes(catalogoId) {
         SELECT json_agg(json_build_object(
           'id', vt.id,
           'atributos', vt.atributos_resueltos,
-          'precio', vt.precio,
-          'stock', vt.stock
+          'precio', vt.precio
         ) ORDER BY vt.precio)
         FROM variantes vt
         WHERE vt.producto_id = c.id AND vt.activo = true

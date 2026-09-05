@@ -18,7 +18,6 @@ function formatearProducto(row) {
       id: vt.id,
       atributos: vt.atributos || {},
       precio: Number(vt.precio),
-      disponible: vt.stock > 0,
     })),
   };
 }
