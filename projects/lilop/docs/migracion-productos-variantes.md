@@ -143,8 +143,11 @@ por edición en sitio.
    reales. ✅ **Completado y corrido en producción** (ver sección 6.3 para el estado
    exacto). El API viejo sigue funcionando exactamente igual — el contrato JSON que
    consumen admin/site no cambia todavía.
-4. **Validación en paralelo** — 🔲 Pendiente. El API debe exponer/leer del esquema
-   nuevo sin apagar el viejo, comparando resultados contra tráfico real.
+4. **Validación en paralelo** — ✅ Completado para los endpoints del bot: verificado
+   contra producción vía Cloudflare, schema exacto confirmado (sección 7bis), sin
+   campo `disponible` (no aplica, ver 6.3). Pendiente aún para el resto de la fase:
+   exponer/leer desde los controllers viejos (`productos.js`, `catalogo.js`) el
+   esquema nuevo — eso sigue sin tocarse.
 5. **Corte (cutover)** — 🔲 Pendiente. Los controllers pasan a usar el esquema nuevo
    como fuente de verdad; el viejo queda de solo respaldo.
 6. **Limpieza** — 🔲 Pendiente. Drop de tablas viejas + de los `.bak`/`.bak2`
@@ -303,9 +306,9 @@ booleanos) — el bot **nunca** debe sumar ni inferir precio por su cuenta.
    el API (ya arrancado con `productosBot.js`, ver 7bis), validar, y solo después hacer
    el corte real en los controllers existentes (`productos.js`, `catalogo.js`, etc.).
    Ningún controller viejo fue tocado todavía.
-2. **Conectar los endpoints al nodo de IA en n8n** — los endpoints y el contrato ya
-   existen (sección 7bis); falta configurar el nodo HTTP en el workflow de n8n y pegar
-   las 7 reglas en el prompt del agente.
+2. **Conectar los endpoints al nodo de IA en n8n** — endpoints, contrato y validación
+   en producción ya cerrados (secciones 7bis y 5-Fase 4); falta configurar el nodo
+   HTTP en el workflow de n8n y pegar las 7 reglas en el prompt del agente.
 3. **Limpieza de `categorias`** — separar las 4 taxonomías mezcladas (tipo, material,
    composición, target/diseño). No bloqueante, marcado explícitamente como fase aparte.
 4. **Etapa 6 (frontend)** — refactor de admin JS + site JS a ES Modules, solo después
