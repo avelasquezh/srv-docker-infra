@@ -4,6 +4,10 @@
 > contexto completo sin tener que releer el historial del chat. Si estás leyendo esto
 > al empezar una sesión nueva: lee todo este archivo antes de tocar código o BD, y
 > actualiza tu memoria persistente con lo que aplique según tu propio sistema de memoria.
+>
+> **Si eres un agente orquestador que solo necesita saber qué está hecho y verificado**
+> (sin ejecutar código tú mismo), ve directo a la sección 8 — es la fuente de verdad
+> de qué está confirmado en producción vs. qué es solo código sin probar en vivo.
 
 ## 1. Rol que debe asumir Claude en este proyecto
 
@@ -427,7 +431,41 @@ eliminar ok) devuelven exactamente el mismo status/mensaje que el controller vie
 7. **Limpieza final** — drop de `catalogo_precios`/`atributos`/`atributo_opciones`/
    `catalogo_atributos`, solo tras confirmar que ya no se necesitan para rollback.
 
-## 8. Reglas de conducta que deben seguir aplicando
+## 8. Registro de verificación por agente (para el orquestador)
+
+> Esta sección existe para que un agente orquestador (u otra sesión de Claude) sepa
+> el estado **real y verificado** de cada pieza sin releer el chat ni el resto del MD.
+> Formato fijo por entrada — no narrativo. Se agrega una entrada por commit relevante,
+> nunca se edita una entrada ya escrita (si algo cambia, se agrega una entrada nueva
+> que lo referencia). "Verificado" = probado en producción o con mocks, no solo "código
+> escrito".
+
+| # | Agente | Commit | Qué | Código | Deploy prod | Prueba | Resultado |
+|---|--------|--------|-----|--------|-------------|--------|-----------|
+| 1 | Agente 1 | `ffec9c6` | Endpoints bot `/api/public/bot/productos[/:id]` (reconstrucción de `1d0adcd`, perdido) | ✅ | ✅ | curl vía Cloudflare | ✅ schema correcto |
+| 2 | Agente 1 | `85648ab` | Limpieza 45 `.bak*` en admin/api/site | ✅ | N/A (no requiere deploy) | git status limpio | ✅ |
+| 3 | Agente 1 | `5fcb031` | Fix: quitar `disponible`/`stock` del contrato del bot (negocio no trackea stock real) | ✅ | ✅ | curl directo al contenedor + vía Cloudflare | ✅ campo eliminado, resto intacto |
+| 4 | Agente 1 | `4e7ed6f` | Docs: cerrar Fase 4 (validación) para endpoints del bot | ✅ (solo docs) | N/A | N/A | ✅ |
+| 5 | (otro agente/sesión) | `5df9fb0` | Migración dominio `productos` a POO/SOLID (caso de referencia) | ✅ | ⚠️ no confirmado por Agente 1 en esta sesión — asumir verificar antes de depender de él | mocks (pool falso) según mensaje de commit | ⚠️ ver nota |
+| 6 | Agente 1 | `95e31ff` | Migración dominio `domicilio` a POO/SOLID + des-hardcodeo webhook a `DOMICILIO_WEBHOOK_URL` | ✅ | ✅ | `fetch` falso (happy path + error) + `curl -X POST` sin token en prod → `401` (confirma ruta montada y `auth` activo) | ✅ Cambio consciente: mensaje de error genérico en vez de custom (mismo 500) |
+| 7 | Agente 1 | `40c7d04` | Migración dominio `imagenes` a POO/SOLID + des-hardcodeo uploads dir a `IMAGENES_UPLOADS_DIR` | ✅ | ⏳ pendiente de confirmar en prod (dueño aún no corrió deploy de este commit al momento de escribir esta entrada) | `sharp`/`fs` falsos: 5/5 casos idénticos al controller viejo | ✅ en mocks; falta confirmación en prod |
+
+**Nota sobre la entrada #5:** ese commit no lo hizo esta sesión (Agente 1) — llegó ya
+pusheado al remoto cuando esta sesión hizo `git fetch`. Su mensaje de commit dice que
+se validó con pool falso, pero **no hay entrada de deploy/curl en producción
+confirmada por ningún agente todavía**. Antes de que otro dominio dependa de
+`ProductoRepository`/`ProductoService` como si estuviera 100% probado en vivo, alguien
+debería correr el mismo `curl` de verificación que se usó para la entrada #1
+(`/api/public/bot/productos/CAT0032`) y agregar una entrada nueva aquí confirmándolo.
+
+**Cómo leer esta tabla:** "Deploy prod" en ✅ significa que el dueño corrió
+`git pull` + `docker compose restart <servicio>` en el servidor real y se confirmó
+con logs/curl reales — no basta con que el commit exista en `origin/main`. Un commit
+sin fila aquí, o con "⏳", significa que el código existe pero **no está confirmado
+funcionando en producción** — tratarlo como no confirmado hasta que aparezca una
+entrada nueva que lo cierre.
+
+## 9. Reglas de conducta que deben seguir aplicando
 
 - Nunca hacer push sin confirmación explícita.
 - Nunca mezclar dos riesgos en el mismo cambio (ej.: esquema de BD + refactor de
