@@ -395,10 +395,22 @@ Sugerencia de orden (no decidido): siguientes candidatos simples/aislados —
 `imagenes`, `maestros`, `auth` — antes que los que tienen triggers de Postgres detrás
 (`pedidos`, `comisiones`, `costos_pedido`).
 
+**`imagenes` — ✅ migrado.** Sin Postgres (filesystem + `sharp`), mismo criterio que
+`domicilio`: `ImagenRepository` no extiende `BaseRepository` (Liskov), `sharp`/`fs`
+inyectados por constructor. Validaciones de forma (archivo faltante, extensión,
+nombre de archivo inseguro) viven en el controller como decisiones HTTP directas
+—mismo patrón que `notFound()`—, no en el `try/catch` genérico de `handle()`
+(pensado para errores inesperados de I/O, no para validación de entrada).
+Des-hardcodeo: directorio de uploads sale a `IMAGENES_UPLOADS_DIR`, con el valor
+actual (`/app/uploads/disenos`) como default. Validado con `sharp`/`fs` falsos:
+los 5 casos (sin archivo, extensión inválida, happy path, filename inseguro,
+eliminar ok) devuelven exactamente el mismo status/mensaje que el controller viejo
+— sin ningún cambio de comportamiento esta vez, ni siquiera en errores.
+
 ## 7ter. Pendientes explícitos para la siguiente sesión
 
-1. **Migrar el resto de dominios a POO/SOLID** (sección 7quater) — `domicilio` ya
-   migrado. Siguientes candidatos simples: `imagenes`, `maestros`, `auth`.
+1. **Migrar el resto de dominios a POO/SOLID** (sección 7quater) — `domicilio` e
+   `imagenes` ya migrados. Siguientes candidatos simples: `maestros`, `auth`.
 2. **Fase 4-5 de la metodología** — exponer el esquema nuevo en paralelo al viejo desde
    el API (ya arrancado con el dominio `productos`), validar, y solo después hacer
    el corte real en los controllers existentes (`productos.js`, `catalogo.js`, etc.).

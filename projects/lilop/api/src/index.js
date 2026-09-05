@@ -61,7 +61,7 @@ app.use('/api/public/bot', require('./domains/productos/productos.routes'));
 app.use('/api/demo',        require('./routes/demo'));
 app.use('/api/disenos',    require('./routes/disenos'));
 app.use('/api/atributos',  require('./routes/atributos'));
-app.use('/api/imagenes',   require('./routes/imagenes'));
+app.use('/api/imagenes',   require('./domains/imagenes/imagenes.routes'));
 
 // ── 404 ───────────────────────────────────────────────────
 app.use((req, res) => {
