@@ -31,7 +31,6 @@ app.use('/api/comisiones', require('./routes/comisiones'));
 app.use('/api/catalogo',   require('./routes/catalogo'));
 
 /* Endpoints públicos sin autenticación */
-const { listarCategorias } = require('./controllers/maestros');
 app.get('/api/public/categorias', async (req, res) => {
   try {
     const pool = require('./config/db');
