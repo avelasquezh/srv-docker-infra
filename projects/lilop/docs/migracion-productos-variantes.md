@@ -467,6 +467,10 @@ entrada nueva que lo cierre.
 
 ## 9. Reglas de conducta que deben seguir aplicando
 
+- **Antes de escribir cualquier commit: `git fetch`/`pull` y releer el MD (mínimo la
+  sección 8) para detectar trabajo de otro agente/orquestador que haya llegado desde
+  la última lectura.** Esto evita migrar dos veces el mismo dominio o pisar cambios
+  concurrentes — es la razón por la que existe el registro por agente de la sección 8.
 - Nunca hacer push sin confirmación explícita.
 - Nunca mezclar dos riesgos en el mismo cambio (ej.: esquema de BD + refactor de
   frontend al mismo tiempo).
