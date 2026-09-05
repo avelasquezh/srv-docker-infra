@@ -300,25 +300,93 @@ booleanos) — el bot **nunca** debe sumar ni inferir precio por su cuenta.
    respuesta del endpoint — si el cliente pide algo que no aparece en
    `/api/public/bot/productos`, decir que no está disponible, no improvisar.
 
+## 7quater. Migración a POO/SOLID (arrancada — dominio `productos` como referencia)
+
+Decisión del dueño: migrar el backend de estilo funcional a **POO real** (clases JS
+con `class`/`extends`, instancias inyectadas por constructor), SOLID/DRY aplicado
+literalmente. Alcance acordado: **un dominio primero como referencia, el resto se
+migra después, uno a la vez** — nunca todo el API de golpe.
+
+**Dominio de referencia: `productos`** — se reescribió la versión funcional
+(`repositories/services/controllers/productosBot.js`) a clases, sin cambiar ni una
+query ni el contrato de salida (validado con mocks: shape idéntico al de 7bis).
+
+### Estructura del patrón (a replicar en cada dominio futuro)
+
+```
+api/src/
+├── core/                        -- clases base compartidas por TODOS los dominios
+│   ├── BaseRepository.js        -- pool inyectado, wrapper de query()
+│   ├── BaseService.js           -- repos inyectados por nombre, sin saber de HTTP
+│   └── BaseController.js        -- try/catch centralizado (this.handle(fn))
+└── domains/
+    └── productos/
+        ├── ProductoRepository.js -- extends BaseRepository — SQL puro
+        ├── ProductoService.js    -- extends BaseService — arma el contrato de salida
+        ├── ProductoController.js -- extends BaseController — HTTP puro
+        └── productos.routes.js   -- composition root: instancia todo con DI real
+```
+
+Los ~13 dominios restantes (usuarios, clientes, pedidos, compras, comisiones,
+entregas, costos_pedido, disenos, domicilio, imagenes, maestros, auth, demo) **siguen
+en `controllers/`/`routes/` planos, sin tocar**, hasta decidir migrarlos uno a uno.
+
+### Principios aplicados literalmente
+
+- **S:** Repository=solo SQL, Service=solo forma/reglas de negocio, Controller=solo HTTP.
+- **O:** `BaseController.handle()` centraliza try/catch; se extiende la base, no se
+  edita cada hijo.
+- **L:** cualquier repo que extienda `BaseRepository` es intercambiable donde se
+  espere uno.
+- **I:** cada dominio expone solo los métodos que su consumidor necesita.
+- **D (el más literal):** pool/repos/services se inyectan por constructor desde el
+  *composition root* (`productos.routes.js`) — ninguna clase importa Postgres
+  directo. Probado real: `ProductoRepository` instanciado con un pool falso
+  (`{query: async () => ({rows:[]})}`) funcionó sin tocar Postgres.
+- **DRY:** el try/catch duplicado en los ~13 controllers viejos ahora vive en un
+  solo lugar (`BaseController.handle`).
+
+### Wiring en `index.js`
+
+```js
+app.use('/api/public/bot', require('./domains/productos/productos.routes'));
+```
+
+### Validado antes de commitear (sin tocar Postgres real)
+
+Router carga sin errores de require; instanciación completa con pool falso;
+`ProductoService._formatear()` probado contra una fila de ejemplo real (CAT0032,
+Sencillo+Plumón) — salida byte a byte igual al contrato de la sección 7bis.
+
+### Rollout a los demás dominios (pendiente, no arrancado)
+
+Mismo patrón por dominio: crear `domains/<nombre>/{Repository,Service,Controller,routes}.js`,
+validar con pool falso, montar en `index.js` con una línea, y **recién ahí** borrar el
+controller/route viejo — nunca antes de confirmar que el nuevo funciona igual.
+Sugerencia de orden (no decidido): empezar por dominios simples/aislados (`disenos`,
+`imagenes`, `maestros`) antes que los que tienen triggers de Postgres detrás
+(`pedidos`, `comisiones`, `costos_pedido`).
+
 ## 7ter. Pendientes explícitos para la siguiente sesión
 
-1. **Fase 4-5 de la metodología** — exponer el esquema nuevo en paralelo al viejo desde
-   el API (ya arrancado con `productosBot.js`, ver 7bis), validar, y solo después hacer
+1. **Migrar el resto de dominios a POO/SOLID** (sección 7quater) — uno a la vez,
+   siguiendo el patrón ya validado en `productos`. Orden sugerido: dominios simples
+   primero.
+2. **Fase 4-5 de la metodología** — exponer el esquema nuevo en paralelo al viejo desde
+   el API (ya arrancado con el dominio `productos`), validar, y solo después hacer
    el corte real en los controllers existentes (`productos.js`, `catalogo.js`, etc.).
    Ningún controller viejo fue tocado todavía.
-2. **Conectar los endpoints al nodo de IA en n8n** — endpoints, contrato y validación
+3. **Conectar los endpoints al nodo de IA en n8n** — endpoints, contrato y validación
    en producción ya cerrados (secciones 7bis y 5-Fase 4); falta configurar el nodo
-   HTTP en el workflow de n8n y pegar las 7 reglas en el prompt del agente.
-3. **Limpieza de `categorias`** — separar las 4 taxonomías mezcladas (tipo, material,
+   HTTP en el workflow de n8n y pegar las 7 reglas en el prompt del agente. Explícito:
+   el dueño pidió dejar esto para el final, después de cerrar la migración a POO/SOLID.
+4. **Limpieza de `categorias`** — separar las 4 taxonomías mezcladas (tipo, material,
    composición, target/diseño). No bloqueante, marcado explícitamente como fase aparte.
-4. **Etapa 6 (frontend)** — refactor de admin JS + site JS a ES Modules, solo después
+5. **Etapa 6 (frontend)** — refactor de admin JS + site JS a ES Modules, solo después
    de que el esquema nuevo esté en corte y estable.
-5. **Eliminar los `.bak*` de `admin/html/assets/`, `api/src/controllers/`, `api/src/`
-   y `admin/html/`** que hoy están versionados en git (decisión tomada: se eliminan,
-   no se conservan para rollback).
-6. **Limpieza final** — drop de `catalogo_precios`/`atributos`/`atributo_opciones`/
-   `catalogo_atributos` y de los `.bak`/`.bak2` versionados en `admin/html/assets/`,
-   solo tras confirmar que ya no se necesitan para rollback.
+6. ~~Eliminar los `.bak*` versionados en git~~ — ✅ Completado.
+7. **Limpieza final** — drop de `catalogo_precios`/`atributos`/`atributo_opciones`/
+   `catalogo_atributos`, solo tras confirmar que ya no se necesitan para rollback.
 
 ## 8. Reglas de conducta que deben seguir aplicando
 
