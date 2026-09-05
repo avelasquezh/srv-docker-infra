@@ -358,20 +358,47 @@ Router carga sin errores de require; instanciación completa con pool falso;
 `ProductoService._formatear()` probado contra una fila de ejemplo real (CAT0032,
 Sencillo+Plumón) — salida byte a byte igual al contrato de la sección 7bis.
 
-### Rollout a los demás dominios (pendiente, no arrancado)
+### Rollout a los demás dominios
 
-Mismo patrón por dominio: crear `domains/<nombre>/{Repository,Service,Controller,routes}.js`,
-validar con pool falso, montar en `index.js` con una línea, y **recién ahí** borrar el
-controller/route viejo — nunca antes de confirmar que el nuevo funciona igual.
-Sugerencia de orden (no decidido): empezar por dominios simples/aislados (`disenos`,
-`imagenes`, `maestros`) antes que los que tienen triggers de Postgres detrás
+**`domicilio` — ✅ migrado.** El más pequeño (19 líneas) y el más aislado: no toca
+Postgres en absoluto, solo reenvía a un webhook externo de n8n. Decisiones de diseño:
+
+- `DomicilioRepository` **no extiende `BaseRepository`** — ese contrato envuelve
+  `pool.query` (SQL); forzar la herencia aquí habría violado Sustitución de Liskov
+  (un cliente HTTP no es intercambiable por un pool de Postgres). Se aplicó
+  Inversión de Dependencias a mano: `fetch` y la URL del webhook se inyectan por
+  constructor.
+- **Primer paso del des-hardcodeo (sección 3/8):** la URL `https://n8n.autokore.space/
+  webhook/envwdomlilop` (con "lilop" hardcodeado en el path, apuntando además a un
+  dominio de *otro* proyecto del mismo servidor) ahora sale de `DOMICILIO_WEBHOOK_URL`,
+  con ese mismo valor como default — comportamiento idéntico si la env var no se
+  configura. **Pendiente:** decidir si ese webhook de n8n de `autokore.space` es
+  compartido a propósito entre proyectos o es un remanente que debería vivir en
+  `n8n.lilop.store` — no se tocó, solo se sacó de código a configuración.
+- **Cambio de comportamiento consciente y documentado:** el mensaje de error pasó de
+  `"Error al enviar al webhook"` (texto custom del controller viejo) a `"Error interno
+  del servidor"` (genérico de `BaseController.handle`), mismo código 500. Se prefirió
+  consistencia entre dominios sobre preservar un texto arbitrario que ningún consumidor
+  (es un endpoint interno del admin, no público) depende de leer.
+- Validado con `fetch` falso (happy path: `{ok:true}` y payload reenviado idéntico;
+  caso de error: 500 con el nuevo mensaje genérico), sin tocar red ni Postgres real.
+- Ruta sin cambios: sigue anidada en `routes/pedidos.js` (`POST /api/pedidos/:id/
+  domicilio-webhook`, con `auth`), ahora vía `router.use(require('../domains/domicilio/
+  domicilio.routes'))` en vez de importar el controller funcional directo.
+
+Mismo patrón para los ~12 dominios restantes: crear `domains/<nombre>/{Repository,
+Service,Controller,routes}.js` (extendiendo las bases del `core/` **solo cuando el
+contrato realmente aplica** — ver el caso `domicilio` como ejemplo de cuándo NO
+heredar), validar con mocks, montar en `index.js`/router padre con una línea, y
+**recién ahí** borrar el controller/route viejo.
+Sugerencia de orden (no decidido): siguientes candidatos simples/aislados —
+`imagenes`, `maestros`, `auth` — antes que los que tienen triggers de Postgres detrás
 (`pedidos`, `comisiones`, `costos_pedido`).
 
 ## 7ter. Pendientes explícitos para la siguiente sesión
 
-1. **Migrar el resto de dominios a POO/SOLID** (sección 7quater) — uno a la vez,
-   siguiendo el patrón ya validado en `productos`. Orden sugerido: dominios simples
-   primero.
+1. **Migrar el resto de dominios a POO/SOLID** (sección 7quater) — `domicilio` ya
+   migrado. Siguientes candidatos simples: `imagenes`, `maestros`, `auth`.
 2. **Fase 4-5 de la metodología** — exponer el esquema nuevo en paralelo al viejo desde
    el API (ya arrancado con el dominio `productos`), validar, y solo después hacer
    el corte real en los controllers existentes (`productos.js`, `catalogo.js`, etc.).
