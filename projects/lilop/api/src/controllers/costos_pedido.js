@@ -44,12 +44,16 @@ const agregarDomicilio = async (req, res) => {
 const agregarComision = async (req, res) => {
   const { pedido_id } = req.params;
   const { valor_comision, nombre_vendedor } = req.body;
-  console.log('agregarComision body:', req.body);
   if (!valor_comision) return res.status(400).json({ error: 'El valor de la comisión es requerido' });
   try {
     await pool.query(
       'INSERT INTO comisiones (pedido_id, nombre_vendedor, valor_comision) VALUES ($1, $2, $3)',
       [pedido_id, nombre_vendedor || null, valor_comision]
+    );
+    await pool.query(
+      `UPDATE pedidos SET comision = (
+        SELECT COALESCE(SUM(valor_comision), 0) FROM comisiones WHERE pedido_id = $1
+       ) WHERE id = $1`, [pedido_id]
     );
     res.json({ ok: true });
   } catch (err) {
@@ -140,9 +144,14 @@ const cambiarEstadoComision = async (req, res) => {
 };
 
 const eliminarComision = async (req, res) => {
-  const { id } = req.params;
+  const { pedido_id, id } = req.params;
   try {
     await pool.query('DELETE FROM comisiones WHERE id = $1', [id]);
+    await pool.query(
+      `UPDATE pedidos SET comision = (
+        SELECT COALESCE(SUM(valor_comision), 0) FROM comisiones WHERE pedido_id = $1
+       ) WHERE id = $1`, [pedido_id]
+    );
     res.json({ ok: true });
   } catch (err) {
     console.error('Error al eliminar comisión:', err.message);
