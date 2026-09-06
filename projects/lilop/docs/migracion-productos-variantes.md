@@ -9,6 +9,58 @@
 > (sin ejecutar código tú mismo), ve directo a la sección 8 — es la fuente de verdad
 > de qué está confirmado en producción vs. qué es solo código sin probar en vivo.
 
+## 0. Identificación de agentes trabajando en paralelo en este proyecto
+
+El dueño está coordinando **varias sesiones de Claude en paralelo** sobre este mismo
+repo, cada una con una tarea que **no se cruza en archivos** con las demás (para poder
+commitear/pushear todas sin conflictos de merge). Estado real a la fecha de esta
+entrada (verificar la tabla de la sección 8 para el detalle más actualizado):
+
+- **Agente 1** — migración de los dominios backend a POO/SOLID, uno a la vez (sección
+  7ter/7quater). Toca `controllers/`, `domains/<dominio>/`, `routes/`, `index.js`.
+  Pausado por límite de tokens en algún punto; Agente 2 retomó parte de su cola.
+- **Agente 2** — retomó la cola de Agente 1 (dominio `auth`), corrigió un bug
+  bloqueante que Agente 1 dejó (`index.js` con import roto tras eliminar
+  `controllers/maestros.js`), confirmó deploys reales en producción, e hizo un
+  análisis del estado del frontend (Etapa 6). Ver entradas #12-17 de la sección 8.
+- **Agente 3** (yo, en esta sesión) — construir la suite de tests real (`api/tests/`,
+  `node --test`, sin dependencias nuevas) que formaliza las validaciones ad-hoc con
+  mocks que hasta ahora solo vivían en mensajes de commit. Cero superposición de
+  archivos con Agente 1/2: solo agrega `tests/` + una línea en `package.json`.
+  Elegido explícitamente en vez de "limpieza de categorías" porque esa lógica vive en
+  `controllers/maestros.js`, tocado por la migración de `maestros`.
+
+**Nota de coordinación real:** esta sesión se auto-identificó primero como "Agente 2"
+sin saber que esa identidad ya estaba activa (el dueño no lo mencionó explícitamente
+al asignar la tarea) — se corrigió a Agente 3 al hacer `git pull`/rebase antes de
+pushear y encontrar el choque de numeración. **Lección para la próxima sesión que
+reciba una tarea nueva de este tipo: siempre hacer `git pull` y leer la sección 8
+completa ANTES de auto-asignarse un número de agente**, no asumir que se es el
+segundo solo porque el dueño dijo "otro agente".
+
+Si se suma un agente nuevo, agregarlo aquí con su tarea y confirmar primero (vía
+`git pull` + lectura de la sección 8) que no toca archivos de los demás antes de
+arrancar.
+
+### Trabajo del Agente 3 (esta sesión) — completado
+
+`api/tests/` con `node:test` (nativo desde Node 18, cero dependencias nuevas):
+- `tests/core.test.js` — `BaseRepository`/`BaseService`/`BaseController`.
+- `tests/domains/productos.test.js` — regresión congelada contra el contrato de 7bis
+  (fila real CAT0032), incluye caso de error de BD (500, no propaga excepción).
+- `tests/domains/domicilio.test.js` — `fetch` falso, incluye caso de webhook caído.
+- `tests/domains/imagenes.test.js` — `sharp`/`fs` falsos, los 5 casos ya mencionados
+  en el commit `40c7d04` del Agente 1, ahora como test automatizado y no solo prosa.
+- `package.json`: `"test": "node --test tests/*.test.js tests/domains/*.test.js"`
+  (glob explícito, no la carpeta sola — `node --test tests/` falla por una rareza de
+  este entorno de contenedor; el glob es más portable, correrlo así también en CI si
+  algún día se agrega).
+- **Resultado real corrido:** `npm test` → **35/35 tests, 12 suites, 0 fallos.**
+- Esto también cierra parcialmente la nota de la entrada #5 de la tabla de la sección
+  8 (dominio `productos` sin confirmar): ahora hay una regresión automatizada que
+  fallaría si alguien rompe el contrato sin querer — sigue sin ser lo mismo que un
+  `curl` contra producción real, pero es una red de seguridad real que antes no existía.
+
 ## 1. Rol que debe asumir Claude en este proyecto
 
 Arquitecto de datos + backend, con responsabilidad de refactor incremental **sin romper
@@ -484,6 +536,7 @@ controller viejo.
 | 15 | Agente 2 | *(mismo deploy que #14)* | Verificación del contrato de error de `auth` en prod, vía `wget` interno al contenedor (sin pasar por Cloudflare) | N/A | ✅ parcial | `POST /api/auth/login` con body vacío → `400`; `GET /api/auth/vendedores` sin token → `401` — ambos coinciden exacto con el contrato esperado | ✅ contrato de error confirmado en vivo; **sigue pendiente** el happy path real de login (credenciales válidas → JWT + shape de `usuario`) para cerrar #13 del todo |
 | 16 | Agente 2 | *(sin commit de código)* | Happy path real de login: usuario de prueba temporal creado vía `psql` (password con hash bcrypt generado por Agente 2, nunca credenciales reales del negocio), login exitoso, usuario de prueba eliminado tras la prueba | N/A | ✅ | `POST /api/auth/login` con credenciales válidas → `200` con JWT decodificable (payload `id`/`nombre`/`email`/`rol` correcto) + `usuario` en la respuesta con el shape exacto esperado; usuario de prueba confirmado borrado (`DELETE 1`) | ✅ dominio `auth` cerrado por completo — happy path y contrato de error confirmados en prod real, sin usar ni exponer credenciales de usuarios reales |
 | 17 | Agente 2 | *(sin commit — solo análisis, nada tocado)* | Análisis solicitado por el dueño: estado real de los JS del admin/site y si el refactor a un patrón (MVC/módulos) ya estaba planeado. Confirmado: **ya estaba planeado como Etapa 6** (secciones 3, 4.1, 5 y pendiente #5 de este mismo MD), bloqueado explícitamente hasta que Fase 5 (corte de esquema BD) esté cerrada — hoy sigue 🔲 Pendiente. No se inició ningún refactor de frontend. Métricas verificadas: `admin/html/assets/js/pages/cliente.js` = 1500 líneas / 28 funciones top-level en scope global (coincide con el diagnóstico de la sección 4.1); resto de páginas del admin entre 282–783 líneas; `site/html/js/script.js` = 485 líneas. Ningún HTML usa todavía `<script type="module">`; no existe `package.json` ni build tool en `admin/` ni `site/` — confirma que el plan de Etapa 6 (ES Modules nativos, sin build tooling nuevo) sigue siendo el camino correcto y nada lo contradice. | N/A (solo lectura) | N/A | `wc -l`, conteo de `function `/`async function` top-level, `grep type="module"`, búsqueda de `package.json`/`webpack`/`vite` | ✅ confirmado: tarea ya asignada (Etapa 6), no iniciada, sigue bloqueada por Fase 5 |
+| 18 | **Agente 3** | `cbc947d` | Suite de tests real (`api/tests/`, `node:test`) para core + productos/domicilio/imagenes — tarea asignada a esta sesión por el dueño explícitamente sin superposición de archivos con Agente 1 (dominios backend) ni Agente 2 (auth + frontend). Nota: esta sesión se auto-identificó primero como "Agente 2" sin saber que esa identidad ya estaba en uso activo — corregido a Agente 3 al hacer `git pull`/rebase y encontrar el choque. | ✅ | N/A (no es código de producción, no requiere deploy) | `npm test` corrido localmente | ✅ 35/35 tests, 12 suites, 0 fallos |
 
 **Nota sobre la entrada #5 (actualizada):** ya no hay pendiente — Agente 1 corrió el
 curl real de verificación (`/api/public/bot/productos/CAT0032` vía Cloudflare) y el
