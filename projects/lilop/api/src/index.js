@@ -42,9 +42,9 @@ app.get('/api/public/categorias', async (req, res) => {
   }
 });
 
-/* Atributos públicos por producto */
-const { listarPorProducto } = require('./controllers/atributos');
-app.get('/api/public/atributos/:catalogo_id', listarPorProducto);
+/* Atributos: dominio con router (admin) y controller (para el público) */
+const atributosDominio = require('./domains/atributos/atributos.routes');
+app.get('/api/public/atributos/:catalogo_id', atributosDominio.controller.listarPorProducto);
 
 /* Endpoint público sin autenticación */
 const { listarPublico } = require('./controllers/catalogo');
@@ -59,7 +59,7 @@ app.post('/api/public/pedidos', crearPedidoPublico);
 app.use('/api/public/bot', require('./domains/productos/productos.routes'));
 app.use('/api/demo',        require('./domains/demo/demo.routes'));
 app.use('/api/disenos',    require('./domains/disenos/disenos.routes'));
-app.use('/api/atributos',  require('./routes/atributos'));
+app.use('/api/atributos',  atributosDominio.router);
 app.use('/api/imagenes',   require('./domains/imagenes/imagenes.routes'));
 
 // ── 404 ───────────────────────────────────────────────────
