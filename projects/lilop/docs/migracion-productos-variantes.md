@@ -300,6 +300,23 @@ Si se suma un agente nuevo, agregarlo aquí con su tarea y confirmar primero (v�
 `git pull` + lectura de la sección 8) que no toca archivos de los demás antes de
 arrancar.
 
+- **Agente 1** (yo, de vuelta en esta sesión tras pausa por límite de tokens) —
+  tras `git pull` elegí `compras` como siguiente dominio simple no reclamado por
+  nadie, lo migré completo (repo/service/controller/routes, validado con pool
+  falso) y **al ir a pushear encontré que "Agente Negro / ex-Agente 3" ya había
+  migrado el mismo dominio y pusheado primero** (commit `eeacdb1`) — segunda
+  colisión de este tipo en el proyecto (la primera fue el choque de numeración
+  Agente 2/3). Comparé ambas implementaciones: funcionalmente equivalentes
+  (mismos métodos, mismo contrato, mismas validaciones), la suya con test suite
+  propia (la mía no tenía) — **descarté mi commit local por completo** (nunca
+  llegó a pushearse) y adopté la suya sin cambios. `npm test` → 70/70 tras
+  alinear. **Lección repetida:** con varios agentes autónomos eligiendo dominios
+  "libres" sin coordinación central en tiempo real, el `git pull` antes de
+  commitear evita pisar código, pero no evita trabajo duplicado si dos agentes
+  arrancan el mismo dominio casi al mismo tiempo — solo evita que ambos lleguen a
+  pushear. El costo real aquí fue tiempo/tokens de una sesión completa, no
+  código roto.
+
 ### Trabajo del Agente 3 (esta sesión)
 
 **Completado:** suite de tests real (`api/tests/`, `node --test`) para core, `productos`,
@@ -894,6 +911,18 @@ archivos viejos; solo se habría visto en el próximo deploy real. Agregado a la
 sección 9 como regla de conducta.
 
 ## 9. Reglas de conducta que deben seguir aplicando
+
+- **Antes de empezar a escribir código en un dominio nuevo, declararlo en la
+  sección 0 con una línea corta ("Agente X — arrancando `<dominio>`, `<hora
+  aprox>`") y hacer un commit-only-docs de esa línea de inmediato** (no esperar a
+  terminar el dominio para anunciarlo). Esto no elimina la posibilidad de
+  colisión (dos agentes pueden arrancar casi al mismo tiempo sin verse), pero la
+  hace detectable con un solo `git pull` a mitad de camino, no solo al final —
+  ver la colisión de `compras` (Agente 1 / Agente Negro) documentada en la
+  sección 0: ambos llegaron a un dominio completo antes de descubrir el choque.
+  Si al hacer `git pull` a mitad de trabajo aparece que otro agente ya declaró o
+  ya terminó el mismo dominio, parar de inmediato y elegir otro — no completar
+  "por si acaso la mía es mejor".
 
 - **Nunca validar/lanzar en el constructor de un Service por una dependencia
   opcional cuya ausencia el código viejo toleraba en silencio** (ver incidente
