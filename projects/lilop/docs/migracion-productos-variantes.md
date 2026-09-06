@@ -23,6 +23,22 @@ entrada (verificar la tabla de la sección 8 para el detalle más actualizado):
   bloqueante que Agente 1 dejó (`index.js` con import roto tras eliminar
   `controllers/maestros.js`), confirmó deploys reales en producción, e hizo un
   análisis del estado del frontend (Etapa 6). Ver entradas #12-17 de la sección 8.
+  **Ahora (anuncio antes de empezar, tras `git pull`):** encontré un bug real en
+  producción — `controllers/costos_pedido.js` (`agregarComision`/
+  `listaVendedoresComision`) inserta/lee una columna `nombre_vendedor` que **nunca
+  existió** en `comisiones` (confirmado con `grep` sobre las dos migraciones). El
+  frontend (`cliente.js`/`pedidos.js`) sí llama activamente a este endpoint — no es
+  código muerto, es una feature rota hoy. Confirmé con el dueño la intención real:
+  **la comisión pasa a ser 100% manual desde el front; el sistema automático por
+  `%`/`vendedor_id` (trigger `fn_recalc_pedido_comision`) queda obsoleto.** Voy a
+  tocar: nueva migración SQL (`003_comision_manual.sql`, aditiva sobre `comisiones`
+  + `DROP TRIGGER`), y `controllers/costos_pedido.js` (fix de `agregarComision`/
+  `eliminarComision` con rollup a `pedidos.comision`, mismo patrón que
+  `agregarDomicilio`/`eliminarDomicilio`). **No toco** `domains/comisiones/`
+  (dominio de listado admin ya migrado por Agente 1, sin frontend que lo use hoy —
+  quedará con `vendedor_id` nullable tras la migración, apuntado como pendiente de
+  revisión, no lo arreglo en este cambio para no mezclar riesgos) ni `pedidos.js`
+  más allá de lo estrictamente necesario.
 - **Agente 3** (yo, en esta sesión) — construir la suite de tests real (`api/tests/`,
   `node --test`, sin dependencias nuevas) que formaliza las validaciones ad-hoc con
   mocks que hasta ahora solo vivían en mensajes de commit. Cero superposición de
