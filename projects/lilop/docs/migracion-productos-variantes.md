@@ -834,23 +834,36 @@ controller viejo.
 
 1. **Migrar el resto de dominios a POO/SOLID** (sección 7quater) — `domicilio`,
    `imagenes`, `maestros`, `auth`, `comisiones`, `entregas`, `disenos`, `usuarios`,
-   `demo`, `clientes`, `atributos` y `compras` migrados (ver sección 8 para estado
-   exacto de confirmación en prod de cada uno; `clientes`/`atributos`/`compras`
-   siguen ⏳ pendientes de deploy real). El dominio `productos` **solo cubre la
-   porción bot/lectura** (`/api/public/bot/*`) — el CRUD admin real
-   (`controllers/productos.js`) sigue sin migrar. Restantes sin tocar:
-   `pedidos_publicos` (**vetado por ahora** — hace `INSERT` transaccional directo en
-   `pedidos`/`productos`, territorio activo de la investigación de Agente 2, ver
-   sección 0), el CRUD completo de `productos`/`catalogo` (ligado a la Fase 5), y
-   los de mayor riesgo con triggers ya identificados (`pedidos`, `costos_pedido` —
-   este último ya cerrado por Agente 2, ver entradas #28-30; `pedidos` en
-   investigación activa, sin código tocado aún salvo el fix puntual de `estado`).
-   **Cobertura de tests:** todos los dominios migrados tienen test automatizado
-   excepto `auth` (ver 7ter #4).
+   `demo`, `clientes`, `atributos`, `compras`, `costos_pedido`, `catalogo`,
+   `pedidos` y `productos_pedido` migrados (ver sección 8 para estado exacto de
+   confirmación en prod de cada uno). Todos los demás quedaron confirmados en
+   producción con datos reales — **excepto `pedidos`/`productos_pedido`
+   (entrada #40), que solo están confirmados en mocks, falta el deploy/curl
+   real**. El dominio `productos` **solo cubre la porción bot/lectura**
+   (`/api/public/bot/*`) — el CRUD admin de las líneas de un pedido ahora vive
+   en `productos_pedido` (entrada #40), bounded context distinto del
+   `productos` bot. **Ya no queda ningún dominio activo sin migrar** salvo
+   `pedidos_publicos` (nunca vetado formalmente para otra sesión, pero
+   compartía tablas con la investigación de `pedidos` — revisar si sigue
+   teniendo sentido migrarlo ahora que `pedidos`/`productos_pedido` ya están
+   hechos) y el corte real de esquema de `catalogo`/`pedidos` (ligado a la
+   Fase 5, ver bloqueante de la sección 0). Nota sobre `atributos`: este MD lo
+   había marcado como "deliberadamente NO migrado" (tablas legacy con fecha
+   de caducidad, sección 7quater) pero Agente 3 lo migró de todas formas
+   (entrada #32) sin que quede registrada la razón del cambio de decisión —
+   ya no es solo una advertencia hipotética: `catalogo` **también se migró
+   después** (entrada #37) con el mismo tipo de dependencia legacy: el dueño
+   debería decidir explícitamente si esos dos envoltorios POO se mantienen o
+   se revierten antes de la Fase 5, no dar por hecho que "ya migrado a
+   POO/SOLID" implica que el corte de esquema fue aprobado.
+   **Cobertura de tests:** todos los dominios migrados tienen test
+   automatizado excepto `auth` (ver 7ter #4).
 2. **Fase 4-5 de la metodología** — exponer el esquema nuevo en paralelo al viejo desde
    el API (ya arrancado con el dominio `productos`), validar, y solo después hacer
-   el corte real en los controllers existentes (`productos.js`, `catalogo.js`, etc.).
-   Ningún controller viejo fue tocado todavía.
+   el corte real en los controllers existentes (`catalogo.js`, etc. — `productos.js`
+   ya no existe, fue reemplazado por `productos_pedido` en la entrada #40, pero esa
+   migración preservó la dependencia de `catalogo_precios` tal cual, no la resolvió).
+   Ningún controller legacy fue tocado todavía en cuanto al corte de esquema real.
 3. **Conectar los endpoints al nodo de IA en n8n** — endpoints, contrato y validación
    en producción ya cerrados (secciones 7bis y 5-Fase 4); falta configurar el nodo
    HTTP en el workflow de n8n y pegar las 7 reglas en el prompt del agente. Explícito:
@@ -935,6 +948,7 @@ controller viejo.
 | 37 | Agente Rojo | `440151b` | Migración dominio `catalogo` a POO/SOLID — retomada donde Agente Negro solo alcanzó a anunciarla (esa sesión no llegó a tocar ningún archivo, confirmado con `git show` del commit de su anuncio: solo cambió el MD). Mismo alcance ya acordado: solo el envoltorio POO sobre el esquema legacy (`catalogo_productos`/`catalogo_precios` + relaciones a `categorias`/`disenos`/`atributos`), sin tocar esquema ni hacer el corte de Fase 5. `CatalogoRepository` preserva exacto el sync de `categoria_ids`/`diseno_ids` (DELETE + INSERT condicional). La transformación a shape público (slug, precio mínimo, URLs de imagen) se mueve del controller viejo a `CatalogoService` — es lógica de negocio real. `catalogo.routes.js` exporta `{router, controller}` (mismo patrón que `atributos`) porque `listarPublico` se monta standalone en `index.js` además del router admin — 2 puntos de montaje actualizados. Se dejó fuera de alcance, sin tocar, un tercer punto (`/api/productos/catalogo`) que usa una función distinta de `controllers/productos.js` (no es este dominio). | ✅ | ⏳ pendiente de deploy real | `node -c` en todos los archivos + arranque real del servidor completo + `curl` real a `/api/catalogo` (401 sin token) y `/api/public/productos` (responde, no crashea). Suite formal `tests/domains/catalogo.test.js`: 11 casos — 400/201 en `crear`, 404/200 en `actualizar` (con y sin sync de relaciones), 404/200 en `eliminar`, 400/200 en `upsertPrecio` (incluye el caso precio≤0 = eliminar en vez de guardar 0), transformación completa de `listarPublico` + caso sin precios (no debe romper con `Math.min([])`), 500 genérico en error de BD. `npm test` completo: **125/125, 39 suites, 0 fallos** | ⏳ en mocks; falta deploy real + confirmar `/api/public/productos` con datos reales (es el catálogo que alimenta lilop.store, verificar con cuidado antes de dar por cerrado) |
 | 38 | Agente Rojo | *(sin commit de código)* | Cierra #35/#36 por completo: se retoma y termina la prueba end-to-end de `costos_pedido` interrumpida (token de prueba había expirado — se regeneró con el mismo usuario temporal, sin recrearlo) | N/A (ya cubierto en #35) | ✅ | Con token fresco: `PATCH .../domicilio/EN0046/estado-pago` → `Pagado`, `PATCH .../comision/CM0148/estado` → `Pagada`. Confirmado en BD: `pedidos.valor_domicilio` 20000→**28000** (+8000 exacto), `pedidos.comision` 0→**5000** (+5000 exacto) — los 3 triggers (comisión, domicilio, costos_otros) y los 12 endpoints del dominio migrado funcionan correctamente juntos en producción real. **Limpieza confirmada:** se borraron los 4 registros de prueba (`costos_pedido` `CSP0019`, `entregas` `EN0046`, `comisiones` `CM0148`, `usuarios` `US0015`) — `PD0051` volvió exactamente a `valor_domicilio=20000.00, comision=0.00, costos_otros=0.00`, sin rastro | ✅ **`costos_pedido` cerrado por completo**: código + deploy + prueba end-to-end real + limpieza confirmada |
 | 39 | Agente Rojo | *(sin commit de código)* | Cierra #37: deploy real de `catalogo` confirmado + validación con datos reales del endpoint público (el que alimenta lilop.store) | N/A (ya cubierto en #37) | ✅ | `git pull` en servidor real sin conflicto + restart limpio, sin errores en logs. `GET /api/public/productos` real: devuelve exactamente los 15 productos activos confirmados por conteo directo en BD (`SELECT count(*) FROM catalogo_productos WHERE activo = true`), con el shape completo correcto (slug, precio mínimo calculado, categorías con slug, `images` con dominio `https://api.lilop.store` prefijado, atributos, materiales/cuidados como arrays) — inspeccionado el primer producto completo, coincide con el contrato esperado. `GET /api/catalogo` sin token → `401` (ruta admin sigue protegida) | ✅ **`catalogo` cerrado por completo**: código + deploy + validación con datos reales del catálogo público |
+| 40 | Agente 2 | `36b5022` | Migración dominios `pedidos` + `productos_pedido` a POO/SOLID (aprobado explícitamente por el dueño, sugerencia propia por el acoplamiento de triggers documentado en la investigación previa de `pedidos`). `productos_pedido` es dominio **nuevo, no confundir con `domains/productos/`** (ese es la porción bot/lectura contra el esquema nuevo — bounded context distinto, mismo nombre de concepto de negocio, por eso el nombre de carpeta separado). Preservado tal cual, sin cambios de comportamiento: el query completo de `obtener()` de pedidos (join a `catalogo_productos`/`catalogo_precios` + agregación de compras), la lógica de auto-cálculo de precio en `productos_pedido.crear/actualizar()` (incluyendo el detalle de fidelidad de que `valor_venta_override: null` explícito dispara el recálculo automático igual que no mandarlo), y el `medio_pago` opcional traducido a `MedioPagoInvalidoError` (mismo patrón `instanceof` que `RegistroDuplicadoError`/`EmailDuplicadoError`). Rutas anidadas sin cambios de contrato — solo cambian los `require` relativos, **actualizados durante el rebase de este commit** para apuntar a los dominios `costos_pedido`/`compras` ya migrados en paralelo por Agente Rojo/Negro (entradas #35, `eeacdb1`) en vez de los `routes/*` viejos que ya no existen. `index.js` actualizado: `/api/pedidos` → nuevo dominio; `/api/productos/catalogo` (standalone) → mismo handler vía `productosPedidoDominio.controller.catalogo` (export dual `{router, controller}`, mismo patrón que `atributos`/`catalogo`). | ✅ | ⏳ pendiente de deploy/curl real | `node -c` en los 8 archivos nuevos + `index.js`; arranque real del servidor completo con env vars dummy (sin `MODULE_NOT_FOUND`); 3 `curl` reales sin token → `GET /api/pedidos` `401`, `GET /api/pedidos/PD0001/productos` `401`, `GET /api/productos/catalogo` `401` (ninguna `404`, confirma las 3 rutas montadas); pool falso, 29 casos nuevos (`resolverMedioPago` sin nombre/válido/inválido, `obtener()` no consulta productos si el pedido no existe, `crear()`/`actualizar()` con `medio_pago` inválido en 400 sin llegar a escribir, `valor_venta: 0` no dispara el 400 de "requerido" fidelidad al chequeo `undefined`/`null` explícito, auto-cálculo de precio con/sin match de catálogo, override explícito vs. override `null` recalculando, `crear()` de producto valida pedido padre antes de insertar) | ✅ en mocks (`npm test` 95/95, re-verificar tras el rebase); falta confirmación en prod |
 
 **Nota sobre la entrada #5 (actualizada):** ya no hay pendiente — Agente 1 corrió el
 curl real de verificación (`/api/public/bot/productos/CAT0032` vía Cloudflare) y el

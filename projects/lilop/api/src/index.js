@@ -21,12 +21,12 @@ app.use('/api/auth',       require('./domains/auth/auth.routes'));
 app.use('/api/usuarios',   require('./domains/usuarios/usuarios.routes'));
 app.use('/api/maestros',   require('./domains/maestros/maestros.routes'));
 app.use('/api/clientes',   require('./domains/clientes/clientes.routes'));
-app.use('/api/pedidos',    require('./routes/pedidos'));
+app.use('/api/pedidos',    require('./domains/pedidos/pedidos.routes'));
 
 /* Catálogo de productos (nombres únicos) */
 const { auth } = require('./middleware/auth');
-const { catalogo } = require('./controllers/productos');
-app.get('/api/productos/catalogo', auth, catalogo);
+const productosPedidoDominio = require('./domains/productos_pedido/productos_pedido.routes');
+app.get('/api/productos/catalogo', auth, productosPedidoDominio.controller.catalogo);
 app.use('/api/comisiones', require('./domains/comisiones/comisiones.routes'));
 app.use('/api/catalogo',   require('./domains/catalogo/catalogo.routes').router);
 
