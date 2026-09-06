@@ -447,12 +447,34 @@ Service,Controller,routes}.js` (extendiendo las bases del `core/` **solo cuando 
 contrato realmente aplica** — ver el caso `domicilio` como ejemplo de cuándo NO
 heredar), validar con mocks, montar en `index.js`/router padre con una línea, y
 **recién ahí** borrar el controller/route viejo.
-Sugerencia de orden (no decidido): siguientes candidatos simples/aislados —
-`maestros`, `auth` — antes que los que tienen triggers de Postgres detrás
-(`pedidos`, `comisiones`, `costos_pedido`). **`auth` deliberadamente al final de
-los "simples":** es pequeño, pero es el gateway de login — un error ahí bloquea
-a todo el equipo del acceso al admin, así que su riesgo real es más alto que su
-tamaño.
+**`usuarios` — ✅ migrado.** CRUD admin puro sobre Postgres, sin tablas legacy.
+`UsuarioRepository` de este dominio es **distinto** del `UsuarioRepository` del
+dominio `auth` (mismo table `usuarios`, bounded context diferente: CRUD admin vs.
+login/vendedores) — evita que un solo repositorio termine haciendo de "god class"
+para dos responsabilidades no relacionadas. `bcrypt` inyectado por constructor en
+`UsuarioService`, mismo criterio que `AuthService` (Agente 2). Duplicado de email
+(`23505`) traducido a `EmailDuplicadoError` de dominio. Validado con pool/bcrypt
+falsos: listar, 404 en obtener/actualizar/eliminar, `toTitleCase` en creación,
+validación de nombre/password requeridos, duplicado — todos idénticos al
+controller viejo.
+
+**`demo` — ✅ migrado.** Dominio de la demo guiada (Azure DevOps + webhook n8n),
+sin `auth` (igual que antes, rutas públicas). `fetch` y `webhookUrl` inyectados
+por constructor en `DemoService` (mismo criterio que `DomicilioRepository`); la
+URL ya venía de env var (`N8N_DEMO_WEBHOOK`, no hardcodeada) — no requirió
+des-hardcodeo adicional. El disparo al webhook sigue siendo fire-and-forget a
+propósito (no bloquea la respuesta), igual que el controller viejo. Validado con
+pool/`fetch` falsos: validación de campos requeridos, creación con steps
+iniciales, disparo correcto del payload al webhook, 404 en estado/paso
+inexistente, actualización de paso — idéntico al controller viejo.
+
+**`atributos` — deliberadamente NO migrado.** Opera sobre las tablas legacy
+(`atributos`, `atributo_opciones`, `catalogo_atributos`) que la Fase 6 de este
+mismo MD marca para eliminar una vez se complete el corte al esquema nuevo de
+`variables`/`variable_valores`/`producto_variables`. Migrar este dominio a POO
+ahora sería invertir esfuerzo en código con fecha de caducidad ya decidida —
+queda fuera del rollout hasta que se decida su destino real (¿se elimina sin
+más, o alguna consulta necesita puentear al esquema nuevo primero?).
 
 **`imagenes` — ✅ migrado.** Sin Postgres (filesystem + `sharp`), mismo criterio que
 `domicilio`: `ImagenRepository` no extiende `BaseRepository` (Liskov), `sharp`/`fs`
@@ -485,14 +507,16 @@ controller viejo.
 ## 7ter. Pendientes explícitos para la siguiente sesión
 
 1. **Migrar el resto de dominios a POO/SOLID** (sección 7quater) — `domicilio`,
-   `imagenes`, `maestros`, `auth`, `comisiones`, `entregas` y `disenos` migrados **y
-   confirmados en producción** (ver entrada #23 de la sección 8). El dominio
-   `productos` **solo cubre la porción bot/lectura** (`/api/public/bot/*`) — el CRUD
-   admin real (`controllers/productos.js`) sigue sin migrar, ver nota al inicio de
-   la sección 8. Restantes: `usuarios`, `clientes`, `compras`, `pedidos_publicos`,
-   `demo`, `atributos`, el CRUD completo de `productos`, y los de mayor riesgo por
-   tener triggers de Postgres detrás (`pedidos`, `costos_pedido`) + el corte real de
-   `catalogo` (admin, ligado a la Fase 5).
+   `imagenes`, `maestros`, `auth`, `comisiones`, `entregas`, `disenos`, `usuarios` y
+   `demo` migrados **y confirmados en producción** (ver entrada #23 de la sección 8,
+   `usuarios`/`demo` pendientes de su propia confirmación en prod — ver sección 8).
+   El dominio `productos` **solo cubre la porción bot/lectura**
+   (`/api/public/bot/*`) — el CRUD admin real (`controllers/productos.js`) sigue sin
+   migrar. `atributos` deliberadamente fuera del rollout (tablas legacy con fecha de
+   caducidad, ver 7quater). Restantes: `clientes`, `compras`, `pedidos_publicos`, el
+   CRUD completo de `productos`, y los de mayor riesgo por tener triggers de
+   Postgres detrás (`pedidos`, `costos_pedido`) + el corte real de `catalogo`
+   (admin, ligado a la Fase 5).
 2. **Fase 4-5 de la metodología** — exponer el esquema nuevo en paralelo al viejo desde
    el API (ya arrancado con el dominio `productos`), validar, y solo después hacer
    el corte real en los controllers existentes (`productos.js`, `catalogo.js`, etc.).
@@ -553,6 +577,8 @@ controller viejo.
 | 21 | Agente 3 | *(pendiente de commit)* | Migración dominio `disenos` a POO/SOLID (incluye generación de nombre automático si no se envía) | ✅ | ⏳ pendiente de deploy/curl real | pool falso: generación de nombre con y sin valor dado, 400 si `catalogo_ids` no es array, 404s | ✅ en mocks (`npm test` 52/52); falta confirmación en prod |
 | 22 | Agente 1 | *(pull de sincronización, sin commit propio)* | Validación del estado combinado tras traer los commits de Agente 2 (`auth`) y Agente 3 (`comisiones`/`entregas`/`disenos`/tests) en un solo `git pull` | N/A | N/A | `grep` amplio de referencias rotas a controllers/routes eliminados (limpio) + `npm test` (52/52) + arranque real del servidor con env vars dummy (sin `MODULE_NOT_FOUND` ni crash) | ✅ el estado combinado de los 3 agentes es consistente y arranca; hallazgo: `domains/productos/` es solo la porción bot/lectura, el CRUD admin de productos sigue sin migrar (ver nota al inicio de esta sección) |
 | 23 | Agente 1 | *(deploy, sin commit de código)* | Deploy real de `f810688` confirmado por el dueño en `arley2911@serverpc`: `git pull` + `docker compose restart api`. **Cierra las entradas #11 (`maestros`), #19 (`comisiones`), #20 (`entregas`) y #21 (`disenos`)** — pasan de ⏳ a confirmadas en prod. | N/A (ya cubierto en #11/#19/#20/#21) | ✅ | Logs de arranque limpios + 5 `curl` reales sin token: `GET /api/maestros/origenes` → `401`; `GET /api/public/categorias` → `12` (sigue intacto); `GET /api/comisiones` → `401`; `GET /api/pedidos/PD0001/entregas` → `401`; `GET /api/disenos` → `401`. Ningún `404` — confirma las 4 rutas montadas y protegidas por `auth` | ✅ `maestros`, `comisiones`, `entregas` y `disenos` cerrados: código + deploy + prueba real, los 4 con status esperado |
+| 24 | Agente 1 | *(pendiente de commit)* | Migración dominio `usuarios` a POO/SOLID (CRUD admin) | ✅ | ⏳ pendiente de deploy/curl real | pool/bcrypt falsos: listar, 404 en obtener/actualizar/eliminar, `toTitleCase`, validación nombre/password requeridos, duplicado de email | ✅ en mocks; falta confirmación en prod |
+| 25 | Agente 1 | *(pendiente de commit)* | Migración dominio `demo` a POO/SOLID (demo guiada Azure DevOps + webhook n8n) | ✅ | ⏳ pendiente de deploy/curl real | pool/`fetch` falsos: validación de campos, creación con steps iniciales, payload correcto al webhook (fire-and-forget preservado), 404 en estado/paso inexistente, actualización de paso | ✅ en mocks; falta confirmación en prod |
 
 **Nota sobre la entrada #5 (actualizada):** ya no hay pendiente — Agente 1 corrió el
 curl real de verificación (`/api/public/bot/productos/CAT0032` vía Cloudflare) y el

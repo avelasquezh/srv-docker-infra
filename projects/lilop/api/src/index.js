@@ -18,7 +18,7 @@ app.get('/api/health', (req, res) => {
 
 // ── Rutas ─────────────────────────────────────────────────
 app.use('/api/auth',       require('./domains/auth/auth.routes'));
-app.use('/api/usuarios',   require('./routes/usuarios'));
+app.use('/api/usuarios',   require('./domains/usuarios/usuarios.routes'));
 app.use('/api/maestros',   require('./domains/maestros/maestros.routes'));
 app.use('/api/clientes',   require('./routes/clientes'));
 app.use('/api/pedidos',    require('./routes/pedidos'));
@@ -57,7 +57,7 @@ app.post('/api/public/pedidos', crearPedidoPublico);
 /* Endpoints públicos para el bot de IA (n8n): dominio productos en POO/SOLID
    (ver projects/lilop/docs/migracion-productos-variantes.md sección 8) */
 app.use('/api/public/bot', require('./domains/productos/productos.routes'));
-app.use('/api/demo',        require('./routes/demo'));
+app.use('/api/demo',        require('./domains/demo/demo.routes'));
 app.use('/api/disenos',    require('./domains/disenos/disenos.routes'));
 app.use('/api/atributos',  require('./routes/atributos'));
 app.use('/api/imagenes',   require('./domains/imagenes/imagenes.routes'));
