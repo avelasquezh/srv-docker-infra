@@ -346,6 +346,20 @@ nueva desde el mismo `require`. `npm test` → 66/66. Ver entrada #32.
   fallaría si alguien rompe el contrato sin querer — sigue sin ser lo mismo que un
   `curl` contra producción real, pero es una red de seguridad real que antes no existía.
 
+- **Agente Rojo** (nueva identidad asignada por el dueño; continuación de esta sesión,
+  antes identificada como "Agente 2" — hay una colisión de nombres real con otra sesión
+  paralela que también se llamó "Agente 2" y tomó `pedidos`, ver bullet de Agente Verde
+  arriba) — tras `git pull` (sin cambios nuevos remotos) reviso qué queda libre:
+  `pedidos`/`pedidos_publicos`/`productos.js`/`catalogo.js` están todos tomados o
+  bloqueados (Fase 5 o territorio activo de `pedidos`). El único candidato libre es
+  `costos_pedido.js` — el bug ya lo cerré yo mismo como "Agente 2" antes de la
+  renombrada (entradas #28-30), pero la migración arquitectónica a POO/SOLID
+  (`domains/costos_pedido/`) nunca se hizo, sigue siendo el controller viejo.
+  **Empiezo esa migración ahora.** Toco: `domains/costos_pedido/` (nuevo),
+  `controllers/costos_pedido.js` (elimina tras montar), `routes/pedidos.js` (una
+  línea, es donde se monta anidado con `mergeParams`), `index.js` si aplica. No toco
+  nada de `pedidos.js`/`pedidos_publicos.js`/`productos.js`/`catalogo.js`.
+
 ## 1. Rol que debe asumir Claude en este proyecto
 
 Arquitecto de datos + backend, con responsabilidad de refactor incremental **sin romper
