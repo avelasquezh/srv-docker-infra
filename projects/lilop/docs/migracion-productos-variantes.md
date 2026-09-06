@@ -49,6 +49,42 @@ entrada (verificar la tabla de la sección 8 para el detalle más actualizado):
   entradas #12 y #29). Toco: `domains/pedidos/`, `controllers/pedidos.js`,
   `routes/pedidos.js`, `index.js` (una línea). No toco `costos_pedido.js` (ya cerrado
   en #28-30) ni `domains/comisiones/`.
+
+  **PAUSADO EN INVESTIGACIÓN — handoff para quien retome, no asumir que el repo
+  refleja el esquema real de `pedidos`.** Corrí `\d pedidos` en prod y el esquema
+  real difiere bastante de `001_schema_inicial.sql` (deriva no rastreada, mismo
+  patrón que la entrada #29, pero más grande):
+
+  - `ganancias` **ya NO es columna `GENERATED`** (como dice 001) — ahora es
+    `numeric(12,2)` normal, sin default, poblada por un trigger nuevo
+    `trg_pedidos_ganancias BEFORE INSERT OR UPDATE ON pedidos EXECUTE FUNCTION
+    fn_recalc_ganancias()`. **Nadie ha visto todavía la definición de
+    `fn_recalc_ganancias()`** — pedido el `\sf` al dueño, respuesta pendiente.
+  - Columnas reales en `pedidos` que NO existen en `001_schema_inicial.sql`:
+    `costos_otros` (numeric), `estado_pago` (enum `estado_pago_pedido`),
+    `medio_pago_id` (integer, FK a tabla `medios_pago` — reemplazó al enum
+    `medio_pago` que sí está en 001). `controllers/pedidos.js` (`crear`/
+    `actualizar`) ya usa `medio_pago_id` + lookup en `medios_pago` — **eso SÍ
+    coincide con la realidad**, no es un bug (a diferencia del caso de
+    `nombre_vendedor` en la entrada #28, aquí el código viejo iba adelantado
+    al repo, no al revés).
+  - `estado` (`estado_pedido`) tiene default real `'por_confirmar'`, no
+    `'pendiente'` como dice 001.
+  - Faltan por confirmar (pedidos al dueño, **respuesta pendiente al pausar
+    esta sesión**): definición real de `fn_recalc_ganancias`,
+    `fn_recalc_producto_costo`, `fn_recalc_pedido_costo`, `fn_pedido_set_origen`
+    (los 3 últimos son los que 001 sí declara — falta confirmar si siguen
+    igual o también cambiaron), valores reales de los enums `estado_pedido`/
+    `estado_pago_pedido`/`medio_pago` (`\dT+`), y el esquema real de `productos`
+    (`\d productos`, referenciado en `obtener()`).
+
+  **Próximo paso para quien retome:** correr los `\d`/`\sf`/`\dT+` pendientes
+  de arriba, y — dado el tamaño de la deriva encontrada — considerar escribir
+  primero una migración "as-built" (tipo `005_documentar_esquema_real_pedidos.sql`,
+  mismo criterio que `004`) que dé fe en git de TODO el esquema real de
+  `pedidos`/`productos` antes de tocar una sola línea de `controllers/pedidos.js`.
+  No se tocó ningún archivo de código en esta sesión para `pedidos` — solo
+  investigación vía `\d`/`\sf` sobre el servidor real, cero cambios aplicados.
 - **Agente 3** (yo, en esta sesión) — construir la suite de tests real (`api/tests/`,
   `node --test`, sin dependencias nuevas) que formaliza las validaciones ad-hoc con
   mocks que hasta ahora solo vivían en mensajes de commit. Cero superposición de
