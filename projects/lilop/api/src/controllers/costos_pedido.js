@@ -46,14 +46,15 @@ const agregarComision = async (req, res) => {
   const { valor_comision, nombre_vendedor } = req.body;
   if (!valor_comision) return res.status(400).json({ error: 'El valor de la comisión es requerido' });
   try {
+    // No se recalcula pedidos.comision aquí a mano: el trigger
+    // trg_comisiones_recalc_pedido (ver migración 004) ya lo hace en
+    // cada INSERT/UPDATE/DELETE sobre comisiones, y solo cuenta las
+    // que están en estado 'Pagada' (regla de negocio confirmada).
+    // Duplicar el cálculo aquí sumando TODAS sin filtrar por estado
+    // pisaba el resultado correcto del trigger.
     await pool.query(
       'INSERT INTO comisiones (pedido_id, nombre_vendedor, valor_comision) VALUES ($1, $2, $3)',
       [pedido_id, nombre_vendedor || null, valor_comision]
-    );
-    await pool.query(
-      `UPDATE pedidos SET comision = (
-        SELECT COALESCE(SUM(valor_comision), 0) FROM comisiones WHERE pedido_id = $1
-       ) WHERE id = $1`, [pedido_id]
     );
     res.json({ ok: true });
   } catch (err) {
@@ -144,14 +145,12 @@ const cambiarEstadoComision = async (req, res) => {
 };
 
 const eliminarComision = async (req, res) => {
-  const { pedido_id, id } = req.params;
+  const { id } = req.params;
   try {
+    // Mismo criterio que agregarComision: el trigger
+    // trg_comisiones_recalc_pedido recalcula pedidos.comision solo,
+    // no hace falta (ni conviene) duplicarlo aquí.
     await pool.query('DELETE FROM comisiones WHERE id = $1', [id]);
-    await pool.query(
-      `UPDATE pedidos SET comision = (
-        SELECT COALESCE(SUM(valor_comision), 0) FROM comisiones WHERE pedido_id = $1
-       ) WHERE id = $1`, [pedido_id]
-    );
     res.json({ ok: true });
   } catch (err) {
     console.error('Error al eliminar comisión:', err.message);
