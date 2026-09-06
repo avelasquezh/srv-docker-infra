@@ -1,7 +1,7 @@
 const router = require('express').Router({ mergeParams: true });
 const { auth } = require('../middleware/auth');
 const { listar, obtener, crear, actualizar, eliminar, catalogo } = require('../controllers/productos');
-const comprasRoutes = require('./compras');
+const comprasRoutes = require('../domains/compras/compras.routes');
 
 router.get('/catalogo', auth, catalogo);
 router.get('/',     auth, listar);
