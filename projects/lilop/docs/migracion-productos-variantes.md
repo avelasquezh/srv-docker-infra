@@ -485,13 +485,14 @@ controller viejo.
 ## 7ter. Pendientes explícitos para la siguiente sesión
 
 1. **Migrar el resto de dominios a POO/SOLID** (sección 7quater) — `productos`,
-   `domicilio`, `imagenes` y `maestros` ya migrados y confirmados en producción
-   (sección 8). `auth` migrado por Agente 2 (Agente 1 pausado por tokens),
-   validado con mocks (bcrypt/jwt/pool falsos) + arranque real del servidor,
-   **pendiente de confirmación en producción** (ver sección 8, entradas #12-13).
-   Dominios simples restantes: ninguno — con `auth` cerrado, los siguientes
-   candidatos son los que tienen triggers de Postgres detrás (`pedidos`,
-   `comisiones`, `costos_pedido`), que requieren más cuidado.
+   `domicilio`, `imagenes`, `maestros` y `auth` ya migrados (ver sección 8 para estado
+   de confirmación en prod de cada uno). Agente 3 migró además `comisiones`,
+   `entregas` y `disenos` (ver entradas #19-21 de la sección 8) — validados con mocks
+   y `npm test` (52/52), **pendientes de deploy/confirmación real en producción**.
+   Restantes: `usuarios`, `clientes`, `compras`, `pedidos_publicos`, `demo`,
+   `atributos`, y los de mayor riesgo por tener triggers de Postgres detrás
+   (`pedidos`, `costos_pedido`) + el corte real de `catalogo`/`productos` (admin,
+   ligado a la Fase 5).
 2. **Fase 4-5 de la metodología** — exponer el esquema nuevo en paralelo al viejo desde
    el API (ya arrancado con el dominio `productos`), validar, y solo después hacer
    el corte real en los controllers existentes (`productos.js`, `catalogo.js`, etc.).
@@ -537,6 +538,9 @@ controller viejo.
 | 16 | Agente 2 | *(sin commit de código)* | Happy path real de login: usuario de prueba temporal creado vía `psql` (password con hash bcrypt generado por Agente 2, nunca credenciales reales del negocio), login exitoso, usuario de prueba eliminado tras la prueba | N/A | ✅ | `POST /api/auth/login` con credenciales válidas → `200` con JWT decodificable (payload `id`/`nombre`/`email`/`rol` correcto) + `usuario` en la respuesta con el shape exacto esperado; usuario de prueba confirmado borrado (`DELETE 1`) | ✅ dominio `auth` cerrado por completo — happy path y contrato de error confirmados en prod real, sin usar ni exponer credenciales de usuarios reales |
 | 17 | Agente 2 | *(sin commit — solo análisis, nada tocado)* | Análisis solicitado por el dueño: estado real de los JS del admin/site y si el refactor a un patrón (MVC/módulos) ya estaba planeado. Confirmado: **ya estaba planeado como Etapa 6** (secciones 3, 4.1, 5 y pendiente #5 de este mismo MD), bloqueado explícitamente hasta que Fase 5 (corte de esquema BD) esté cerrada — hoy sigue 🔲 Pendiente. No se inició ningún refactor de frontend. Métricas verificadas: `admin/html/assets/js/pages/cliente.js` = 1500 líneas / 28 funciones top-level en scope global (coincide con el diagnóstico de la sección 4.1); resto de páginas del admin entre 282–783 líneas; `site/html/js/script.js` = 485 líneas. Ningún HTML usa todavía `<script type="module">`; no existe `package.json` ni build tool en `admin/` ni `site/` — confirma que el plan de Etapa 6 (ES Modules nativos, sin build tooling nuevo) sigue siendo el camino correcto y nada lo contradice. | N/A (solo lectura) | N/A | `wc -l`, conteo de `function `/`async function` top-level, `grep type="module"`, búsqueda de `package.json`/`webpack`/`vite` | ✅ confirmado: tarea ya asignada (Etapa 6), no iniciada, sigue bloqueada por Fase 5 |
 | 18 | **Agente 3** | `cbc947d` | Suite de tests real (`api/tests/`, `node:test`) para core + productos/domicilio/imagenes — tarea asignada a esta sesión por el dueño explícitamente sin superposición de archivos con Agente 1 (dominios backend) ni Agente 2 (auth + frontend). Nota: esta sesión se auto-identificó primero como "Agente 2" sin saber que esa identidad ya estaba en uso activo — corregido a Agente 3 al hacer `git pull`/rebase y encontrar el choque. | ✅ | N/A (no es código de producción, no requiere deploy) | `npm test` corrido localmente | ✅ 35/35 tests, 12 suites, 0 fallos |
+| 19 | Agente 3 | *(pendiente de commit)* | Migración dominio `comisiones` a POO/SOLID | ✅ | ⏳ pendiente de deploy/curl real | pool falso: filtros de `listar()`, 400 sin estado, 404 id inexistente, happy path | ✅ en mocks (`npm test` 41/41); falta confirmación en prod |
+| 20 | Agente 3 | *(pendiente de commit)* | Migración dominio `entregas` a POO/SOLID (anidado bajo `/api/pedidos/:pedido_id/entregas`) | ✅ | ⏳ pendiente de deploy/curl real | pool falso: 404 si el pedido padre no existe (no llega a insertar), CRUD completo | ✅ en mocks (`npm test` 46/46); falta confirmación en prod |
+| 21 | Agente 3 | *(pendiente de commit)* | Migración dominio `disenos` a POO/SOLID (incluye generación de nombre automático si no se envía) | ✅ | ⏳ pendiente de deploy/curl real | pool falso: generación de nombre con y sin valor dado, 400 si `catalogo_ids` no es array, 404s | ✅ en mocks (`npm test` 52/52); falta confirmación en prod |
 
 **Nota sobre la entrada #5 (actualizada):** ya no hay pendiente — Agente 1 corrió el
 curl real de verificación (`/api/public/bot/productos/CAT0032` vía Cloudflare) y el

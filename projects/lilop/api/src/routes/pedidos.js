@@ -2,7 +2,7 @@ const router = require('express').Router();
 const { auth } = require('../middleware/auth');
 const { listar, obtener, crear, actualizar, cambiarEstado, eliminar } = require('../controllers/pedidos');
 const productosRoutes = require('./productos');
-const entregasRoutes  = require('./entregas');
+const entregasRoutes  = require('../domains/entregas/entregas.routes');
 
 router.get('/',                  auth, listar);
 router.get('/:id',               auth, obtener);

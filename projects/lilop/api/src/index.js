@@ -27,7 +27,7 @@ app.use('/api/pedidos',    require('./routes/pedidos'));
 const { auth } = require('./middleware/auth');
 const { catalogo } = require('./controllers/productos');
 app.get('/api/productos/catalogo', auth, catalogo);
-app.use('/api/comisiones', require('./routes/comisiones'));
+app.use('/api/comisiones', require('./domains/comisiones/comisiones.routes'));
 app.use('/api/catalogo',   require('./routes/catalogo'));
 
 /* Endpoints públicos sin autenticación */
@@ -58,7 +58,7 @@ app.post('/api/public/pedidos', crearPedidoPublico);
    (ver projects/lilop/docs/migracion-productos-variantes.md sección 8) */
 app.use('/api/public/bot', require('./domains/productos/productos.routes'));
 app.use('/api/demo',        require('./routes/demo'));
-app.use('/api/disenos',    require('./routes/disenos'));
+app.use('/api/disenos',    require('./domains/disenos/disenos.routes'));
 app.use('/api/atributos',  require('./routes/atributos'));
 app.use('/api/imagenes',   require('./domains/imagenes/imagenes.routes'));
 
