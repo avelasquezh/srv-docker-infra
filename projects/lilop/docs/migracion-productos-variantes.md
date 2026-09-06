@@ -602,6 +602,10 @@ controller viejo.
 
 **Pendiente anotado, no resuelto en #28:** `domains/comisiones/` (dominio de listado admin ya migrado por Agente 1, entrada #19) hace `JOIN usuarios u ON u.id = c.vendedor_id` — con comisiones manuales, `vendedor_id` puede ser `NULL`, así que esas filas quedarían excluidas del listado de `/api/comisiones`. Verificado con `grep` que el frontend admin actual no usa esa ruta (todo pasa por `/api/pedidos/:id/costos/comision`), así que no es urgente, pero si se reactiva ese listado en el futuro, cambiar el `JOIN` a `LEFT JOIN` y hacer `COALESCE(u.nombre, c.nombre_vendedor)`.
 
+| 29 | Agente 2 | `03c93e4` | 🔴 **Deuda técnica no rastreada encontrada al desplegar #28 en prod, corregida.** Al correr `003_comision_manual.sql` en el servidor real, los `NOTICE` de "already exists, skipping" revelaron que alguien ya había aplicado a mano los mismos cambios estructurales — y además había un trigger nuevo (`trg_comisiones_recalc_pedido` / `fn_recalc_comision_pedido`) que **no existía en ningún archivo del repo**. Ese trigger recalcula `pedidos.comision` sumando **solo** comisiones en estado `Pagada` (confirmado con el dueño como la regla de negocio correcta). Mi `UPDATE` manual en `agregarComision`/`eliminarComision` (de la entrada #28) sumaba TODAS las comisiones sin filtrar por estado, y al correr después del mismo `INSERT`/`DELETE` que ya disparó el trigger, pisaba su resultado — generando una inconsistencia real entre agregar/borrar una comisión (ganaba mi lógica) vs. cambiar su estado a Pagada vía `cambiarEstadoComision` (ganaba el trigger, nunca tocado por mí). Fix: se quita el `UPDATE` manual por completo, el trigger de prod queda como única fuente de verdad para las 3 operaciones. Se agrega `004_documentar_trigger_recalc_comision_pagada.sql` (idempotente, `CREATE OR REPLACE`) para dejar ese trigger rastreado en git — sin esto, un entorno nuevo levantado desde las migraciones del repo perdería esta regla de negocio por completo. | ✅ | ⏳ pendiente de deploy real | 4 casos actualizados con pool falso: `agregarComision`/`eliminarComision` ya solo esperan `INSERT`/`DELETE`, sin el `UPDATE` que antes chocaba | ⏳ en mocks; **falta correr 004 en prod + confirmar que `agregarComision`/`cambiarEstadoComision` dan el mismo resultado de `pedidos.comision` que antes de este fix (regresión, no feature nueva)** |
+
+**Lección para la próxima sesión:** antes de escribir cualquier `UPDATE`/rollup manual sobre una columna que podría tener un trigger detrás, correr `\d <tabla>` (o `\dft`) en el servidor real primero — no asumir que el estado del repo (`db/migrations/*.sql`) refleja el 100% de lo que corre en producción. Ya pasó una vez con el import roto de `maestros` (entrada #12) y ahora con este trigger — el repo y la BD real pueden divergir sin que quede ningún rastro hasta que algo falla o se descubre por accidente.
+
 **Nota sobre la entrada #5 (actualizada):** ya no hay pendiente — Agente 1 corrió el
 curl real de verificación (`/api/public/bot/productos/CAT0032` vía Cloudflare) y el
 dominio `productos` de POO/SOLID responde en producción con el schema exacto de la
@@ -659,3 +663,9 @@ sección 9 como regla de conducta.
   antes de dar el dominio por cerrado (ver entrada #12 de la sección 8: así se
   encontró un import muerto de la migración de `maestros` que habría tumbado el
   próximo deploy).
+- **Antes de escribir un `UPDATE`/rollup manual sobre una columna que podría tener
+  lógica automática detrás:** correr `\d <tabla>` en el servidor real primero para
+  ver los triggers que existen de verdad — el repo (`db/migrations/*.sql`) puede
+  no reflejar el 100% de lo que corre en producción (ver entrada #29 de la sección 8:
+  un trigger fue agregado directo en prod sin migración asociada, y casi genera una
+  inconsistencia real de negocio).
