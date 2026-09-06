@@ -12,7 +12,7 @@ router.patch('/:id/estado',      auth, cambiarEstado);
 router.delete('/:id',            auth, eliminar);
 
 router.use('/:pedido_id/productos', productosRoutes);
-router.use('/:pedido_id/costos',    require('./costos_pedido'));
+router.use('/:pedido_id/costos',    require('../domains/costos_pedido/costos_pedido.routes'));
 router.use('/:pedido_id/entregas',  entregasRoutes);
 
 router.use(require('../domains/domicilio/domicilio.routes'));
