@@ -484,15 +484,17 @@ controller viejo.
 
 ## 7ter. Pendientes explícitos para la siguiente sesión
 
-1. **Migrar el resto de dominios a POO/SOLID** (sección 7quater) — `productos`,
-   `domicilio`, `imagenes`, `maestros` y `auth` ya migrados (ver sección 8 para estado
-   de confirmación en prod de cada uno). Agente 3 migró además `comisiones`,
-   `entregas` y `disenos` (ver entradas #19-21 de la sección 8) — validados con mocks
-   y `npm test` (52/52), **pendientes de deploy/confirmación real en producción**.
-   Restantes: `usuarios`, `clientes`, `compras`, `pedidos_publicos`, `demo`,
-   `atributos`, y los de mayor riesgo por tener triggers de Postgres detrás
-   (`pedidos`, `costos_pedido`) + el corte real de `catalogo`/`productos` (admin,
-   ligado a la Fase 5).
+1. **Migrar el resto de dominios a POO/SOLID** (sección 7quater) — `domicilio`,
+   `imagenes`, `maestros` y `auth` migrados y confirmados; el dominio `productos`
+   **solo cubre la porción bot/lectura** (`/api/public/bot/*`) — el CRUD admin real
+   (`controllers/productos.js`) sigue sin migrar, ver nota al inicio de la sección 8.
+   Agente 3 migró además `comisiones`, `entregas` y `disenos` (ver entradas #19-21 de
+   la sección 8) — validados con mocks y `npm test` (52/52), **pendientes de
+   deploy/confirmación real en producción**. Restantes: `usuarios`, `clientes`,
+   `compras`, `pedidos_publicos`, `demo`, `atributos`, el CRUD completo de
+   `productos`, y los de mayor riesgo por tener triggers de Postgres detrás
+   (`pedidos`, `costos_pedido`) + el corte real de `catalogo` (admin, ligado a la
+   Fase 5).
 2. **Fase 4-5 de la metodología** — exponer el esquema nuevo en paralelo al viejo desde
    el API (ya arrancado con el dominio `productos`), validar, y solo después hacer
    el corte real en los controllers existentes (`productos.js`, `catalogo.js`, etc.).
@@ -511,6 +513,16 @@ controller viejo.
 
 ## 8. Registro de verificación por agente (para el orquestador)
 
+> **Aclaración importante (Agente 1, tras `git pull` de sincronización):**
+> `domains/productos/` cubre **solo** los endpoints de solo lectura para el bot
+> (`/api/public/bot/productos[/:id]`). El CRUD real de productos usado por el admin
+> y el site (`listar/crear/actualizar/eliminar/catalogo`, montado en
+> `/api/productos` vía `routes/productos.js`) **sigue en `controllers/productos.js`,
+> sin migrar**. No es código muerto — `index.js` y `routes/productos.js` lo siguen
+> importando activamente. Cualquier agente que lea "productos ✅ migrado" en este
+> documento debe entender que es solo la porción bot/lectura, no el dominio completo
+> de administración de productos — ese CRUD sigue pendiente como tarea propia.
+>
 > Esta sección existe para que un agente orquestador (u otra sesión de Claude) sepa
 > el estado **real y verificado** de cada pieza sin releer el chat ni el resto del MD.
 > Formato fijo por entrada — no narrativo. Se agrega una entrada por commit relevante,
@@ -541,6 +553,7 @@ controller viejo.
 | 19 | Agente 3 | *(pendiente de commit)* | Migración dominio `comisiones` a POO/SOLID | ✅ | ⏳ pendiente de deploy/curl real | pool falso: filtros de `listar()`, 400 sin estado, 404 id inexistente, happy path | ✅ en mocks (`npm test` 41/41); falta confirmación en prod |
 | 20 | Agente 3 | *(pendiente de commit)* | Migración dominio `entregas` a POO/SOLID (anidado bajo `/api/pedidos/:pedido_id/entregas`) | ✅ | ⏳ pendiente de deploy/curl real | pool falso: 404 si el pedido padre no existe (no llega a insertar), CRUD completo | ✅ en mocks (`npm test` 46/46); falta confirmación en prod |
 | 21 | Agente 3 | *(pendiente de commit)* | Migración dominio `disenos` a POO/SOLID (incluye generación de nombre automático si no se envía) | ✅ | ⏳ pendiente de deploy/curl real | pool falso: generación de nombre con y sin valor dado, 400 si `catalogo_ids` no es array, 404s | ✅ en mocks (`npm test` 52/52); falta confirmación en prod |
+| 22 | Agente 1 | *(pull de sincronización, sin commit propio)* | Validación del estado combinado tras traer los commits de Agente 2 (`auth`) y Agente 3 (`comisiones`/`entregas`/`disenos`/tests) en un solo `git pull` | N/A | N/A | `grep` amplio de referencias rotas a controllers/routes eliminados (limpio) + `npm test` (52/52) + arranque real del servidor con env vars dummy (sin `MODULE_NOT_FOUND` ni crash) | ✅ el estado combinado de los 3 agentes es consistente y arranca; hallazgo: `domains/productos/` es solo la porción bot/lectura, el CRUD admin de productos sigue sin migrar (ver nota al inicio de esta sección) |
 
 **Nota sobre la entrada #5 (actualizada):** ya no hay pendiente — Agente 1 corrió el
 curl real de verificación (`/api/public/bot/productos/CAT0032` vía Cloudflare) y el
