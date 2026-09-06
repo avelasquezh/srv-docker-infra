@@ -941,3 +941,16 @@ sección 9 como regla de conducta.
   servicio (`docker compose restart api`), no asumir que siempre es igual
   al `container_name` — confirmado que `docker compose restart lilop-api`
   falla con `no such service` en el compose del api.
+
+  **Verificación post-migración confirmada por el dueño:** `\d pedidos` en
+  prod muestra las 3 columnas nuevas (`costos_otros`, `medio_pago_id`,
+  `estado_pago`) con tipos/defaults correctos, y **los 3 triggers
+  esperados** (`trg_pedidos_ganancias`, `trg_pedidos_set_origen` — ya
+  reactivado y funcionando —, `trg_pedidos_updated_at`). Los últimos 3
+  pedidos reales (`PD0057`, `PD0055`, `PD0054`) leen el enum `estado` sin
+  error. `medios_pago` tiene 8 filas (no solo las 5 del enum viejo de
+  001): incluye `"Por confirmar"` como opción seleccionable y **tanto
+  `"MP"` como `"Mercado Pago"` como entradas separadas** — posible
+  duplicado histórico, no confirmado, no bloqueante, queda para revisión
+  del dueño si le interesa. Migraciones `005`/`006` dadas por **cerradas y
+  confirmadas en producción**.
