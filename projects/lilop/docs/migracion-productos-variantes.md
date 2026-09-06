@@ -98,6 +98,52 @@ entrada (verificar la tabla de la sección 8 para el detalle más actualizado):
   migración "as-built" (`005_documentar_esquema_real_pedidos.sql`) que deje
   registrado en git el esquema real completo, y solo después tocar
   `controllers/pedidos.js`.
+
+  **Resultados recibidos del dueño (`\sf` de las 4 funciones + `\dT+` + `\d
+  productos`):**
+
+  - `fn_recalc_ganancias()` — confirmado: solo recalcula si
+    `NEW.estado = 'entregado'` (`valor_venta - costo - valor_domicilio - comision
+    - costos_otros`); en cualquier otro estado deja `ganancias := 0`. Coherente
+    con lo esperado, sin sorpresas.
+  - `fn_recalc_producto_costo()` (trigger sobre `compras`) — hace rollup de
+    `SUM(valor_total)` de `compras` hacia `productos.costo_total`. Coincide con
+    lo esperado.
+  - `fn_recalc_pedido_costo()` (trigger sobre `productos`, evento
+    `UPDATE OF costo_total`) — rollup de `SUM(costo_total)` de `productos` hacia
+    `pedidos.costo`. Coincide con lo esperado.
+  - `fn_pedido_set_origen()` — si `origen` viene `NULL` al crear el pedido, lo
+    completa desde `clientes.origen_venta`. Coincide con lo esperado.
+  - `estado_pedido` (enum): `por_confirmar, en_alistamiento, por_entregar,
+    entregado, cancelado` — confirma el default real `'por_confirmar'` ya
+    anotado arriba (001 decía `'pendiente'`, no existe ese valor en el enum real).
+  - `estado_pago_pedido` (enum): `pendiente, pagado, rechazado`.
+  - `medio_pago` — **`\dT+` devuelve 0 filas: ya no existe como tipo enum en la
+    BD.** Confirma (no contradice) lo ya anotado: fue reemplazado por
+    `medio_pago_id` (FK a tabla `medios_pago`).
+  - `\d productos` trajo un **hallazgo nuevo, no listado en el handoff original**:
+    hay un **cuarto/quinto trigger que nadie había visto**:
+    `trg_productos_recalc_valor_venta AFTER INSERT OR DELETE OR UPDATE OF nombre,
+    tamanio, valor_venta_override ON productos FOR EACH ROW EXECUTE FUNCTION
+    fn_recalc_pedido_valor_venta()` — **su definición no ha sido pedida todavía**.
+    Por el nombre, todo indica que recalcula `pedidos.valor_venta` a partir de
+    los productos del pedido (mismo patrón rollup que `fn_recalc_pedido_costo`),
+    lo cual es directamente relevante porque `fn_recalc_ganancias()` **lee
+    `NEW.valor_venta`** — si este trigger no corre en el orden correcto respecto
+    al de `ganancias`, hay riesgo real de orden de triggers. **No asumir el
+    comportamiento sin ver el código real** (misma disciplina que ya evitó un
+    problema en la entrada #29).
+  - `productos` también reveló columnas/enums no documentados antes:
+    `tamanio` (enum `tamanio_producto`), `estado` (enum `estado_producto`,
+    default `'Por Comprar'`), `valor_venta_override`, `cantidad` (con constraint
+    `> 0`), y un tercer trigger genérico `trg_productos_updated_at` (solo
+    `fn_set_updated_at`, sin riesgo).
+
+  **Sigo sin tocar código.** Falta antes de escribir la migración as-built:
+  `\sf fn_recalc_pedido_valor_venta` y el output crudo y completo de `\d pedidos`
+  (lo de arriba es un resumen en prosa de la sesión anterior, no el output
+  verbatim — para dejar la migración 005 exacta hace falta el texto real, no un
+  resumen).
 - **Agente 3** (yo, en esta sesión) — construir la suite de tests real (`api/tests/`,
   `node --test`, sin dependencias nuevas) que formaliza las validaciones ad-hoc con
   mocks que hasta ahora solo vivían en mensajes de commit. Cero superposición de
