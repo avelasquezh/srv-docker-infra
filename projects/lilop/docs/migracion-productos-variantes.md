@@ -144,6 +144,50 @@ entrada (verificar la tabla de la sección 8 para el detalle más actualizado):
   (lo de arriba es un resumen en prosa de la sesión anterior, no el output
   verbatim — para dejar la migración 005 exacta hace falta el texto real, no un
   resumen).
+
+  **Recibido `\sf fn_recalc_pedido_valor_venta` + `\d pedidos` completo. Tres
+  hallazgos más, dos de ellos serios — pausado de nuevo para decisión del
+  dueño antes de escribir la migración 005 o tocar `controllers/pedidos.js`:**
+
+  1. **`fn_recalc_pedido_valor_venta()` depende en vivo de las tablas legacy**
+     (`catalogo_productos`/`catalogo_precios`, join por `nombre` de texto +
+     `tamanio`) — este trigger corre sobre `productos` (INSERT/DELETE/UPDATE de
+     `nombre`/`tamanio`/`valor_venta_override`) y hace
+     `UPDATE pedidos SET valor_venta = ...`, que a su vez dispara
+     `trg_pedidos_ganancias`. O sea: **el valor de venta y las ganancias de
+     TODO pedido real dependen hoy de las tablas legacy**, no son solo cruft de
+     rollback. Confirmado además que `controllers/pedidos.js` (`obtener()`,
+     líneas 45-46) hace el **mismo join legacy duplicado** para mostrar el
+     precio por producto. **Esto es un bloqueante real para la Fase 6**
+     (`DROP` de `catalogo_precios`/`catalogo_productos`/`atributos`/
+     `atributo_opciones`, sección 7ter #7): no se puede hacer ese drop sin
+     migrar primero este trigger (y el query de `obtener()`) al esquema nuevo
+     (`variables`/`variable_valores`/`variantes`/`atributos_resueltos`). No es
+     un problema exclusivo del dominio `pedidos` — es un hallazgo que afecta
+     la metodología completa de la sección 5.
+  2. **`trg_pedidos_set_origen` está declarado en `001_schema_inicial.sql`
+     pero NO existe en producción** (`\d pedidos` solo lista
+     `trg_pedidos_ganancias` y `trg_pedidos_updated_at`) — y
+     `controllers/pedidos.js` tampoco setea `origen` en ningún punto
+     (`crear`/`actualizar`). Todo apunta a que **`origen` queda `NULL` en
+     todos los pedidos creados por el sistema actual** — no confirmado con un
+     `SELECT` real todavía. No sé si esto es una feature abandonada
+     intencionalmente o un bug que nadie notó.
+  3. **Bug latente encontrado en `crear()` (línea ~89):**
+     `estado || 'pendiente'` — pero `'pendiente'` **no es un valor válido** del
+     enum real `estado_pedido` (los valores reales son `por_confirmar,
+     en_alistamiento, por_entregar, entregado, cancelado`). Si algún caller crea
+     un pedido sin mandar `estado` explícito, el `INSERT` fallaría en tiempo
+     real (`invalid input value for enum`). No confirmado si el admin siempre
+     manda `estado` (en cuyo caso es código muerto sin impacto hoy) o si es un
+     bug activo.
+
+  **No escribo `005` ni toco `controllers/pedidos.js` hasta que el dueño
+  responda estos 3 puntos** — especialmente el #1, que cambia el alcance: ya
+  no es "documentar as-built de pedidos", es "documentar as-built de pedidos
+  + dejar explícito que el corte de productos/variantes (Fase 5) es
+  prerrequisito real para desacoplar `fn_recalc_pedido_valor_venta()` de las
+  tablas legacy antes de poder dropearlas (Fase 6)".
 - **Agente 3** (yo, en esta sesión) — construir la suite de tests real (`api/tests/`,
   `node --test`, sin dependencias nuevas) que formaliza las validaciones ad-hoc con
   mocks que hasta ahora solo vivían en mensajes de commit. Cero superposición de
