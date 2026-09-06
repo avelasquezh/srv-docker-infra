@@ -933,3 +933,11 @@ sección 9 como regla de conducta.
   no reflejar el 100% de lo que corre en producción (ver entrada #29 de la sección 8:
   un trigger fue agregado directo en prod sin migración asociada, y casi genera una
   inconsistencia real de negocio).
+- **El nombre del servicio en `docker compose` no siempre coincide con
+  `container_name`.** En `projects/lilop/api/docker-compose.yml` el servicio
+  se llama `api` (contenedor `lilop-api`); en
+  `projects/lilop/admin/docker-compose.yml` coinciden (`lilop-admin` es
+  ambos). Al dar el comando de restart al dueño, usar el nombre real del
+  servicio (`docker compose restart api`), no asumir que siempre es igual
+  al `container_name` — confirmado que `docker compose restart lilop-api`
+  falla con `no such service` en el compose del api.
