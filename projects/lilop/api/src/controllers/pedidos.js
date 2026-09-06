@@ -88,7 +88,7 @@ const crear = async (req, res) => {
         cliente_id, vendedor_id, fecha_entrega || null,
         valor_venta, valor_domicilio || 0,
         domiciliario || null, medio_pago_id,
-        estado || 'pendiente', notas || null
+        estado || 'por_confirmar', notas || null
       ]
     );
     res.status(201).json(result.rows[0]);

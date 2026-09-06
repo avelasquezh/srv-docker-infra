@@ -188,6 +188,18 @@ entrada (verificar la tabla de la sección 8 para el detalle más actualizado):
   + dejar explícito que el corte de productos/variantes (Fase 5) es
   prerrequisito real para desacoplar `fn_recalc_pedido_valor_venta()` de las
   tablas legacy antes de poder dropearlas (Fase 6)".
+
+  **Respuesta del dueño al punto #3: confirmado, `'por_confirmar'` es el
+  valor real/intencional (no `'pendiente'`).** Corregido en
+  `controllers/pedidos.js` línea 91 (`crear()`):
+  `estado || 'pendiente'` → `estado || 'por_confirmar'`. Cambio mínimo, un
+  solo token, verificado con `node -c` (sintaxis OK). No se corrió el
+  servidor completo porque no se toca ninguna otra línea ni import — no hay
+  superficie nueva que romper. **Puntos #1 (dependencia de `pedidos` con
+  tablas legacy, bloqueante de Fase 6) y #2 (`origen` huérfano) siguen sin
+  respuesta del dueño — no se toca nada más de `pedidos.js` ni se escribe la
+  migración `005` hasta resolverlos.** Commit local hecho, pendiente de
+  autorización para push.
 - **Agente 3** (yo, en esta sesión) — construir la suite de tests real (`api/tests/`,
   `node --test`, sin dependencias nuevas) que formaliza las validaciones ad-hoc con
   mocks que hasta ahora solo vivían en mensajes de commit. Cero superposición de
