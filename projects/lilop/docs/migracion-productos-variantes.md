@@ -200,6 +200,34 @@ entrada (verificar la tabla de la sección 8 para el detalle más actualizado):
   respuesta del dueño — no se toca nada más de `pedidos.js` ni se escribe la
   migración `005` hasta resolverlos.** Commit local hecho, pendiente de
   autorización para push.
+
+  **Decisión del dueño: reactivar `origen` (punto #2) — no era baja
+  intencional.** Escrita `005_reactivar_trigger_origen_pedido.sql`:
+  `CREATE OR REPLACE FUNCTION fn_pedido_set_origen()` (misma definición
+  exacta ya confirmada por `\sf`, sin cambios) + `DROP TRIGGER IF EXISTS` +
+  `CREATE TRIGGER trg_pedidos_set_origen BEFORE INSERT ON pedidos ...`.
+  Idempotente para correr igual en prod (solo falta el trigger) y en un
+  entorno nuevo (donde 001 ya declara la función). Commit local, **sin
+  push**.
+
+  **Punto #1 sigue abierto** (dependencia de `pedidos`/`fn_recalc_pedido_
+  valor_venta` con tablas legacy) — el dueño pidió "hacer las migraciones
+  necesarias antes de continuar", pero al ir a escribir el as-built completo
+  de `pedidos` aparecieron **dos vacíos más que no estaban en el handoff
+  original** y que no se pueden adivinar sin riesgo real de romper un
+  entorno nuevo levantado desde cero:
+  - **`medios_pago` no existe en ninguna migración del repo.** 3 controllers
+    (`pedidos.js` x2, `pedidos_publicos.js`) hacen
+    `SELECT id FROM medios_pago WHERE nombre = $1` contra una tabla que
+    nunca se creó vía git — un entorno nuevo con las migraciones actuales
+    rompería en el primer `POST /pedidos` con `medio_pago`.
+  - **La vista `v_pedidos_resumen` del repo (001) todavía referencia
+    `p.medio_pago`** (columna vieja, ya no existe en prod — reemplazada por
+    `medio_pago_id`). La vista real en producción tiene que ser distinta,
+    porque `listar()`/`obtener()` funcionan hoy. Pedido `\d medios_pago` +
+    `pg_get_viewdef('v_pedidos_resumen', true)` al dueño antes de escribir
+    el as-built completo del resto (`estado_pedido`, `medio_pago_id`,
+    `ganancias`).
 - **Agente 3** (yo, en esta sesión) — construir la suite de tests real (`api/tests/`,
   `node --test`, sin dependencias nuevas) que formaliza las validaciones ad-hoc con
   mocks que hasta ahora solo vivían en mensajes de commit. Cero superposición de
