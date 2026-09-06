@@ -24,15 +24,16 @@ const agregarDomicilio = async (req, res) => {
   const { valor_domicilio, domiciliario, notas } = req.body;
   if (!valor_domicilio) return res.status(400).json({ error: 'El valor del domicilio es requerido' });
   try {
+    // No se recalcula pedidos.valor_domicilio aquí a mano: el trigger
+    // trg_entregas_recalc_domicilio (ver migración 007) ya lo hace en
+    // cada INSERT/UPDATE/DELETE sobre entregas, y solo cuenta las que
+    // están en estado_pago 'Pagado' (mismo criterio que comisiones,
+    // ver entrada #29 del MD). Duplicar el cálculo aquí sumando TODAS
+    // sin filtrar por estado_pago pisaba el resultado correcto del trigger.
     const entrega = await pool.query(
       `INSERT INTO entregas (pedido_id, valor_domicilio, domiciliario, notas)
        VALUES ($1, $2, $3, $4) RETURNING *`,
       [pedido_id, valor_domicilio, domiciliario || null, notas || null]
-    );
-    await pool.query(
-      `UPDATE pedidos SET valor_domicilio = (
-        SELECT COALESCE(SUM(valor_domicilio), 0) FROM entregas WHERE pedido_id = $1
-       ) WHERE id = $1`, [pedido_id]
     );
     res.status(201).json(entrega.rows[0]);
   } catch (err) {
@@ -91,14 +92,12 @@ const eliminarOtro = async (req, res) => {
 };
 
 const eliminarDomicilio = async (req, res) => {
-  const { pedido_id, id } = req.params;
+  const { id } = req.params;
   try {
+    // Mismo criterio que agregarDomicilio: el trigger
+    // trg_entregas_recalc_domicilio recalcula pedidos.valor_domicilio
+    // solo, no hace falta (ni conviene) duplicarlo aquí.
     await pool.query('DELETE FROM entregas WHERE id = $1', [id]);
-    await pool.query(
-      `UPDATE pedidos SET valor_domicilio = (
-        SELECT COALESCE(SUM(valor_domicilio), 0) FROM entregas WHERE pedido_id = $1
-       ) WHERE id = $1`, [pedido_id]
-    );
     res.json({ ok: true });
   } catch (err) {
     console.error('Error al eliminar domicilio:', err.message);
