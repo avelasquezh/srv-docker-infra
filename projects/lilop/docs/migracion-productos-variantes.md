@@ -485,16 +485,14 @@ controller viejo.
 ## 7ter. Pendientes explícitos para la siguiente sesión
 
 1. **Migrar el resto de dominios a POO/SOLID** (sección 7quater) — `domicilio`,
-   `imagenes`, `maestros` y `auth` migrados y confirmados; el dominio `productos`
-   **solo cubre la porción bot/lectura** (`/api/public/bot/*`) — el CRUD admin real
-   (`controllers/productos.js`) sigue sin migrar, ver nota al inicio de la sección 8.
-   Agente 3 migró además `comisiones`, `entregas` y `disenos` (ver entradas #19-21 de
-   la sección 8) — validados con mocks y `npm test` (52/52), **pendientes de
-   deploy/confirmación real en producción**. Restantes: `usuarios`, `clientes`,
-   `compras`, `pedidos_publicos`, `demo`, `atributos`, el CRUD completo de
-   `productos`, y los de mayor riesgo por tener triggers de Postgres detrás
-   (`pedidos`, `costos_pedido`) + el corte real de `catalogo` (admin, ligado a la
-   Fase 5).
+   `imagenes`, `maestros`, `auth`, `comisiones`, `entregas` y `disenos` migrados **y
+   confirmados en producción** (ver entrada #23 de la sección 8). El dominio
+   `productos` **solo cubre la porción bot/lectura** (`/api/public/bot/*`) — el CRUD
+   admin real (`controllers/productos.js`) sigue sin migrar, ver nota al inicio de
+   la sección 8. Restantes: `usuarios`, `clientes`, `compras`, `pedidos_publicos`,
+   `demo`, `atributos`, el CRUD completo de `productos`, y los de mayor riesgo por
+   tener triggers de Postgres detrás (`pedidos`, `costos_pedido`) + el corte real de
+   `catalogo` (admin, ligado a la Fase 5).
 2. **Fase 4-5 de la metodología** — exponer el esquema nuevo en paralelo al viejo desde
    el API (ya arrancado con el dominio `productos`), validar, y solo después hacer
    el corte real en los controllers existentes (`productos.js`, `catalogo.js`, etc.).
@@ -554,6 +552,7 @@ controller viejo.
 | 20 | Agente 3 | *(pendiente de commit)* | Migración dominio `entregas` a POO/SOLID (anidado bajo `/api/pedidos/:pedido_id/entregas`) | ✅ | ⏳ pendiente de deploy/curl real | pool falso: 404 si el pedido padre no existe (no llega a insertar), CRUD completo | ✅ en mocks (`npm test` 46/46); falta confirmación en prod |
 | 21 | Agente 3 | *(pendiente de commit)* | Migración dominio `disenos` a POO/SOLID (incluye generación de nombre automático si no se envía) | ✅ | ⏳ pendiente de deploy/curl real | pool falso: generación de nombre con y sin valor dado, 400 si `catalogo_ids` no es array, 404s | ✅ en mocks (`npm test` 52/52); falta confirmación en prod |
 | 22 | Agente 1 | *(pull de sincronización, sin commit propio)* | Validación del estado combinado tras traer los commits de Agente 2 (`auth`) y Agente 3 (`comisiones`/`entregas`/`disenos`/tests) en un solo `git pull` | N/A | N/A | `grep` amplio de referencias rotas a controllers/routes eliminados (limpio) + `npm test` (52/52) + arranque real del servidor con env vars dummy (sin `MODULE_NOT_FOUND` ni crash) | ✅ el estado combinado de los 3 agentes es consistente y arranca; hallazgo: `domains/productos/` es solo la porción bot/lectura, el CRUD admin de productos sigue sin migrar (ver nota al inicio de esta sección) |
+| 23 | Agente 1 | *(deploy, sin commit de código)* | Deploy real de `f810688` confirmado por el dueño en `arley2911@serverpc`: `git pull` + `docker compose restart api`. **Cierra las entradas #11 (`maestros`), #19 (`comisiones`), #20 (`entregas`) y #21 (`disenos`)** — pasan de ⏳ a confirmadas en prod. | N/A (ya cubierto en #11/#19/#20/#21) | ✅ | Logs de arranque limpios + 5 `curl` reales sin token: `GET /api/maestros/origenes` → `401`; `GET /api/public/categorias` → `12` (sigue intacto); `GET /api/comisiones` → `401`; `GET /api/pedidos/PD0001/entregas` → `401`; `GET /api/disenos` → `401`. Ningún `404` — confirma las 4 rutas montadas y protegidas por `auth` | ✅ `maestros`, `comisiones`, `entregas` y `disenos` cerrados: código + deploy + prueba real, los 4 con status esperado |
 
 **Nota sobre la entrada #5 (actualizada):** ya no hay pendiente — Agente 1 corrió el
 curl real de verificación (`/api/public/bot/productos/CAT0032` vía Cloudflare) y el
