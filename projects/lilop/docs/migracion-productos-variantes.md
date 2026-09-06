@@ -270,6 +270,17 @@ entrada (verificar la tabla de la sección 8 para el detalle más actualizado):
   tocarse `controllers/pedidos.js` más allá del fix de `estado` ya aplicado
   — el refactor a POO/SOLID del dominio sigue pendiente hasta correr esta
   migración y confirmar en prod.
+
+  **Migraciones `005` y `006` corridas en producción por el dueño —
+  `Migrations complete!`, sin `RAISE EXCEPTION`, ambas registradas en
+  `pgmigrations`.** Diseño no-op confirmado: no se reportó ningún error de
+  sintaxis ni de guardas (`IF EXISTS`/`IF NOT EXISTS`/chequeo de enum). El
+  dueño reportó una línea final `no configuration file provided: not found`
+  que no pertenece al output de `npm run migrate` — pendiente confirmar si
+  vino de un comando aparte (ej. `docker compose restart` corrido desde un
+  directorio sin `docker-compose.yml`) y si el contenedor `lilop-api` ya se
+  reinició para que tome los cambios de código del fix de `estado`
+  (commit `2fc6bfc`, ya en el volumen montado, pero Node no recarga solo).
 - **Agente 3** (yo, en esta sesión) — construir la suite de tests real (`api/tests/`,
   `node --test`, sin dependencias nuevas) que formaliza las validaciones ad-hoc con
   mocks que hasta ahora solo vivían en mensajes de commit. Cero superposición de
