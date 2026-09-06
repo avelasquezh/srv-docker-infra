@@ -228,6 +228,48 @@ entrada (verificar la tabla de la sección 8 para el detalle más actualizado):
     `pg_get_viewdef('v_pedidos_resumen', true)` al dueño antes de escribir
     el as-built completo del resto (`estado_pedido`, `medio_pago_id`,
     `ganancias`).
+
+  **Recibido `\d medios_pago` + `pg_get_viewdef(v_pedidos_resumen)`. Escrita
+  `006_documentar_esquema_real_pedidos.sql`** con todo el as-built pendiente:
+  - Crea `medios_pago` (`IF NOT EXISTS`) — no existía en ninguna migración.
+  - Crea el enum `estado_pago_pedido` (nuevo, no estaba en 001).
+  - Corrige el enum `estado_pedido` (001 tenía 7 valores que no son los
+    reales; ahora quedan los 5 reales: `por_confirmar, en_alistamiento,
+    por_entregar, entregado, cancelado`) — con guardia de seguridad: si
+    detecta el enum viejo Y la tabla `pedidos` ya tiene filas, aborta con
+    `RAISE EXCEPTION` en vez de mapear datos a ciegas (solo debería
+    ejecutar la corrección real en un entorno recién creado, sin datos).
+  - `medio_pago` (enum embebido) → `medio_pago_id` (FK a `medios_pago`).
+  - Agrega `costos_otros` y `estado_pago`, confirmadas en prod y ausentes
+    en 001.
+  - `ganancias`: `DROP EXPRESSION IF EXISTS` (ya no es `GENERATED`) +
+    `fn_recalc_ganancias()` + trigger, con la definición real exacta.
+  - `fn_recalc_pedido_valor_venta()` + su trigger sobre `productos`,
+    documentados tal cual funcionan hoy — **sigue dependiendo de
+    `catalogo_productos`/`catalogo_precios`, sin resolver el bloqueante de
+    Fase 6, esta migración solo lo deja constatado en git, no lo
+    desacopla**.
+  - `v_pedidos_resumen`: `DROP VIEW` + recreada con la definición real
+    (incluye `comision_pendiente`, `cliente_id`, `vendedor_id`, `notas`,
+    join a `medios_pago`) — la de 001 estaba obsoleta y ya no compilaría
+    contra el esquema real (referenciaba `p.medio_pago`, columna
+    inexistente).
+
+  **Diseño pensado para ser no-op segura en producción** (todo guardado con
+  `IF NOT EXISTS`/`IF EXISTS`/chequeo de valores de enum): en prod, todo
+  esto ya existe igual, así que correrla no debería cambiar nada excepto
+  recrear (de forma idéntica) la vista, las 2 funciones y sus triggers. En
+  un entorno nuevo desde cero, corrige el esquema para que quede igual a
+  producción. **No se pudo probar contra un Postgres real en esta sesión**
+  (sin acceso directo a la BD) — se validó solo balance de paréntesis y
+  bloques `$$` con un script en Python. Recomendado probar en un entorno de
+  desarrollo/staging antes de correr en prod si existe esa opción; si no,
+  el diseño no-op debería hacerlo seguro igual.
+
+  Commit local hecho (`006` + este registro), **sin push**. Sigue sin
+  tocarse `controllers/pedidos.js` más allá del fix de `estado` ya aplicado
+  — el refactor a POO/SOLID del dominio sigue pendiente hasta correr esta
+  migración y confirmar en prod.
 - **Agente 3** (yo, en esta sesión) — construir la suite de tests real (`api/tests/`,
   `node --test`, sin dependencias nuevas) que formaliza las validaciones ad-hoc con
   mocks que hasta ahora solo vivían en mensajes de commit. Cero superposición de
