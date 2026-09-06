@@ -39,6 +39,16 @@ entrada (verificar la tabla de la sección 8 para el detalle más actualizado):
   quedará con `vendedor_id` nullable tras la migración, apuntado como pendiente de
   revisión, no lo arreglo en este cambio para no mezclar riesgos) ni `pedidos.js`
   más allá de lo estrictamente necesario.
+  **Ahora (anuncio antes de empezar, tras `git pull` — sin cambios nuevos remotos):**
+  empiezo la migración del dominio `pedidos` a POO/SOLID (`controllers/pedidos.js` +
+  `routes/pedidos.js`). Es el dominio de mayor riesgo pendiente: tiene 3 triggers
+  reales detrás (`fn_recalc_producto_costo` sobre `compras`, `fn_recalc_pedido_costo`
+  sobre `productos`, `fn_pedido_set_origen` al crear el pedido) más la columna
+  `ganancias` (`GENERATED`) y el trigger de comisión ya documentado en `004`. Voy a
+  investigar cada uno con `\d`/`\sf` en prod antes de asumir nada (lección de las
+  entradas #12 y #29). Toco: `domains/pedidos/`, `controllers/pedidos.js`,
+  `routes/pedidos.js`, `index.js` (una línea). No toco `costos_pedido.js` (ya cerrado
+  en #28-30) ni `domains/comisiones/`.
 - **Agente 3** (yo, en esta sesión) — construir la suite de tests real (`api/tests/`,
   `node --test`, sin dependencias nuevas) que formaliza las validaciones ad-hoc con
   mocks que hasta ahora solo vivían en mensajes de commit. Cero superposición de
