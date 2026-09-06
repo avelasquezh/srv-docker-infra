@@ -20,13 +20,19 @@ const STEPS = [
  * DomicilioRepository): permite testear sin disparar el webhook real.
  * El disparo al webhook es fire-and-forget a propósito (igual que el
  * controller viejo): no se espera su respuesta ni bloquea el `res.json`.
+ *
+ * A diferencia de AuthService (JWT_SECRET), aquí NO se valida
+ * `webhookUrl` en el constructor: el controller viejo tampoco lo
+ * validaba al arrancar, solo fallaba en silencio dentro del `.catch()`
+ * de un `fetch` no esperado si la env var faltaba. Validar temprano
+ * aquí tumbaría el proceso completo del API si `N8N_DEMO_WEBHOOK` no
+ * está seteada — como pasó en producción real. Se preserva el
+ * comportamiento original: sin webhook configurado, el `fetch` falla
+ * y se loguea, pero el resto del API sigue funcionando.
  */
 class DemoService extends BaseService {
-  constructor(repositorios, deps) {
+  constructor(repositorios, deps = {}) {
     super(repositorios);
-    if (!deps || !deps.webhookUrl) {
-      throw new Error('DemoService: se requiere webhookUrl inyectada');
-    }
     this.fetch = deps.fetchImpl || fetch;
     this.webhookUrl = deps.webhookUrl;
   }

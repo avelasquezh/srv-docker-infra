@@ -579,6 +579,7 @@ controller viejo.
 | 23 | Agente 1 | *(deploy, sin commit de código)* | Deploy real de `f810688` confirmado por el dueño en `arley2911@serverpc`: `git pull` + `docker compose restart api`. **Cierra las entradas #11 (`maestros`), #19 (`comisiones`), #20 (`entregas`) y #21 (`disenos`)** — pasan de ⏳ a confirmadas en prod. | N/A (ya cubierto en #11/#19/#20/#21) | ✅ | Logs de arranque limpios + 5 `curl` reales sin token: `GET /api/maestros/origenes` → `401`; `GET /api/public/categorias` → `12` (sigue intacto); `GET /api/comisiones` → `401`; `GET /api/pedidos/PD0001/entregas` → `401`; `GET /api/disenos` → `401`. Ningún `404` — confirma las 4 rutas montadas y protegidas por `auth` | ✅ `maestros`, `comisiones`, `entregas` y `disenos` cerrados: código + deploy + prueba real, los 4 con status esperado |
 | 24 | Agente 1 | *(pendiente de commit)* | Migración dominio `usuarios` a POO/SOLID (CRUD admin) | ✅ | ⏳ pendiente de deploy/curl real | pool/bcrypt falsos: listar, 404 en obtener/actualizar/eliminar, `toTitleCase`, validación nombre/password requeridos, duplicado de email | ✅ en mocks; falta confirmación en prod |
 | 25 | Agente 1 | *(pendiente de commit)* | Migración dominio `demo` a POO/SOLID (demo guiada Azure DevOps + webhook n8n) | ✅ | ⏳ pendiente de deploy/curl real | pool/`fetch` falsos: validación de campos, creación con steps iniciales, payload correcto al webhook (fire-and-forget preservado), 404 en estado/paso inexistente, actualización de paso | ✅ en mocks; falta confirmación en prod |
+| 26 | Agente 1 | *(pendiente de commit)* | 🔴 **INCIDENTE — API caído en prod (502) por el deploy de #25.** `DemoService` validaba `webhookUrl` en el constructor y lanzaba si faltaba (copiado del patrón de `AuthService`/`JWT_SECRET`). El servidor real no tiene `N8N_DEMO_WEBHOOK` configurada — el controller viejo nunca la validaba al arrancar, solo fallaba en silencio dentro de un `.catch()` de un `fetch` no esperado. El `throw` en el constructor tumbó el proceso completo de Node al cargar `index.js` (no solo `/api/demo`) — **downtime real de todo el API**, reportado por el dueño con 502 en cualquier ruta. Fix: se quita la validación temprana; `webhookUrl` puede ser `undefined`, y `fetch(undefined,...)` devuelve una promesa rechazada (confirmado con prueba real de Node), no un throw síncrono — el `.catch()` ya existente la absorbe sin crashear nada, igual que el comportamiento original. | ✅ (fix) | ⏳ pendiente de deploy real para cerrar el incidente | Prueba real de `fetch(undefined,...)` en Node (confirma promesa rechazada, no throw síncrono) + `run()` con `webhookUrl` ausente responde `200` sin crashear + arranque completo de `index.js` sin `N8N_DEMO_WEBHOOK` seteada, sin error | ✅ fix validado en mocks/local; **el incidente no se cierra hasta que el dueño despliegue este fix y confirme que el API vuelve a responder** |
 
 **Nota sobre la entrada #5 (actualizada):** ya no hay pendiente — Agente 1 corrió el
 curl real de verificación (`/api/public/bot/productos/CAT0032` vía Cloudflare) y el
@@ -603,6 +604,18 @@ archivos viejos; solo se habría visto en el próximo deploy real. Agregado a la
 sección 9 como regla de conducta.
 
 ## 9. Reglas de conducta que deben seguir aplicando
+
+- **Nunca validar/lanzar en el constructor de un Service por una dependencia
+  opcional cuya ausencia el código viejo toleraba en silencio** (ver incidente
+  entrada #26: `DemoService` copió el patrón fail-fast de `AuthService` para
+  `webhookUrl`, sin verificar que el servidor real tuviera esa env var
+  configurada — tumbó el API completo). El fail-fast de `AuthService` con
+  `JWT_SECRET` es correcto porque esa dependencia SIEMPRE fue requerida (sin
+  ella, ningún login funcionaba de todas formas); antes de replicar ese patrón
+  en otro dominio, confirmar que la dependencia era igual de obligatoria en el
+  código viejo — si el código viejo la usaba con `if`/`?.`/`.catch()` sin
+  validarla al arrancar, el reemplazo debe tolerar su ausencia de la misma
+  forma, no endurecerla.
 
 - **Antes de escribir cualquier commit: `git fetch`/`pull` y releer el MD (mínimo la
   sección 8) para detectar trabajo de otro agente/orquestador que haya llegado desde
