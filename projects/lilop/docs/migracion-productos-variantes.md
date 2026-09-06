@@ -289,7 +289,19 @@ Si se suma un agente nuevo, agregarlo aquí con su tarea y confirmar primero (v�
 `git pull` + lectura de la sección 8) que no toca archivos de los demás antes de
 arrancar.
 
-### Trabajo del Agente 3 (esta sesión) — completado
+### Trabajo del Agente 3 (esta sesión)
+
+**Completado:** suite de tests real (`api/tests/`, `node --test`) para core, `productos`,
+`domicilio`, `imagenes` — ver detalle abajo. **Tras `git pull` (disciplina obligatoria,
+sección 2) encontré que Agente 1/2 ya habían migrado `maestros`, `auth`, `usuarios` y
+`demo`,** y que Agente 2 está en medio de una investigación profunda y activa del
+dominio `pedidos` (varios hallazgos serios sobre deriva de esquema, ver el bloque de
+Agente 2 arriba) — **no toqué nada de eso.** Elegí `clientes` como siguiente dominio:
+CRUD simple, sin triggers propios, no mencionado como territorio de nadie más.
+Migrado a POO/SOLID (`ClienteRepository`/`Service`/`Controller`/`clientes.routes.js`),
+validado con mocks, `npm test` → 60/60. Documenté (sin corregir, fuera de alcance) un
+bug pre-existente de `toTitleCase` con acentos, heredado tal cual del controller
+original — ver entrada #31 de la sección 8.
 
 `api/tests/` con `node:test` (nativo desde Node 18, cero dependencias nuevas):
 - `tests/core.test.js` — `BaseRepository`/`BaseService`/`BaseController`.
@@ -838,6 +850,7 @@ controller viejo.
 **Lección para la próxima sesión:** antes de escribir cualquier `UPDATE`/rollup manual sobre una columna que podría tener un trigger detrás, correr `\d <tabla>` (o `\dft`) en el servidor real primero — no asumir que el estado del repo (`db/migrations/*.sql`) refleja el 100% de lo que corre en producción. Ya pasó una vez con el import roto de `maestros` (entrada #12) y ahora con este trigger — el repo y la BD real pueden divergir sin que quede ningún rastro hasta que algo falla o se descubre por accidente.
 
 | 30 | Agente 2 | *(sin commit de código)* | Cierra #29: deploy real de `03c93e4`/`004_documentar_trigger_recalc_comision_pagada.sql` confirmado + prueba end-to-end del trigger en prod con datos de prueba (2 comisiones temporales sobre un pedido real, `PD0054`, borradas al final) | N/A (ya cubierto en #29) | ✅ | `git pull` limpio + migración `004` aplicada sin error + restart sin crash. Prueba real: `pedidos.comision` se mantuvo en `0.00` con 2 comisiones de prueba en estado `Pendiente` (20000 c/u); al marcar una como `Pagada` subió exactamente a `20000.00` (no `40000`, confirma que solo cuenta la pagada); al borrar ambas volvió a `0.00`. También se descartó una duda del dueño sobre un "signo menos" que no desaparecía al marcar como pagada en el front — confirmado con el código de `cliente.js` que es diseño intencional preexistente (el monto de comisión/domicilio siempre se muestra con `-`, solo cambia de color rojo→gris al pagarse), no una regresión de este fix | ✅ **trigger de comisión pagada cerrado por completo**: código + deploy + prueba real confirman la regla de negocio exacta que pidió el dueño |
+| 31 | Agente 3 | *(pendiente de commit)* | Migración dominio `clientes` a POO/SOLID | ✅ | ⏳ pendiente de deploy/curl real | pool falso: title-case, validación de celular duplicado (409, no llega a actualizar si ya está en uso, no valida si no cambia), bloqueo de eliminar con pedidos existentes (400, no llega a borrar), 404s. Nota: se documentó (no se corrigió, fuera de alcance) un bug pre-existente de `toTitleCase` con acentos (`\b\w` no trata í/ó como letra — "maría" → "MaríA"), heredado tal cual del controller original | ✅ en mocks (`npm test` 60/60); falta confirmación en prod |
 
 **Nota sobre la entrada #5 (actualizada):** ya no hay pendiente — Agente 1 corrió el
 curl real de verificación (`/api/public/bot/productos/CAT0032` vía Cloudflare) y el
