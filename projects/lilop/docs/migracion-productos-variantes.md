@@ -85,6 +85,19 @@ entrada (verificar la tabla de la sección 8 para el detalle más actualizado):
   `pedidos`/`productos` antes de tocar una sola línea de `controllers/pedidos.js`.
   No se tocó ningún archivo de código en esta sesión para `pedidos` — solo
   investigación vía `\d`/`\sf` sobre el servidor real, cero cambios aplicados.
+
+  **Retomado por esta sesión (Agente 2, continuación — no nueva identidad, mismo
+  hilo de trabajo pausado arriba).** Tras `git pull` confirmo: sin commits nuevos
+  sobre `pedidos`/`productos` desde la pausa, nadie más avanzó esto en paralelo.
+  No toco ningún archivo de código todavía — primero hace falta cerrar las
+  preguntas pendientes que dejó la sesión anterior (definición real de
+  `fn_recalc_ganancias`, `fn_recalc_producto_costo`, `fn_recalc_pedido_costo`,
+  `fn_pedido_set_origen`, valores reales de los enums, y `\d productos`). Le pedí
+  al dueño los comandos exactos para traer esa información (ver mensaje de chat);
+  hasta no tenerla, sigo el plan ya dejado por escrito: escribir primero una
+  migración "as-built" (`005_documentar_esquema_real_pedidos.sql`) que deje
+  registrado en git el esquema real completo, y solo después tocar
+  `controllers/pedidos.js`.
 - **Agente 3** (yo, en esta sesión) — construir la suite de tests real (`api/tests/`,
   `node --test`, sin dependencias nuevas) que formaliza las validaciones ad-hoc con
   mocks que hasta ahora solo vivían en mensajes de commit. Cero superposición de
