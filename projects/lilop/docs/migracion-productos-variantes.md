@@ -360,6 +360,20 @@ nueva desde el mismo `require`. `npm test` → 66/66. Ver entrada #32.
   línea, es donde se monta anidado con `mergeParams`), `index.js` si aplica. No toco
   nada de `pedidos.js`/`pedidos_publicos.js`/`productos.js`/`catalogo.js`.
 
+- **Agente Negro** (yo, de vuelta en esta sesión) — tras `git pull` (sin cambios
+  nuevos remotos) confirmo que `pedidos`/`pedidos_publicos` siguen bloqueados
+  (investigación activa/veto) y `productos.js` (admin) toca la misma tabla
+  `productos` que está en investigación activa de `pedidos` — lo descarto por
+  riesgo. El único libre es `catalogo.js` (`catalogo_productos`/`catalogo_precios`/
+  `catalogo_atributos` — tablas sin relación con la investigación de `pedidos`).
+  **Empiezo esa migración ahora**, solo el envoltorio POO (repository/service/
+  controller), sin tocar el esquema ni hacer el corte de Fase 5 — eso queda aparte,
+  como ya está planeado. Toco: `domains/catalogo/` (nuevo), `controllers/catalogo.js`
+  (elimina tras montar), `routes/catalogo.js` (elimina), `index.js` (líneas de
+  wiring). No toco nada de `pedidos.js`/`pedidos_publicos.js`/`productos.js`.
+
+
+
 ## 1. Rol que debe asumir Claude en este proyecto
 
 Arquitecto de datos + backend, con responsabilidad de refactor incremental **sin romper
