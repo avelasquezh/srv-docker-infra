@@ -51,7 +51,7 @@ const catalogoDominio = require('./domains/catalogo/catalogo.routes');
 app.get('/api/public/productos', catalogoDominio.controller.listarPublico);
 
 /* Endpoint público: crear pedido desde el checkout del sitio */
-const { crearPedidoPublico } = require('./controllers/pedidos_publicos');
+const { crearPedidoPublico } = require('./domains/pedidos_publicos/pedidos_publicos.routes');
 app.post('/api/public/pedidos', crearPedidoPublico);
 
 /* Endpoints públicos para el bot de IA (n8n): dominio productos en POO/SOLID
