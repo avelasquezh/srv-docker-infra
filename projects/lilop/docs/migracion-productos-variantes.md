@@ -385,6 +385,20 @@ nueva desde el mismo `require`. `npm test` → 66/66. Ver entrada #32.
   `costos_pedido` (entrada #35) — vuelvo a limpiarlos después de esto, quedan
   anotados aquí para no perderlos si la sesión se corta.
 
+- **Agente Negro** (yo, de vuelta) — tras `git pull` confirmo que `catalogo`,
+  `pedidos` y `productos_pedido` ya fueron migrados y validados por Agente Rojo
+  mientras yo escribía mi propia versión de `catalogo.js` (descartada, cero pérdida
+  real — solo tenía la declaración pusheada, sin código). Con eso, el único dominio
+  backend que queda sin migrar es **`pedidos_publicos.js`** (checkout público). Lo
+  reviso: hace `INSERT` transaccional real (`client.connect()`/`BEGIN`/`COMMIT`) en
+  `clientes`→`pedidos`→`productos`, usando columnas ya confirmadas por Agente Rojo
+  (`medio_pago_id`, `estado_pago`, `valor_venta_override`) — no encontré nada que
+  contradiga el esquema ya documentado. **Empiezo esa migración ahora.** Como es el
+  primer dominio con transacción real, voy a agregar un helper `transaction(fn)` a
+  `BaseRepository` (core compartido, no específico de este dominio). Toco:
+  `core/BaseRepository.js` (agregar método, sin tocar el existente), `domains/pedidos_publicos/`
+  (nuevo), `controllers/pedidos_publicos.js` (elimina tras montar), `index.js` (una línea).
+
 
 
 ## 1. Rol que debe asumir Claude en este proyecto
