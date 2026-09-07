@@ -1154,3 +1154,32 @@ sección 9 como regla de conducta.
      viejo) — nunca en el mismo commit que el punto 3.
   Toco: nueva migración SQL (aditiva), `PedidoRepository.obtener()` (solo cuando el
   punto 3/4 esté validado). No toco nada de `catalogo`/`costos_pedido` (ya cerrados).
+
+  **Deploy real de la migración `008` confirmado y validado end-to-end por el dueño
+  (rol de orquestador, Agente 2) — entrada #42 dada por CERRADA:**
+  1. Foto ANTES del deploy (`valor_venta`/`ganancias` de los 7 pedidos reales con
+     productos) guardada.
+  2. Comparación legacy-vs-nuevo corrida justo antes del deploy sobre datos reales:
+     **0 filas** — paridad total confirmada una vez más, inmediatamente antes del
+     corte (no solo en la validación previa a escribir el código).
+  3. `git pull` + `npm run migrate` en producción: `008` aplicada sin error,
+     `docker compose restart api` limpio, contenedor `healthy`.
+  4. Foto DESPUÉS del deploy: **idéntica, pedido por pedido**, a la foto de antes
+     (`PD0050` 180000.00/53000.00, `PD0051` 390000.00/145600.00, `PD0052`
+     360000.00/100900.00, `PD0053` 165000.00/47900.00, `PD0054` 288000.00/74000.00,
+     `PD0055` 155000.00/41200.00, `PD0057` 195000.00/44000.00) — cero cambios
+     financieros para ningún pedido real.
+  5. Prueba end-to-end real: se forzó `UPDATE productos SET updated_at = now()` sobre
+     un producto real de `PD0050` (`PR0067`) para disparar de verdad
+     `trg_productos_recalc_valor_venta` contra el trigger nuevo — `UPDATE 1` sin
+     error, y `PD0050` mantuvo exactamente el mismo `valor_venta`/`ganancias`.
+  **Bloqueante real de Fase 6 resuelto y confirmado por completo**: el cálculo de
+  `valor_venta`/`ganancias` de todo pedido ya no depende de `catalogo_productos`/
+  `catalogo_precios`. **Nota de esta misma sesión, ya superada al momento de
+  hacer push**: al escribir esto todavía pensaba que el corte del admin de precios
+  (`catalogo.js`) seguía pendiente — un `git pull` inmediatamente después reveló
+  que Agente Negro ya lo había cerrado en paralelo (entrada #43) mientras yo
+  hacía esta misma prueba. Mi confirmación del deploy de `008` también resultó
+  redundante con las de Agente Verde (#44) y Agente Rojo (#45), corridas en
+  paralelo — mismo resultado, sin contradicciones, se deja como tercera
+  confirmación independiente sin valor adicional real más allá de la redundancia.
