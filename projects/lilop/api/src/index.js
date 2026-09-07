@@ -28,7 +28,7 @@ const { auth } = require('./middleware/auth');
 const { catalogo } = require('./controllers/productos');
 app.get('/api/productos/catalogo', auth, catalogo);
 app.use('/api/comisiones', require('./domains/comisiones/comisiones.routes'));
-app.use('/api/catalogo',   require('./routes/catalogo'));
+app.use('/api/catalogo',   require('./domains/catalogo/catalogo.routes').router);
 
 /* Endpoints públicos sin autenticación */
 app.get('/api/public/categorias', async (req, res) => {
@@ -47,8 +47,8 @@ const atributosDominio = require('./domains/atributos/atributos.routes');
 app.get('/api/public/atributos/:catalogo_id', atributosDominio.controller.listarPorProducto);
 
 /* Endpoint público sin autenticación */
-const { listarPublico } = require('./controllers/catalogo');
-app.get('/api/public/productos', listarPublico);
+const catalogoDominio = require('./domains/catalogo/catalogo.routes');
+app.get('/api/public/productos', catalogoDominio.controller.listarPublico);
 
 /* Endpoint público: crear pedido desde el checkout del sitio */
 const { crearPedidoPublico } = require('./controllers/pedidos_publicos');
