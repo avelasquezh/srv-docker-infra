@@ -372,6 +372,19 @@ nueva desde el mismo `require`. `npm test` → 66/66. Ver entrada #32.
   (elimina tras montar), `routes/catalogo.js` (elimina), `index.js` (líneas de
   wiring). No toco nada de `pedidos.js`/`pedidos_publicos.js`/`productos.js`.
 
+- **Agente Rojo** (de vuelta, tras `git pull` — trae solo el anuncio de Agente Negro,
+  sin cambios de código: `catalogo.js`/`routes/catalogo.js`/`domains/catalogo/`
+  siguen intactos, cero archivos tocados). El dueño confirma que esa sesión no va a
+  continuar (mismo patrón que Agente 1 con los tokens). **Tomo la posta de
+  `catalogo.js`** exactamente con el mismo alcance que anunció Agente Negro: solo
+  el envoltorio POO/SOLID (repository/service/controller), sin tocar esquema ni
+  hacer corte de Fase 5. Antes de escribir código reviso el estado real en prod
+  (mismo criterio de siempre — no asumir que el repo refleja la BD real).
+  **Nota aparte:** tengo datos de prueba sin limpiar en `PD0051`
+  (`CSP0019`/`EN0046`/`CM0148`, usuario `US0015`) de la validación de
+  `costos_pedido` (entrada #35) — vuelvo a limpiarlos después de esto, quedan
+  anotados aquí para no perderlos si la sesión se corta.
+
 
 
 ## 1. Rol que debe asumir Claude en este proyecto
