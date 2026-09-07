@@ -35,24 +35,27 @@ class PedidoRepository extends BaseRepository {
     return rows[0] || null;
   }
 
-  /** Productos del pedido con su precio del catálogo legacy y sus compras
-   * agregadas — misma query exacta del controller original, dependencia
-   * de `catalogo_precios`/`catalogo_productos` conocida y documentada
-   * (bloqueante de Fase 6), no se toca aquí. */
+  /** Productos del pedido con su precio de la variante base (solo Tamaño,
+   * sin extras) y sus compras agregadas. Desde 008: lee de `variantes`/
+   * `atributos_resueltos` (esquema nuevo), ya NO de `catalogo_precios`
+   * (legacy) — mismo criterio de match exacto que el trigger
+   * `fn_recalc_pedido_valor_venta` (ver esa migración para la
+   * validación completa de paridad de datos). */
   async productosConCompras(pedidoId) {
     const { rows } = await this.query(
       `SELECT pr.*,
-        cp.precio AS valor_venta,
+        v.precio AS valor_venta,
         json_agg(
           json_build_object('concepto', c.concepto, 'valor', c.valor_total)
           ORDER BY c.created_at
         ) FILTER (WHERE c.id IS NOT NULL) AS compras
        FROM productos pr
        LEFT JOIN catalogo_productos cat ON cat.nombre = pr.nombre
-       LEFT JOIN catalogo_precios cp ON cp.catalogo_id = cat.id AND cp.tamanio = pr.tamanio
+       LEFT JOIN variantes v ON v.producto_id = cat.id
+         AND v.atributos_resueltos = jsonb_build_object('Tamaño', pr.tamanio::text)
        LEFT JOIN compras c ON c.producto_id = pr.id
        WHERE pr.pedido_id = $1
-       GROUP BY pr.id, cp.precio
+       GROUP BY pr.id, v.precio
        ORDER BY pr.created_at`,
       [pedidoId]
     );

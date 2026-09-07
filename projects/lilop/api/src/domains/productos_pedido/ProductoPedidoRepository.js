@@ -37,15 +37,18 @@ class ProductoPedidoRepository extends BaseRepository {
     return rows.length > 0;
   }
 
-  /** Precio unitario del catálogo legacy para nombre+tamaño. Dependencia
-   * conocida de `catalogo_productos`/`catalogo_precios` (ver hallazgo de
-   * bloqueante de Fase 6 en la sección 0 del MD) — se preserva tal cual,
-   * no se toca en este refactor. */
+  /** Precio de la variante base (solo Tamaño, sin extras) para
+   * nombre+tamanio. Desde 008: lee de `variantes`/`atributos_resueltos`
+   * (esquema nuevo), ya NO de `catalogo_precios` (legacy) — mismo
+   * criterio de match exacto que `fn_recalc_pedido_valor_venta` y
+   * `PedidoRepository.productosConCompras()` (ver esa migración para
+   * la validación completa de paridad de datos). */
   async precioCatalogo(nombre, tamanio) {
     const { rows } = await this.query(
-      `SELECT cp.precio
+      `SELECT v.precio
        FROM catalogo_productos cat
-       JOIN catalogo_precios cp ON cp.catalogo_id = cat.id AND cp.tamanio = $2
+       JOIN variantes v ON v.producto_id = cat.id
+         AND v.atributos_resueltos = jsonb_build_object('Tamaño', $2::text)
        WHERE cat.nombre = $1
        LIMIT 1`,
       [nombre, tamanio || null]
