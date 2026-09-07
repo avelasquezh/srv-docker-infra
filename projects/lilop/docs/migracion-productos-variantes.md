@@ -1069,3 +1069,25 @@ sección 9 como regla de conducta.
   duplicado histórico, no confirmado, no bloqueante, queda para revisión
   del dueño si le interesa. Migraciones `005`/`006` dadas por **cerradas y
   confirmadas en producción**.
+
+- **Agente Rojo** (de vuelta, tras `git pull` — sin cambios nuevos remotos). El dueño
+  autoriza empezar el bloqueante real de Fase 6: desacoplar `fn_recalc_pedido_valor_venta()`
+  (y el join legacy duplicado en `PedidoRepository.obtener()`) de las tablas
+  `catalogo_productos`/`catalogo_precios`, para que lean del esquema nuevo
+  (`variables`/`variantes`/`atributos_resueltos`) en su lugar. **Es el cambio de mayor
+  riesgo hasta ahora** — toca el cálculo de `valor_venta`/`ganancias` de TODO pedido
+  real en producción. Plan antes de escribir una sola línea:
+  1. Investigar el esquema real de `variables`/`variantes`/`atributos_resueltos` en
+     prod con `\d` (no asumir que 002_variables_variantes.sql refleja el 100%,
+     mismo criterio de siempre).
+  2. Confirmar con datos reales que hay paridad 1:1 entre lo que hoy vive en
+     `catalogo_productos`/`catalogo_precios` y lo que existe en el esquema nuevo —
+     si falta algún producto/precio en el esquema nuevo, el corte rompería pedidos
+     reales.
+  3. Escribir el trigger nuevo de forma **aditiva** (no tocar el viejo todavía):
+     misma función, mismo trigger, pero apuntando al esquema nuevo, corriendo en
+     paralelo comparando resultados antes de hacer el corte real.
+  4. Solo después de validar en paralelo, hacer el corte (reemplazar el trigger
+     viejo) — nunca en el mismo commit que el punto 3.
+  Toco: nueva migración SQL (aditiva), `PedidoRepository.obtener()` (solo cuando el
+  punto 3/4 esté validado). No toco nada de `catalogo`/`costos_pedido` (ya cerrados).
