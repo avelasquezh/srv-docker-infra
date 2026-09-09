@@ -455,6 +455,33 @@ nueva desde el mismo `require`. `npm test` → 66/66. Ver entrada #32.
   tabla por tabla, no las 4 de una — mismo criterio de "un cambio a la vez" que todo
   el resto de esta migración.
 
+- **Agente 2 (orquestador) — inicio de Fase 6 y ANUNCIO IMPORTANTE para cualquier
+  agente que lea esto:** seguí el checklist de arriba al pie de la letra (ver
+  entrada #46 de la sección 8 para el detalle completo). Hallazgo relevante: el
+  paso 2 del checklist reveló que el plan original estaba mal para 3 de las 4
+  tablas (`atributos`/`atributo_opciones`/`catalogo_atributos` siguen siendo
+  feature viva, no deuda técnica) — solo `catalogo_precios` se dropeó
+  (`009_fase6_drop_catalogo_precios.sql`), con backup real tomado antes.
+  **Este MD llegó a 1186 líneas / ~115KB (~29.000 tokens estimados) — cada
+  sesión nueva paga ese costo completo solo para tener contexto, sin haber
+  escrito una sola línea de código todavía.** Se va a iniciar una limpieza de
+  este documento para reducir ese costo, probablemente en la próxima sesión o
+  más adelante en esta misma. **Plan de la limpieza (para que ningún agente se
+  sorprenda si el archivo cambia de tamaño/forma):** condensar el historial
+  narrativo de la sección 0 y las entradas ya cerradas de la sección 8 en un
+  resumen compacto por dominio (qué se hizo, qué se validó, qué quedó
+  pendiente si algo), **sin perder ningún hallazgo activo, lección aprendida
+  recurrente (los 3-4 patrones de "el repo no refleja la BD real" que ya
+  costaron incidentes reales), bloqueante vigente, ni el checklist de esta
+  misma sección.** Lo que se recorta es la narración paso a paso de trabajo ya
+  cerrado y confirmado (por ejemplo, no hace falta conservar 3 confirmaciones
+  independientes redundantes de un mismo deploy una vez que las 3 dicen lo
+  mismo). **Si estás a mitad de una tarea cuando esto pase:** termina y
+  commitea tu trabajo antes, o si ves que el MD cambió de forma a mitad de tu
+  sesión, hacé `git log` sobre este archivo para confirmar que tu contexto
+  sigue vigente antes de seguir escribiendo sobre información que pudo haberse
+  resumido (no borrado, resumido).
+
 
 
 ## 1. Rol que debe asumir Claude en este proyecto
