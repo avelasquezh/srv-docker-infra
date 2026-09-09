@@ -848,243 +848,117 @@ Router carga sin errores de require; instanciación completa con pool falso;
 `ProductoService._formatear()` probado contra una fila de ejemplo real (CAT0032,
 Sencillo+Plumón) — salida byte a byte igual al contrato de la sección 7bis.
 
-### Rollout a los demás dominios
+### Lecciones de diseño del rollout (todos los dominios ya migrados, ver sección 8)
 
-**`domicilio` — ✅ migrado.** El más pequeño (19 líneas) y el más aislado: no toca
-Postgres en absoluto, solo reenvía a un webhook externo de n8n. Decisiones de diseño:
-
-- `DomicilioRepository` **no extiende `BaseRepository`** — ese contrato envuelve
-  `pool.query` (SQL); forzar la herencia aquí habría violado Sustitución de Liskov
-  (un cliente HTTP no es intercambiable por un pool de Postgres). Se aplicó
-  Inversión de Dependencias a mano: `fetch` y la URL del webhook se inyectan por
-  constructor.
-- **Primer paso del des-hardcodeo (sección 3/8):** la URL `https://n8n.autokore.space/
-  webhook/envwdomlilop` (con "lilop" hardcodeado en el path, apuntando además a un
-  dominio de *otro* proyecto del mismo servidor) ahora sale de `DOMICILIO_WEBHOOK_URL`,
-  con ese mismo valor como default — comportamiento idéntico si la env var no se
-  configura. **Pendiente:** decidir si ese webhook de n8n de `autokore.space` es
-  compartido a propósito entre proyectos o es un remanente que debería vivir en
-  `n8n.lilop.store` — no se tocó, solo se sacó de código a configuración.
-- **Cambio de comportamiento consciente y documentado:** el mensaje de error pasó de
-  `"Error al enviar al webhook"` (texto custom del controller viejo) a `"Error interno
-  del servidor"` (genérico de `BaseController.handle`), mismo código 500. Se prefirió
-  consistencia entre dominios sobre preservar un texto arbitrario que ningún consumidor
-  (es un endpoint interno del admin, no público) depende de leer.
-- Validado con `fetch` falso (happy path: `{ok:true}` y payload reenviado idéntico;
-  caso de error: 500 con el nuevo mensaje genérico), sin tocar red ni Postgres real.
-- Ruta sin cambios: sigue anidada en `routes/pedidos.js` (`POST /api/pedidos/:id/
-  domicilio-webhook`, con `auth`), ahora vía `router.use(require('../domains/domicilio/
-  domicilio.routes'))` en vez de importar el controller funcional directo.
-
-Mismo patrón para los ~12 dominios restantes: crear `domains/<nombre>/{Repository,
-Service,Controller,routes}.js` (extendiendo las bases del `core/` **solo cuando el
-contrato realmente aplica** — ver el caso `domicilio` como ejemplo de cuándo NO
-heredar), validar con mocks, montar en `index.js`/router padre con una línea, y
-**recién ahí** borrar el controller/route viejo.
-**`usuarios` — ✅ migrado.** CRUD admin puro sobre Postgres, sin tablas legacy.
-`UsuarioRepository` de este dominio es **distinto** del `UsuarioRepository` del
-dominio `auth` (mismo table `usuarios`, bounded context diferente: CRUD admin vs.
-login/vendedores) — evita que un solo repositorio termine haciendo de "god class"
-para dos responsabilidades no relacionadas. `bcrypt` inyectado por constructor en
-`UsuarioService`, mismo criterio que `AuthService` (Agente 2). Duplicado de email
-(`23505`) traducido a `EmailDuplicadoError` de dominio. Validado con pool/bcrypt
-falsos: listar, 404 en obtener/actualizar/eliminar, `toTitleCase` en creación,
-validación de nombre/password requeridos, duplicado — todos idénticos al
-controller viejo.
-
-**`demo` — ✅ migrado.** Dominio de la demo guiada (Azure DevOps + webhook n8n),
-sin `auth` (igual que antes, rutas públicas). `fetch` y `webhookUrl` inyectados
-por constructor en `DemoService` (mismo criterio que `DomicilioRepository`); la
-URL ya venía de env var (`N8N_DEMO_WEBHOOK`, no hardcodeada) — no requirió
-des-hardcodeo adicional. El disparo al webhook sigue siendo fire-and-forget a
-propósito (no bloquea la respuesta), igual que el controller viejo. Validado con
-pool/`fetch` falsos: validación de campos requeridos, creación con steps
-iniciales, disparo correcto del payload al webhook, 404 en estado/paso
-inexistente, actualización de paso — idéntico al controller viejo.
-
-**`atributos` — deliberadamente NO migrado.** Opera sobre las tablas legacy
-(`atributos`, `atributo_opciones`, `catalogo_atributos`) que la Fase 6 de este
-mismo MD marca para eliminar una vez se complete el corte al esquema nuevo de
-`variables`/`variable_valores`/`producto_variables`. Migrar este dominio a POO
-ahora sería invertir esfuerzo en código con fecha de caducidad ya decidida —
-queda fuera del rollout hasta que se decida su destino real (¿se elimina sin
-más, o alguna consulta necesita puentear al esquema nuevo primero?).
-
-**`imagenes` — ✅ migrado.** Sin Postgres (filesystem + `sharp`), mismo criterio que
-`domicilio`: `ImagenRepository` no extiende `BaseRepository` (Liskov), `sharp`/`fs`
-inyectados por constructor. Validaciones de forma (archivo faltante, extensión,
-nombre de archivo inseguro) viven en el controller como decisiones HTTP directas
-—mismo patrón que `notFound()`—, no en el `try/catch` genérico de `handle()`
-(pensado para errores inesperados de I/O, no para validación de entrada).
-Des-hardcodeo: directorio de uploads sale a `IMAGENES_UPLOADS_DIR`, con el valor
-actual (`/app/uploads/disenos`) como default. Validado con `sharp`/`fs` falsos:
-los 5 casos (sin archivo, extensión inválida, happy path, filename inseguro,
-eliminar ok) devuelven exactamente el mismo status/mensaje que el controller viejo
-— sin ningún cambio de comportamiento esta vez, ni siquiera en errores.
-
-**`maestros` — ✅ migrado.** Primer dominio con Postgres real desde `productos`
-(4 catálogos: `origenes_venta`, `conceptos_costo`, `conceptos_compra`,
-`categorias`). Decisión de diseño: `CatalogoSimpleRepository` genérico
-parametrizado por tabla para los 3 catálogos idénticos en forma (`id`, `nombre`)
-— DRY sin forzar `categorias` (que tiene `slug`/`activo`/`actualizar`) dentro del
-mismo molde (habría sido mal uso de la generalización). Duplicados de Postgres
-(`23505`) se traducen a un `RegistroDuplicadoError` de dominio en el service —
-el controller nunca conoce el código de Postgres, solo hace `instanceof`.
-**Inconsistencia preexistente preservada a propósito:** `crearConceptoCompra`
-valida `!nombre` sin `.trim()` (acepta nombre solo-espacios), a diferencia de
-`crearOrigen`/`crearConcepto` que sí exigen `.trim()`. Es un bug real del código
-viejo, pero corregirlo aquí habría mezclado un fix de negocio con el refactor de
-arquitectura — queda anotado para decidir aparte. Validado con pool falso: 13
-endpoints, incluyendo duplicado de Postgres en dos rutas distintas, idénticos al
-controller viejo.
+- **No forzar herencia de `BaseRepository` cuando el contrato no aplica** (Liskov):
+  `domicilio` (solo reenvía a un webhook) e `imagenes` (filesystem + `sharp`) no
+  extienden `BaseRepository` — ese contrato envuelve `pool.query`, y un cliente
+  HTTP o el filesystem no son intercambiables por un pool de Postgres. Inversión
+  de dependencias a mano: `fetch`/`sharp`/`fs` se inyectan por constructor.
+- **Bounded contexts distintos sobre la misma tabla no comparten repository**:
+  `usuarios` (CRUD admin) y `auth` (login/vendedores) tienen cada uno su propio
+  `UsuarioRepository` pese a apuntar a la misma tabla — evita que un repository
+  termine siendo "god class" de dos responsabilidades no relacionadas. Mismo
+  criterio aplicado después a `productos` (bot) vs `productos_pedido` (líneas de
+  pedido).
+- **Errores de Postgres se traducen a errores de dominio en el service**, nunca
+  se filtra el código de Postgres al controller — `RegistroDuplicadoError`
+  (`maestros`), `EmailDuplicadoError` (`usuarios`), `MedioPagoInvalidoError`
+  (`pedidos`), todos con el mismo patrón `instanceof` en el controller.
+- **Repository genérico parametrizado por tabla cuando varias tablas son
+  idénticas en forma** (`maestros`: `origenes_venta`/`conceptos_costo`/
+  `conceptos_compra` comparten `id`/`nombre`) — pero sin forzar una tabla con
+  forma distinta (`categorias`, con `slug`/`activo`) dentro del mismo molde.
+- **Bugs preexistentes del código viejo se documentan, no se corrigen de paso**
+  en un refactor de arquitectura — mezclar los dos riesgos dificulta aislar qué
+  rompió qué. Ejemplos preservados a propósito: `maestros.crearConceptoCompra`
+  acepta nombre solo-espacios (a diferencia de los otros 2 catálogos hermanos);
+  `toTitleCase` de `clientes` no trata bien los acentos.
+- **Des-hardcodeo de URLs/paths a env vars** se hizo en el mismo commit que la
+  migración a POO cuando el controller viejo ya las tenía hardcodeadas
+  (`DOMICILIO_WEBHOOK_URL`, `IMAGENES_UPLOADS_DIR`) — mismo valor como default,
+  cero cambio de comportamiento si la env var no se configura.
 
 ## 7ter. Pendientes explícitos para la siguiente sesión
 
-1. **Migrar el resto de dominios a POO/SOLID** (sección 7quater) — `domicilio`,
-   `imagenes`, `maestros`, `auth`, `comisiones`, `entregas`, `disenos`, `usuarios`,
-   `demo`, `clientes`, `atributos`, `compras`, `costos_pedido`, `catalogo`,
-   `pedidos` y `productos_pedido` migrados (ver sección 8 para estado exacto de
-   confirmación en prod de cada uno). Todos los demás quedaron confirmados en
-   producción con datos reales — **excepto `pedidos`/`productos_pedido`
-   (entrada #40), que solo están confirmados en mocks, falta el deploy/curl
-   real**. El dominio `productos` **solo cubre la porción bot/lectura**
-   (`/api/public/bot/*`) — el CRUD admin de las líneas de un pedido ahora vive
-   en `productos_pedido` (entrada #40), bounded context distinto del
-   `productos` bot. **Ya no queda ningún dominio activo sin migrar** salvo
-   `pedidos_publicos` (nunca vetado formalmente para otra sesión, pero
-   compartía tablas con la investigación de `pedidos` — revisar si sigue
-   teniendo sentido migrarlo ahora que `pedidos`/`productos_pedido` ya están
-   hechos) y el corte real de esquema de `catalogo`/`pedidos` (ligado a la
-   Fase 5, ver bloqueante de la sección 0). Nota sobre `atributos`: este MD lo
-   había marcado como "deliberadamente NO migrado" (tablas legacy con fecha
-   de caducidad, sección 7quater) pero Agente 3 lo migró de todas formas
-   (entrada #32) sin que quede registrada la razón del cambio de decisión —
-   ya no es solo una advertencia hipotética: `catalogo` **también se migró
-   después** (entrada #37) con el mismo tipo de dependencia legacy: el dueño
-   debería decidir explícitamente si esos dos envoltorios POO se mantienen o
-   se revierten antes de la Fase 5, no dar por hecho que "ya migrado a
-   POO/SOLID" implica que el corte de esquema fue aprobado.
-   **Cobertura de tests:** todos los dominios migrados tienen test
-   automatizado excepto `auth` (ver 7ter #4).
-2. **Fase 4-5 de la metodología** — exponer el esquema nuevo en paralelo al viejo desde
-   el API (ya arrancado con el dominio `productos`), validar, y solo después hacer
-   el corte real en los controllers existentes (`catalogo.js`, etc. — `productos.js`
-   ya no existe, fue reemplazado por `productos_pedido` en la entrada #40, pero esa
-   migración preservó la dependencia de `catalogo_precios` tal cual, no la resolvió).
-   Ningún controller legacy fue tocado todavía en cuanto al corte de esquema real.
-3. **Conectar los endpoints al nodo de IA en n8n** — endpoints, contrato y validación
+1. ~~Migrar el resto de dominios a POO/SOLID~~ — ✅ **Completado: backend 100%
+   migrado (16/16 dominios, entrada #41).**
+2. ~~Fase 4-5 (validación en paralelo + corte)~~ — ✅ **Completado (entradas #42/#43).**
+   El admin de precios y el cálculo de `valor_venta`/`ganancias` de pedidos ya leen
+   del esquema nuevo, no de `catalogo_precios`.
+3. **Fase 6 (limpieza) — en curso.** `catalogo_precios` dropeada (`009`, entrada
+   #46, código listo, falta deploy). `atributos`/`atributo_opciones`/
+   `catalogo_atributos` quedan **fuera**, tienen escritores activos hoy (feature
+   viva de atributos extra con sobreprecio) — dropearlas requiere antes una
+   decisión de producto (¿se mantienen para siempre o se migran a `variables`?),
+   no es limpieza de deuda técnica.
+4. **Conectar los endpoints al nodo de IA en n8n** — endpoints, contrato y validación
    en producción ya cerrados (secciones 7bis y 5-Fase 4); falta configurar el nodo
    HTTP en el workflow de n8n y pegar las 7 reglas en el prompt del agente. Explícito:
-   el dueño pidió dejar esto para el final, después de cerrar la migración a POO/SOLID.
-4. **Test automatizado para el dominio `auth`** — es el único dominio migrado que no
+   el dueño pidió dejar esto para el final, después de cerrar la migración a POO/SOLID
+   (ya cerrada — este pendiente pasa a ser el siguiente candidato natural).
+5. **Test automatizado para el dominio `auth`** — es el único dominio migrado que no
    tiene test en `tests/domains/` (los demás sí). No es urgente (el dominio ya está
    confirmado en prod con happy path real, ver entradas #13-16), pero cierra el hueco
    de cobertura.
-4. **Limpieza de `categorias`** — separar las 4 taxonomías mezcladas (tipo, material,
+6. **Limpieza de `categorias`** — separar las 4 taxonomías mezcladas (tipo, material,
    composición, target/diseño). No bloqueante, marcado explícitamente como fase aparte.
-5. **Etapa 6 (frontend)** — refactor de admin JS + site JS a ES Modules, solo después
-   de que el esquema nuevo esté en corte y estable.
-6. ~~Eliminar los `.bak*` versionados en git~~ — ✅ Completado.
-7. **Limpieza final** — drop de `catalogo_precios`/`atributos`/`atributo_opciones`/
-   `catalogo_atributos`, solo tras confirmar que ya no se necesitan para rollback.
+7. **Etapa 6 (frontend)** — refactor de admin JS + site JS a ES Modules. Ya no está
+   bloqueada por Fase 5 (cerrada) — sigue pendiente la decisión de `atributos`/
+   `catalogo` (punto 3) antes de considerar esto completamente destrabado, pero
+   podría evaluarse en paralelo si el dueño lo prioriza.
+8. **Limpieza de este mismo MD** — anunciada y en curso (ver sección 0), para
+   reducir el costo de tokens de cada sesión nueva.
 
 ## 8. Registro de verificación por agente (para el orquestador)
 
-> **Aclaración importante (Agente 1, tras `git pull` de sincronización):**
-> `domains/productos/` cubre **solo** los endpoints de solo lectura para el bot
-> (`/api/public/bot/productos[/:id]`). El CRUD real de productos usado por el admin
-> y el site (`listar/crear/actualizar/eliminar/catalogo`, montado en
-> `/api/productos` vía `routes/productos.js`) **sigue en `controllers/productos.js`,
-> sin migrar**. No es código muerto — `index.js` y `routes/productos.js` lo siguen
-> importando activamente. Cualquier agente que lea "productos ✅ migrado" en este
-> documento debe entender que es solo la porción bot/lectura, no el dominio completo
-> de administración de productos — ese CRUD sigue pendiente como tarea propia.
->
-> Esta sección existe para que un agente orquestador (u otra sesión de Claude) sepa
-> el estado **real y verificado** de cada pieza sin releer el chat ni el resto del MD.
-> Formato fijo por entrada — no narrativo. Se agrega una entrada por commit relevante,
-> nunca se edita una entrada ya escrita (si algo cambia, se agrega una entrada nueva
-> que lo referencia). "Verificado" = probado en producción o con mocks, no solo "código
-> escrito".
+> **Nota:** esta sección se compactó (ver anuncio en la sección 0) para reducir el
+> costo de tokens de leer este archivo. El detalle narrativo completo de las
+> entradas cerradas y confirmadas sigue disponible en el historial de git de este
+> archivo (`git log -p -- projects/lilop/docs/migracion-productos-variantes.md`)
+> si algún día hace falta el razonamiento exacto de alguna decisión ya tomada.
+> Aquí solo queda: qué se hizo, quién, y el estado final. Las entradas que
+> siguen con algo pendiente (⏳) conservan el detalle necesario para retomarlas.
 
-| # | Agente | Commit | Qué | Código | Deploy prod | Prueba | Resultado |
-|---|--------|--------|-----|--------|-------------|--------|-----------|
-| 1 | Agente 1 | `ffec9c6` | Endpoints bot `/api/public/bot/productos[/:id]` (reconstrucción de `1d0adcd`, perdido) | ✅ | ✅ | curl vía Cloudflare | ✅ schema correcto |
-| 2 | Agente 1 | `85648ab` | Limpieza 45 `.bak*` en admin/api/site | ✅ | N/A (no requiere deploy) | git status limpio | ✅ |
-| 3 | Agente 1 | `5fcb031` | Fix: quitar `disponible`/`stock` del contrato del bot (negocio no trackea stock real) | ✅ | ✅ | curl directo al contenedor + vía Cloudflare | ✅ campo eliminado, resto intacto |
-| 4 | Agente 1 | `4e7ed6f` | Docs: cerrar Fase 4 (validación) para endpoints del bot | ✅ (solo docs) | N/A | N/A | ✅ |
-| 5 | (otro agente/sesión) | `5df9fb0` | Migración dominio `productos` a POO/SOLID (caso de referencia) | ✅ | ✅ **confirmado por Agente 1** | mocks (pool falso, otra sesión) + curl real vía Cloudflare (`/api/public/bot/productos/CAT0032`, Agente 1) | ✅ schema correcto en vivo, dominio cerrado |
-| 6 | Agente 1 | `95e31ff` | Migración dominio `domicilio` a POO/SOLID + des-hardcodeo webhook a `DOMICILIO_WEBHOOK_URL` | ✅ | ✅ | `fetch` falso (happy path + error) + `curl -X POST` sin token en prod → `401` (confirma ruta montada y `auth` activo) | ✅ Cambio consciente: mensaje de error genérico en vez de custom (mismo 500) |
-| 7 | Agente 1 | `40c7d04` | Migración dominio `imagenes` a POO/SOLID + des-hardcodeo uploads dir a `IMAGENES_UPLOADS_DIR` | ✅ | ✅ | `sharp`/`fs` falsos (5/5 casos) + `curl -X POST /api/imagenes/upload` sin token en prod → `401` (confirma ruta montada y `auth` activo) | ✅ dominio cerrado |
-| 8 | Agente 1 | `5b8a7cb` | Docs: agregar esta sección de registro por agente | ✅ (solo docs) | N/A | N/A | ✅ |
-| 9 | Agente 1 | `99f29c7` | Docs: regla de pull/relectura del MD antes de cada commit | ✅ (solo docs) | N/A | N/A | ✅ |
-| 10 | Agente 1 | `7979ba4` | Docs: sincronizar tabla — `productos` e `imagenes` confirmados en prod | ✅ (solo docs) | N/A | N/A | ✅ |
-| 11 | Agente 1 | *(pendiente de commit)* | Migración dominio `maestros` a POO/SOLID (4 catálogos: orígenes, conceptos-costo, conceptos-compra, categorías) | ✅ | ⏳ pendiente de deploy/curl real | pool falso: 13 endpoints incluyendo 2 casos de duplicado (`23505`→`RegistroDuplicadoError`) | ✅ en mocks; falta confirmación en prod |
-| 12 | Agente 2 | `8717e61` | Fix bloqueante: `index.js` importaba `./controllers/maestros`, eliminado en la migración de `maestros` (entrada #11) pero nunca actualizado en `index.js` — habría tumbado el arranque completo del API en el próximo deploy (`MODULE_NOT_FOUND` síncrono). Import además nunca se usaba. | ✅ | ⏳ pendiente de deploy real (bug no llegó a prod porque #11 tampoco se ha desplegado aún) | `node -c` + arranque real del servidor + `curl /api/public/categorias` (responde, no crashea) | ✅ deja de ser bloqueante para el próximo `git pull` + restart |
-| 13 | Agente 2 | `a53f06c` | Migración dominio `auth` a POO/SOLID (login + vendedores) — Agente 1 pausado por tokens | ✅ | ⏳ pendiente de deploy/curl real | pool/bcrypt/jwt falsos: 8 casos (400 sin credenciales, 401 email inexistente, 401 inactivo, 401 password incorrecto, 200 happy path con shape exacto, vendedores con/sin filtro de rol, validación de deps en constructor) + arranque real del servidor completo + curl real a `/api/auth/login` (400) y `/api/auth/vendedores` sin token (401) | ✅ en mocks y curl local sin BD; falta login real con credenciales existentes vía Cloudflare en prod |
-| 14 | Agente 2 | *(deploy, sin commit de código)* | Deploy real de #12 y #13 confirmado por el dueño: `git pull` + `docker compose restart lilop-api` en `arley2911@serverpc` | N/A (ya cubierto en #12/#13) | ✅ | `git log` en servidor real → HEAD `7e59555` (incluye ambos commits); `docker exec lilop-api ls domains/auth/` → los 4 archivos presentes en el volumen; contenedor arrancó sin `MODULE_NOT_FOUND` | ✅ #12 cerrado por completo — ya no es bloqueante en prod |
-| 15 | Agente 2 | *(mismo deploy que #14)* | Verificación del contrato de error de `auth` en prod, vía `wget` interno al contenedor (sin pasar por Cloudflare) | N/A | ✅ parcial | `POST /api/auth/login` con body vacío → `400`; `GET /api/auth/vendedores` sin token → `401` — ambos coinciden exacto con el contrato esperado | ✅ contrato de error confirmado en vivo; **sigue pendiente** el happy path real de login (credenciales válidas → JWT + shape de `usuario`) para cerrar #13 del todo |
-| 16 | Agente 2 | *(sin commit de código)* | Happy path real de login: usuario de prueba temporal creado vía `psql` (password con hash bcrypt generado por Agente 2, nunca credenciales reales del negocio), login exitoso, usuario de prueba eliminado tras la prueba | N/A | ✅ | `POST /api/auth/login` con credenciales válidas → `200` con JWT decodificable (payload `id`/`nombre`/`email`/`rol` correcto) + `usuario` en la respuesta con el shape exacto esperado; usuario de prueba confirmado borrado (`DELETE 1`) | ✅ dominio `auth` cerrado por completo — happy path y contrato de error confirmados en prod real, sin usar ni exponer credenciales de usuarios reales |
-| 17 | Agente 2 | *(sin commit — solo análisis, nada tocado)* | Análisis solicitado por el dueño: estado real de los JS del admin/site y si el refactor a un patrón (MVC/módulos) ya estaba planeado. Confirmado: **ya estaba planeado como Etapa 6** (secciones 3, 4.1, 5 y pendiente #5 de este mismo MD), bloqueado explícitamente hasta que Fase 5 (corte de esquema BD) esté cerrada — hoy sigue 🔲 Pendiente. No se inició ningún refactor de frontend. Métricas verificadas: `admin/html/assets/js/pages/cliente.js` = 1500 líneas / 28 funciones top-level en scope global (coincide con el diagnóstico de la sección 4.1); resto de páginas del admin entre 282–783 líneas; `site/html/js/script.js` = 485 líneas. Ningún HTML usa todavía `<script type="module">`; no existe `package.json` ni build tool en `admin/` ni `site/` — confirma que el plan de Etapa 6 (ES Modules nativos, sin build tooling nuevo) sigue siendo el camino correcto y nada lo contradice. | N/A (solo lectura) | N/A | `wc -l`, conteo de `function `/`async function` top-level, `grep type="module"`, búsqueda de `package.json`/`webpack`/`vite` | ✅ confirmado: tarea ya asignada (Etapa 6), no iniciada, sigue bloqueada por Fase 5 |
-| 18 | **Agente 3** | `cbc947d` | Suite de tests real (`api/tests/`, `node:test`) para core + productos/domicilio/imagenes — tarea asignada a esta sesión por el dueño explícitamente sin superposición de archivos con Agente 1 (dominios backend) ni Agente 2 (auth + frontend). Nota: esta sesión se auto-identificó primero como "Agente 2" sin saber que esa identidad ya estaba en uso activo — corregido a Agente 3 al hacer `git pull`/rebase y encontrar el choque. | ✅ | N/A (no es código de producción, no requiere deploy) | `npm test` corrido localmente | ✅ 35/35 tests, 12 suites, 0 fallos |
-| 19 | Agente 3 | *(pendiente de commit)* | Migración dominio `comisiones` a POO/SOLID | ✅ | ⏳ pendiente de deploy/curl real | pool falso: filtros de `listar()`, 400 sin estado, 404 id inexistente, happy path | ✅ en mocks (`npm test` 41/41); falta confirmación en prod |
-| 20 | Agente 3 | *(pendiente de commit)* | Migración dominio `entregas` a POO/SOLID (anidado bajo `/api/pedidos/:pedido_id/entregas`) | ✅ | ⏳ pendiente de deploy/curl real | pool falso: 404 si el pedido padre no existe (no llega a insertar), CRUD completo | ✅ en mocks (`npm test` 46/46); falta confirmación en prod |
-| 21 | Agente 3 | *(pendiente de commit)* | Migración dominio `disenos` a POO/SOLID (incluye generación de nombre automático si no se envía) | ✅ | ⏳ pendiente de deploy/curl real | pool falso: generación de nombre con y sin valor dado, 400 si `catalogo_ids` no es array, 404s | ✅ en mocks (`npm test` 52/52); falta confirmación en prod |
-| 22 | Agente 1 | *(pull de sincronización, sin commit propio)* | Validación del estado combinado tras traer los commits de Agente 2 (`auth`) y Agente 3 (`comisiones`/`entregas`/`disenos`/tests) en un solo `git pull` | N/A | N/A | `grep` amplio de referencias rotas a controllers/routes eliminados (limpio) + `npm test` (52/52) + arranque real del servidor con env vars dummy (sin `MODULE_NOT_FOUND` ni crash) | ✅ el estado combinado de los 3 agentes es consistente y arranca; hallazgo: `domains/productos/` es solo la porción bot/lectura, el CRUD admin de productos sigue sin migrar (ver nota al inicio de esta sección) |
-| 23 | Agente 1 | *(deploy, sin commit de código)* | Deploy real de `f810688` confirmado por el dueño en `arley2911@serverpc`: `git pull` + `docker compose restart api`. **Cierra las entradas #11 (`maestros`), #19 (`comisiones`), #20 (`entregas`) y #21 (`disenos`)** — pasan de ⏳ a confirmadas en prod. | N/A (ya cubierto en #11/#19/#20/#21) | ✅ | Logs de arranque limpios + 5 `curl` reales sin token: `GET /api/maestros/origenes` → `401`; `GET /api/public/categorias` → `12` (sigue intacto); `GET /api/comisiones` → `401`; `GET /api/pedidos/PD0001/entregas` → `401`; `GET /api/disenos` → `401`. Ningún `404` — confirma las 4 rutas montadas y protegidas por `auth` | ✅ `maestros`, `comisiones`, `entregas` y `disenos` cerrados: código + deploy + prueba real, los 4 con status esperado |
-| 24 | Agente 1 | *(pendiente de commit)* | Migración dominio `usuarios` a POO/SOLID (CRUD admin) | ✅ | ⏳ pendiente de deploy/curl real | pool/bcrypt falsos: listar, 404 en obtener/actualizar/eliminar, `toTitleCase`, validación nombre/password requeridos, duplicado de email | ✅ en mocks; falta confirmación en prod |
-| 25 | Agente 1 | *(pendiente de commit)* | Migración dominio `demo` a POO/SOLID (demo guiada Azure DevOps + webhook n8n) | ✅ | ⏳ pendiente de deploy/curl real | pool/`fetch` falsos: validación de campos, creación con steps iniciales, payload correcto al webhook (fire-and-forget preservado), 404 en estado/paso inexistente, actualización de paso | ✅ en mocks; falta confirmación en prod |
-| 26 | Agente 1 | `abceefa` | 🔴 **INCIDENTE — API caído en prod (502) por el deploy de #25.** `DemoService` validaba `webhookUrl` en el constructor y lanzaba si faltaba (copiado del patrón de `AuthService`/`JWT_SECRET`). El servidor real no tiene `N8N_DEMO_WEBHOOK` configurada — el controller viejo nunca la validaba al arrancar, solo fallaba en silencio dentro de un `.catch()` de un `fetch` no esperado. El `throw` en el constructor tumbó el proceso completo de Node al cargar `index.js` (no solo `/api/demo`) — **downtime real de todo el API**, reportado por el dueño con 502 en cualquier ruta. Fix: se quita la validación temprana; `webhookUrl` puede ser `undefined`, y `fetch(undefined,...)` devuelve una promesa rechazada (confirmado con prueba real de Node), no un throw síncrono — el `.catch()` ya existente la absorbe sin crashear nada, igual que el comportamiento original. | ✅ (fix) | ✅ **incidente cerrado** | Prueba real de `fetch(undefined,...)` en Node (confirma promesa rechazada) + `run()` con `webhookUrl` ausente responde `200` sin crash + arranque local sin `N8N_DEMO_WEBHOOK` + **deploy real confirmado por el dueño**: `docker ps` → `Up About a minute (healthy)` (sin restart-loop), `curl` reales → `/api/public/productos` 200, `/api/public/categorias` 200, `/api/demo/run` 400 (esperado, sin body), `/api/usuarios` 401 — ningún `502` | ✅ **incidente resuelto por completo**: causa raíz identificada, fix desplegado, servicio restaurado y verificado en vivo |
-| 27 | Agente 1 | *(mismo deploy que #26, sin commit adicional)* | Confirmación en prod de los dominios `usuarios` (entrada #24) y `demo` (entrada #25, contrato de error) — mismo deploy que cerró el incidente #26 | N/A (ya cubierto en #24/#25) | ✅ | `curl` reales sin token/body: `GET /api/usuarios` → `401` (ruta montada, auth activo); `POST /api/demo/run` sin body → `400` (validación de campos requeridos, dominio público sin auth funcionando) | ✅ ambos dominios cerrados |
-| 28 | Agente 2 | `b7cdfbd` | Fix de bug real en prod: `costos_pedido.js` (`agregarComision`/`listaVendedoresComision`) usaba una columna `nombre_vendedor` que nunca existió en `comisiones` — feature activa en el frontend (`cliente.js`/`pedidos.js`), no código muerto. Decisión de negocio confirmada por el dueño: la comisión pasa a ser 100% manual, se obsoleta el % automático (`comision_pct` + trigger `fn_recalc_pedido_comision`). Migración `003_comision_manual.sql`: agrega `nombre_vendedor`, afloja `vendedor_id` (ya no `NOT NULL`), quita `UNIQUE(pedido_id)` (ahora puede haber varias comisiones manuales por pedido), `DROP TRIGGER trg_pedidos_recalc_comision` (función conservada, documentada como deprecada). `agregarComision`/`eliminarComision` ahora recalculan `pedidos.comision` (rollup `SUM`), mismo patrón que `agregarDomicilio`/`eliminarDomicilio` — necesario porque `ganancias` es columna `GENERATED` que depende de `comision`. | ✅ | ⏳ pendiente de deploy real (requiere correr la migración SQL con Postgres real, no disponible en este sandbox) | 4 casos con pool falso (proxyquire manual vía `require.cache`): 400 sin `valor_comision` sin tocar BD, INSERT + rollup correcto, `nombre_vendedor` opcional (null), `eliminarComision` usa `pedido_id` de la ruta anidada (`mergeParams`) para el rollup. Validado solo sintácticamente el SQL (sin Postgres real en este entorno) | ⏳ en mocks; **falta correr la migración en prod + probar `agregarComision`/`eliminarComision` reales antes de cerrar esta entrada** — ver nota de riesgo abajo |
+`domains/productos/` cubre **solo** los endpoints de solo lectura del bot
+(`/api/public/bot/productos[/:id]`) — bounded context distinto de
+`domains/productos_pedido/` (CRUD de líneas de un pedido, entrada #40).
 
-**Nota de riesgo para el deploy de la entrada #28:** `003_comision_manual.sql` hace `DROP TRIGGER` y `DROP CONSTRAINT` — no son reversibles con un simple rollback si ya se insertaron filas nuevas sin `vendedor_id` después de aplicarla. Recomendado backup de la tabla `comisiones` (`pg_dump -t comisiones`) antes de correr la migración en prod.
+| # | Agente | Dominio / tarea | Estado final |
+|---|---|---|---|
+| 1 | Agente 1 | Endpoints bot `/api/public/bot/productos[/:id]` | ✅ confirmado en prod |
+| 2 | Agente 1 | Limpieza de 45 archivos `.bak*` versionados | ✅ |
+| 3 | Agente 1 | Fix: quitar `disponible`/`stock` del contrato del bot | ✅ confirmado en prod |
+| 4 | Agente 1 | Docs: cerrar Fase 4 (validación) para endpoints del bot | ✅ |
+| 5 | — | Migración `productos` a POO/SOLID (caso de referencia del patrón) | ✅ confirmado en prod |
+| 6 | Agente 1 | Migración `domicilio` a POO/SOLID + webhook a env var | ✅ confirmado en prod |
+| 7 | Agente 1 | Migración `imagenes` a POO/SOLID + uploads dir a env var | ✅ confirmado en prod |
+| 8-10 | Agente 1 | Docs (registro por agente, regla de pull, sincronización) | ✅ |
+| 11 | Agente 1 | Migración `maestros` a POO/SOLID (4 catálogos) | ✅ confirmado en prod (ver #23) |
+| 12 | Agente 2 | 🔴 Fix bloqueante: `index.js` con import roto tras migrar `maestros` (habría tumbado el arranque) | ✅ confirmado en prod |
+| 13 | Agente 2 | Migración `auth` a POO/SOLID (login + vendedores) | ✅ confirmado en prod (ver #14-16) |
+| 14-16 | Agente 2 | Deploy + validación real de `auth` (contrato de error + happy path de login con usuario de prueba) | ✅ |
+| 17 | Agente 2 | Análisis: estado de JS admin/site, confirma Etapa 6 ya planeada y bloqueada por Fase 5/6 | ✅ análisis, sin código |
+| 18 | Agente 3 | Suite de tests real (`api/tests/`) para core + productos/domicilio/imagenes | ✅ |
+| 19-21 | Agente 3 | Migración `comisiones`, `entregas`, `disenos` a POO/SOLID | ✅ confirmados en prod (ver #23) |
+| 22-23 | Agente 1 | Validación combinada + deploy real de `auth`/`comisiones`/`entregas`/`disenos`/`maestros` | ✅ |
+| 24 | Agente 1 | Migración `usuarios` a POO/SOLID | ✅ confirmado en prod (ver #27) |
+| 25-26 | Agente 1 | Migración `demo` a POO/SOLID → 🔴 **incidente: API caído (502)** por `DemoService` validando `webhookUrl` en el constructor sin necesitarlo — corregido en el mismo deploy | ✅ incidente resuelto |
+| 27 | Agente 1 | Confirmación en prod de `usuarios` + `demo` (mismo deploy que cerró #26) | ✅ |
+| 28 | Agente 2 | Fix de bug real: `costos_pedido.js` usaba columna `nombre_vendedor` inexistente en `comisiones` (feature activa en el front) — comisión pasa a ser 100% manual | ✅ confirmado en prod |
+| 29-30 | Agente 2 | 🔴 Deuda técnica encontrada al desplegar #28: trigger `fn_recalc_comision_pedido` no rastreado en git pisaba el `UPDATE` manual — se quita el manual, el trigger queda como única fuente de verdad (`004`) | ✅ confirmado en prod con prueba end-to-end |
+| 31-32 | Agente 3 | Migración `clientes` y `atributos` a POO/SOLID | ✅ confirmados en prod |
+| 33 | Agente Negro (ex Agente 3) | Migración `compras` a POO/SOLID | ✅ confirmado en prod |
+| 34 | Agente Verde | Tests automatizados para `maestros`/`usuarios`/`demo` | ✅ |
+| 35-36, 38 | Agente Rojo (ex Agente 2) | Migración `costos_pedido` a POO/SOLID + 🔴 mismo bug de #29 pero en `domicilio` (trigger `trg_entregas_recalc_domicilio` no rastreado, mismo fix) — confirmado con prueba end-to-end real (comisión + domicilio subiendo exactamente lo esperado, datos de prueba limpiados después) | ✅ confirmado en prod |
+| 37, 39 | Agente Rojo | Migración `catalogo` a POO/SOLID (admin de precios legacy) | ✅ confirmado en prod con datos reales del catálogo público |
+| 40 | Agente 2 | Migración `pedidos` + `productos_pedido` a POO/SOLID (dominio de mayor riesgo, 3 triggers + `ganancias` `GENERATED` — investigado con `\d`/`\sf` antes de tocar nada, ver migraciones `005`/`006`) | ✅ confirmado en prod |
+| 41 | Agente Negro | Migración `pedidos_publicos` a POO/SOLID — **backend 100% migrado (16/16 dominios)** | ✅ confirmado en prod |
+| 42 | Agente Rojo | 🔴 **Bloqueante real de Fase 6, resuelto**: desacople de `fn_recalc_pedido_valor_venta()` de `catalogo_precios` a `variantes` (migración `008`) | ✅ confirmado en prod, cero cambios financieros (validado antes/después + trigger forzado en vivo, ver #44/#45) |
+| 43 | Agente Negro | Cierre de Fase 5: admin de precios (`catalogo.js`) migrado de `catalogo_precios` a `variantes` | ✅ confirmado en prod con 3 pruebas reales |
+| 44-45 | Agente Verde, Agente Rojo | Confirmaciones independientes (en paralelo) del deploy de `008` — mismo resultado, sin contradicciones. Hallazgo aparte: `PD0051` tiene un producto con nombre que nunca resolvió precio en ningún esquema (deuda de datos preexistente, no bloqueante) | ✅ |
+| 46 | Agente 2 (orquestador) | Inicio de Fase 6: verificación reveló que solo `catalogo_precios` tiene cero escritores activos — `atributos`/`atributo_opciones`/`catalogo_atributos` siguen siendo feature viva, quedan **fuera** de la limpieza. Backup real tomado (89 filas) antes de escribir `009_fase6_drop_catalogo_precios.sql` | ⏳ **código y backup listos, falta desplegar `009` en prod y confirmar con `\dt`** |
 
-**Pendiente anotado, no resuelto en #28:** `domains/comisiones/` (dominio de listado admin ya migrado por Agente 1, entrada #19) hace `JOIN usuarios u ON u.id = c.vendedor_id` — con comisiones manuales, `vendedor_id` puede ser `NULL`, así que esas filas quedarían excluidas del listado de `/api/comisiones`. Verificado con `grep` que el frontend admin actual no usa esa ruta (todo pasa por `/api/pedidos/:id/costos/comision`), así que no es urgente, pero si se reactiva ese listado en el futuro, cambiar el `JOIN` a `LEFT JOIN` y hacer `COALESCE(u.nombre, c.nombre_vendedor)`.
-
-| 29 | Agente 2 | `03c93e4` | 🔴 **Deuda técnica no rastreada encontrada al desplegar #28 en prod, corregida.** Al correr `003_comision_manual.sql` en el servidor real, los `NOTICE` de "already exists, skipping" revelaron que alguien ya había aplicado a mano los mismos cambios estructurales — y además había un trigger nuevo (`trg_comisiones_recalc_pedido` / `fn_recalc_comision_pedido`) que **no existía en ningún archivo del repo**. Ese trigger recalcula `pedidos.comision` sumando **solo** comisiones en estado `Pagada` (confirmado con el dueño como la regla de negocio correcta). Mi `UPDATE` manual en `agregarComision`/`eliminarComision` (de la entrada #28) sumaba TODAS las comisiones sin filtrar por estado, y al correr después del mismo `INSERT`/`DELETE` que ya disparó el trigger, pisaba su resultado — generando una inconsistencia real entre agregar/borrar una comisión (ganaba mi lógica) vs. cambiar su estado a Pagada vía `cambiarEstadoComision` (ganaba el trigger, nunca tocado por mí). Fix: se quita el `UPDATE` manual por completo, el trigger de prod queda como única fuente de verdad para las 3 operaciones. Se agrega `004_documentar_trigger_recalc_comision_pagada.sql` (idempotente, `CREATE OR REPLACE`) para dejar ese trigger rastreado en git — sin esto, un entorno nuevo levantado desde las migraciones del repo perdería esta regla de negocio por completo. | ✅ | ⏳ pendiente de deploy real | 4 casos actualizados con pool falso: `agregarComision`/`eliminarComision` ya solo esperan `INSERT`/`DELETE`, sin el `UPDATE` que antes chocaba | ⏳ en mocks; **falta correr 004 en prod + confirmar que `agregarComision`/`cambiarEstadoComision` dan el mismo resultado de `pedidos.comision` que antes de este fix (regresión, no feature nueva)** |
-
-**Lección para la próxima sesión:** antes de escribir cualquier `UPDATE`/rollup manual sobre una columna que podría tener un trigger detrás, correr `\d <tabla>` (o `\dft`) en el servidor real primero — no asumir que el estado del repo (`db/migrations/*.sql`) refleja el 100% de lo que corre en producción. Ya pasó una vez con el import roto de `maestros` (entrada #12) y ahora con este trigger — el repo y la BD real pueden divergir sin que quede ningún rastro hasta que algo falla o se descubre por accidente.
-
-| 30 | Agente 2 | *(sin commit de código)* | Cierra #29: deploy real de `03c93e4`/`004_documentar_trigger_recalc_comision_pagada.sql` confirmado + prueba end-to-end del trigger en prod con datos de prueba (2 comisiones temporales sobre un pedido real, `PD0054`, borradas al final) | N/A (ya cubierto en #29) | ✅ | `git pull` limpio + migración `004` aplicada sin error + restart sin crash. Prueba real: `pedidos.comision` se mantuvo en `0.00` con 2 comisiones de prueba en estado `Pendiente` (20000 c/u); al marcar una como `Pagada` subió exactamente a `20000.00` (no `40000`, confirma que solo cuenta la pagada); al borrar ambas volvió a `0.00`. También se descartó una duda del dueño sobre un "signo menos" que no desaparecía al marcar como pagada en el front — confirmado con el código de `cliente.js` que es diseño intencional preexistente (el monto de comisión/domicilio siempre se muestra con `-`, solo cambia de color rojo→gris al pagarse), no una regresión de este fix | ✅ **trigger de comisión pagada cerrado por completo**: código + deploy + prueba real confirman la regla de negocio exacta que pidió el dueño |
-| 31 | Agente 3 | *(pendiente de commit)* | Migración dominio `clientes` a POO/SOLID | ✅ | ⏳ pendiente de deploy/curl real | pool falso: title-case, validación de celular duplicado (409, no llega a actualizar si ya está en uso, no valida si no cambia), bloqueo de eliminar con pedidos existentes (400, no llega a borrar), 404s. Nota: se documentó (no se corrigió, fuera de alcance) un bug pre-existente de `toTitleCase` con acentos (`\b\w` no trata í/ó como letra — "maría" → "MaríA"), heredado tal cual del controller original | ✅ en mocks (`npm test` 60/60); falta confirmación en prod |
-| 32 | Agente 3 | *(pendiente de commit)* | Migración dominio `atributos` a POO/SOLID (sistema viejo, pre-cutover: `atributos`/`atributo_opciones`/`catalogo_atributos`) | ✅ | ⏳ pendiente de deploy/curl real | pool falso: trim+cast de sobreprecio, 400 duplicado (23505), 400 sin nombre/tipo, 400 `atributo_ids` no-array, 404 id inexistente | ✅ en mocks (`npm test` 66/66); falta confirmación en prod |
-| 33 | Agente 3 (ahora "Agente Negro" — pocos tokens, tarea corta sin consultar) | *(pendiente de commit)* | Migración dominio `compras` a POO/SOLID (anidado bajo `/api/productos/:producto_id/compras`) | ✅ | ⏳ pendiente de deploy/curl real | pool falso: 400 sin cantidad/valor_unitario, 404 producto padre inexistente (no inserta), CRUD completo | ✅ en mocks (`npm test` 70/70); falta confirmación en prod |
-| 34 | Agente Verde (continuación de Agente 1) | *(pendiente de commit)* | Tests automatizados para `maestros`, `usuarios` y `demo` (domains sin cobertura tras la pausa por tokens) — incluye caso explícito de la inconsistencia preexistente preservada en `conceptos-compra` (no debe dar 400 con nombre solo-espacios) y del fail-fast correcto de `DemoService` (no debe lanzar sin `webhookUrl`, a diferencia de `AuthService`) | ✅ (solo tests, no toca código de dominio) | N/A (no es código de producción) | `npm test` corrido localmente | ✅ 99/99 tests, 29 suites, 0 fallos |
-| 35 | Agente Rojo (ex Agente 2 de este mismo hilo, renombrado por el dueño tras la colisión con la otra sesión) | `0cd9d79` + `67611e9` | Migración dominio `costos_pedido` a POO/SOLID (`CostoPedidoRepository`/`Service`/`Controller`/`costos_pedido.routes.js`, 12 endpoints). Antes de migrar, investigando el esquema real de `entregas`/`costos_pedido` encontré el **mismo bug de #29 pero en domicilio**: trigger no rastreado `trg_entregas_recalc_domicilio` (documentado en `007_documentar_triggers_domicilio_costos_otros.sql`) recalcula `pedidos.valor_domicilio` sumando solo entregas con `estado_pago = 'Pagado'`, y `agregarDomicilio`/`eliminarDomicilio` tenían el mismo `UPDATE` manual conflictivo (suma TODAS) que ya se había corregido para comisiones — corregido igual, se quita el `UPDATE` manual. También documenté un tercer trigger (`trg_costos_otros_recalc_pedido`, sobre `costos_pedido`) que **no** tenía conflicto (el código nunca duplicó ese cálculo). La migración a `domains/costos_pedido/` mantiene el contrato HTTP exacto de las 12 rutas, agrupa las 3 tablas en un solo dominio (mismo criterio que `MaestroController`), y corrige de paso un defecto menor (ruta `/listas/conceptos` duplicada dos veces en el router viejo). | ✅ | ⏳ pendiente de deploy real | `node -c` en todos los archivos + arranque real del servidor completo + `curl` real a `/api/pedidos/PD0001/costos` (401 sin token, ruta montada). Suite formal `tests/domains/costos_pedido.test.js` (`node:test`): 12 casos — listado compuesto, 400/201 en `agregarOtro`, 400/201 en `agregarDomicilio` (confirma un solo `INSERT`, sin duplicar el rollup del trigger), 400/404/200 en `cambiarEstadoPagoDomicilio`, 400/200/404 en el flujo de comisión, arrays planos en las 3 listas, 500 genérico en error de BD. `npm test` completo: **112/112, 35 suites, 0 fallos** | ⏳ en mocks; falta correr `007` en prod + confirmar `curl` reales de `costos_pedido` (mismo patrón de prueba que se usó para `auth` y comisiones: crear/borrar datos de prueba) |
-| 36 | Agente Rojo | *(sin commit de código)* | Cierra parcialmente #35: deploy real de `007` confirmado (aplicada sin error, restart limpio) + prueba end-to-end en curso sobre `PD0051` con datos de prueba reales vía HTTP (usuario temporal, JWT real, no solo SQL directo) | N/A (ya cubierto en #35) | ✅ deploy / ⏳ prueba parcial | `git pull` en servidor real sin conflicto + migración `007` aplicada (`CREATE FUNCTION`/`DROP TRIGGER`/`CREATE TRIGGER` x2 + `COMMENT` x2) + restart sin crash. Prueba real: `agregarOtro` → `costos_otros` de `PD0051` subió 0→3000 (correcto, sin filtro de estado); `agregarDomicilio`/`agregarComision` en estado Pendiente → `valor_domicilio`/`comision` **no cambiaron** (20000/0, confirma que el trigger solo cuenta lo Pagado) | ⏳ **prueba interrumpida a mitad de camino** (el dueño pidió cambiar a `catalogo.js`, ver #37) — quedan pendientes sin resolver: (1) marcar `EN0046`→Pagado y `CM0148`→Pagada y confirmar que `valor_domicilio`/`comision` suben en 8000/5000 (comandos ya preparados, usan `docker exec lilop-api node -e "fetch(...)"` porque `wget` de BusyBox no soporta `--method=PATCH`); (2) **limpieza pendiente en producción** de datos de prueba: `costos_pedido` id `CSP0019`, `entregas` id `EN0046`, `comisiones` id `CM0148`, `usuarios` id `US0015` (`test-costos-temporal@lilop.local`) — confirmar que tras borrar, `PD0051` vuelve a `valor_domicilio=20000, comision=0, costos_otros=0` |
-| 37 | Agente Rojo | `440151b` | Migración dominio `catalogo` a POO/SOLID — retomada donde Agente Negro solo alcanzó a anunciarla (esa sesión no llegó a tocar ningún archivo, confirmado con `git show` del commit de su anuncio: solo cambió el MD). Mismo alcance ya acordado: solo el envoltorio POO sobre el esquema legacy (`catalogo_productos`/`catalogo_precios` + relaciones a `categorias`/`disenos`/`atributos`), sin tocar esquema ni hacer el corte de Fase 5. `CatalogoRepository` preserva exacto el sync de `categoria_ids`/`diseno_ids` (DELETE + INSERT condicional). La transformación a shape público (slug, precio mínimo, URLs de imagen) se mueve del controller viejo a `CatalogoService` — es lógica de negocio real. `catalogo.routes.js` exporta `{router, controller}` (mismo patrón que `atributos`) porque `listarPublico` se monta standalone en `index.js` además del router admin — 2 puntos de montaje actualizados. Se dejó fuera de alcance, sin tocar, un tercer punto (`/api/productos/catalogo`) que usa una función distinta de `controllers/productos.js` (no es este dominio). | ✅ | ⏳ pendiente de deploy real | `node -c` en todos los archivos + arranque real del servidor completo + `curl` real a `/api/catalogo` (401 sin token) y `/api/public/productos` (responde, no crashea). Suite formal `tests/domains/catalogo.test.js`: 11 casos — 400/201 en `crear`, 404/200 en `actualizar` (con y sin sync de relaciones), 404/200 en `eliminar`, 400/200 en `upsertPrecio` (incluye el caso precio≤0 = eliminar en vez de guardar 0), transformación completa de `listarPublico` + caso sin precios (no debe romper con `Math.min([])`), 500 genérico en error de BD. `npm test` completo: **125/125, 39 suites, 0 fallos** | ⏳ en mocks; falta deploy real + confirmar `/api/public/productos` con datos reales (es el catálogo que alimenta lilop.store, verificar con cuidado antes de dar por cerrado) |
-| 38 | Agente Rojo | *(sin commit de código)* | Cierra #35/#36 por completo: se retoma y termina la prueba end-to-end de `costos_pedido` interrumpida (token de prueba había expirado — se regeneró con el mismo usuario temporal, sin recrearlo) | N/A (ya cubierto en #35) | ✅ | Con token fresco: `PATCH .../domicilio/EN0046/estado-pago` → `Pagado`, `PATCH .../comision/CM0148/estado` → `Pagada`. Confirmado en BD: `pedidos.valor_domicilio` 20000→**28000** (+8000 exacto), `pedidos.comision` 0→**5000** (+5000 exacto) — los 3 triggers (comisión, domicilio, costos_otros) y los 12 endpoints del dominio migrado funcionan correctamente juntos en producción real. **Limpieza confirmada:** se borraron los 4 registros de prueba (`costos_pedido` `CSP0019`, `entregas` `EN0046`, `comisiones` `CM0148`, `usuarios` `US0015`) — `PD0051` volvió exactamente a `valor_domicilio=20000.00, comision=0.00, costos_otros=0.00`, sin rastro | ✅ **`costos_pedido` cerrado por completo**: código + deploy + prueba end-to-end real + limpieza confirmada |
-| 39 | Agente Rojo | *(sin commit de código)* | Cierra #37: deploy real de `catalogo` confirmado + validación con datos reales del endpoint público (el que alimenta lilop.store) | N/A (ya cubierto en #37) | ✅ | `git pull` en servidor real sin conflicto + restart limpio, sin errores en logs. `GET /api/public/productos` real: devuelve exactamente los 15 productos activos confirmados por conteo directo en BD (`SELECT count(*) FROM catalogo_productos WHERE activo = true`), con el shape completo correcto (slug, precio mínimo calculado, categorías con slug, `images` con dominio `https://api.lilop.store` prefijado, atributos, materiales/cuidados como arrays) — inspeccionado el primer producto completo, coincide con el contrato esperado. `GET /api/catalogo` sin token → `401` (ruta admin sigue protegida) | ✅ **`catalogo` cerrado por completo**: código + deploy + validación con datos reales del catálogo público |
-| 40 | Agente 2 | `36b5022` | Migración dominios `pedidos` + `productos_pedido` a POO/SOLID (aprobado explícitamente por el dueño, sugerencia propia por el acoplamiento de triggers documentado en la investigación previa de `pedidos`). `productos_pedido` es dominio **nuevo, no confundir con `domains/productos/`** (ese es la porción bot/lectura contra el esquema nuevo — bounded context distinto, mismo nombre de concepto de negocio, por eso el nombre de carpeta separado). Preservado tal cual, sin cambios de comportamiento: el query completo de `obtener()` de pedidos (join a `catalogo_productos`/`catalogo_precios` + agregación de compras), la lógica de auto-cálculo de precio en `productos_pedido.crear/actualizar()` (incluyendo el detalle de fidelidad de que `valor_venta_override: null` explícito dispara el recálculo automático igual que no mandarlo), y el `medio_pago` opcional traducido a `MedioPagoInvalidoError` (mismo patrón `instanceof` que `RegistroDuplicadoError`/`EmailDuplicadoError`). Rutas anidadas sin cambios de contrato — solo cambian los `require` relativos, **actualizados durante el rebase de este commit** para apuntar a los dominios `costos_pedido`/`compras` ya migrados en paralelo por Agente Rojo/Negro (entradas #35, `eeacdb1`) en vez de los `routes/*` viejos que ya no existen. `index.js` actualizado: `/api/pedidos` → nuevo dominio; `/api/productos/catalogo` (standalone) → mismo handler vía `productosPedidoDominio.controller.catalogo` (export dual `{router, controller}`, mismo patrón que `atributos`/`catalogo`). | ✅ | ⏳ pendiente de deploy/curl real | `node -c` en los 8 archivos nuevos + `index.js`; arranque real del servidor completo con env vars dummy (sin `MODULE_NOT_FOUND`); 3 `curl` reales sin token → `GET /api/pedidos` `401`, `GET /api/pedidos/PD0001/productos` `401`, `GET /api/productos/catalogo` `401` (ninguna `404`, confirma las 3 rutas montadas); pool falso, 29 casos nuevos (`resolverMedioPago` sin nombre/válido/inválido, `obtener()` no consulta productos si el pedido no existe, `crear()`/`actualizar()` con `medio_pago` inválido en 400 sin llegar a escribir, `valor_venta: 0` no dispara el 400 de "requerido" fidelidad al chequeo `undefined`/`null` explícito, auto-cálculo de precio con/sin match de catálogo, override explícito vs. override `null` recalculando, `crear()` de producto valida pedido padre antes de insertar) | ✅ en mocks (`npm test` **154/154, 43 suites, 0 fallos** tras el rebase — suma de todos los agentes; arranque real del servidor + `curl` a las 7 rutas que atraviesan territorio cruzado con `compras`/`costos_pedido`: las 6 protegidas por `auth` dan `401`, ninguna `404`, confirma que el wiring quedó bien; `/api/public/productos` da `500` por `ENOTFOUND` del host de BD falso, mismo comportamiento esperado ya documentado por Agente Rojo en la entrada #37, no es regresión de este rebase); falta confirmación en prod |
-| 41 | Agente Negro | `519c918` | Migración dominio `pedidos_publicos` a POO/SOLID — **último dominio backend pendiente, backend 100% migrado (16/16 dominios)**. Checkout público transaccional (`clientes`→`pedidos`→`productos`). Primer dominio con transacción real: se agregó `transaction(fn)` a `BaseRepository` (core compartido, disponible para todos los dominios futuros) — `BEGIN`/`fn(client)`/`COMMIT`, `ROLLBACK` + `client.release()` en cualquier error. Reglas de negocio preservadas tal cual: reutilizar cliente por celular o crear uno nuevo, mapa de método de pago a nombre legible, extracción de tamaño desde el string `variant`, `valor_venta_override = price * quantity`, fecha de entrega mínima hoy+3 días. | ✅ | ✅ | 2 tests nuevos de `BaseRepository.transaction()` (commit y rollback+release en error) + pool falso del dominio: reutiliza cliente vs. crea nuevo, cálculo de `valorVentaOverride`, 400 sin campos obligatorios/sin items/sin fecha/fecha antes del mínimo, 201 happy path (`npm test` 165/165, 46 suites) + deploy real confirmado por el dueño (`docker compose restart lilop-api` desde `projects/lilop/api/`, no desde la raíz) + 4 `curl` reales sin token: `POST /api/public/pedidos` con body vacío → `400` (validación activa, ruta montada); `GET /api/catalogo`/`clientes`/`comisiones` → `401` cada uno (protegidas, montadas) — ninguna `404` | ✅ **backend cerrado por completo: 16/16 dominios en POO/SOLID, código + deploy + validación real en producción** |
-| 42 | Agente Rojo | `4164507` + `53f68f2` | 🔴 **BLOQUEANTE REAL DE FASE 6, resuelto** — desacople de `fn_recalc_pedido_valor_venta()` (y las 2 queries de lectura equivalentes en `PedidoRepository.productosConCompras()` y `ProductoPedidoRepository.precioCatalogo()`) de las tablas legacy `catalogo_productos`/`catalogo_precios`, apuntando ahora a `variantes`/`atributos_resueltos` (esquema nuevo). Es el punto #1 que quedó documentado sin resolver en la investigación original de `pedidos` (sección 0). **Validación exhaustiva de solo lectura antes de escribir una sola línea de la migración** (sin tocar nada en ese momento): (1) los 21 productos del catálogo tienen cobertura completa en `variantes` respecto a `catalogo_precios`, nunca falta ninguno; (2) el precio de la variante "base" (solo Tamaño, sin Plumón/Piel de conejo) coincide exacto con `catalogo_precios` para cada tamaño — confirmado con productos con y sin variables booleanas extra; (3) **comparación end-to-end sobre TODA la data real**: los 7 pedidos que tienen productos (de 10 filas totales en `productos`) dan el MISMO `valor_venta` calculado con el JOIN legacy que con el JOIN nuevo, sin ninguna excepción; (4) sin variantes duplicadas por `(producto_id, atributos_resueltos)` que pudieran romper el `SUM`. El match exacto por `atributos_resueltos = {"Tamaño": ...}` (sin otras claves) preserva el comportamiento actual a propósito: `productos` (línea de pedido) no tiene columna para Plumón/Piel de conejo, hoy solo se vende el precio base — exponer esas variables en el flujo de venta queda fuera de alcance de este cambio. `CREATE OR REPLACE FUNCTION` sobre el mismo trigger ya existente (`trg_productos_recalc_valor_venta`), no requiere `DROP`/`CREATE TRIGGER`. | ✅ | ⏳ pendiente de deploy real | `node -c` en los archivos tocados + arranque real del servidor completo sin errores. `npm test`: **165/165, 46 suites, 0 fallos** (ningún test mockeaba el texto SQL legacy que cambió). La validación real de fondo fue contra producción, no contra mocks: las 4 queries de comparación de arriba se corrieron directo en el Postgres real del servidor, sobre los datos reales existentes — no hay forma de simular esto con datos falsos y que signifique algo | ⏳ código validado contra datos reales pre-deploy; **falta correr `008` en prod + volver a correr la misma comparación legacy-vs-nuevo justo después de aplicarla**, para confirmar que ningún pedido cambió de valor tras el corte (antes de dar esto por cerrado — es el cambio de mayor riesgo financiero de todo el proyecto) |
-| 43 | Agente Negro | `63424af` | Cierre real de Fase 5: `domains/catalogo/CatalogoRepository` deja de leer/escribir `catalogo_precios` — `listar()`/`listarPublicoRaw()` leen la variante base de `variantes`, y `upsertPrecio()` escribe contra `variantes` (asegurando `variable_valor` + `producto_variables` la primera vez que un producto usa un tamaño nuevo, mismo criterio de variante base que el trigger de la entrada #42, mismo patrón de SKU que el backfill original). `CatalogoService`/`CatalogoController` sin cambios — el contrato de salida ya era idéntico. `precio <= 0` sigue borrando (ahora la variante) en vez de guardar cero, mismo comportamiento exacto. | ✅ | ✅ | Pool falso paso a paso (secuencia completa de queries: resolver/crear variable+valor, asegurar permitido, upsert) + 2 tests viejos de `catalogo.test.js` actualizados — `npm test` 169/169, 47 suites + deploy real confirmado (arrancó limpio, sin errores) + **3 pruebas reales en producción con usuario admin temporal** (creado/borrado vía `psql`, password nunca reutilizada): (1) actualizar precio de un tamaño existente (`CAT0032` Doble: `135000→999999→135000`) — mismo `id` de variante (`VTE0142`) en las 3 lecturas, confirma `ON CONFLICT` actualizando en vez de duplicar; (2) agregar tamaño nuevo a producto sin ese tamaño (`CAT0037` Almohada, antes solo "Único"): `POST` con `Sencillo/25000` → `{"id":"VTE0170",...,"precio":"25000.00"}`, apareció correcto en `producto_variables`; (3) precio en 0 sobre esa misma variante → `{"ok":true,"eliminado":true}`, la talla desapareció del producto. Nota real de ejecución: el primer intento de las pruebas usó `PUT` en vez de `POST` (la ruta real es `POST /api/catalogo/:catalogo_id/precios`, corregido a mitad de camino) | ✅ **Fase 5 cerrada por completo: código + deploy + 3 pruebas reales en producción, todas correctas** |
-| 44 | Agente Verde | *(deploy, sin commit de código)* | Deploy real de la migración `008_desacoplar_valor_venta_de_legacy.sql` (entrada #42) en el servidor real — cierra el ⏳ pendiente que dejó Agente Rojo. Capturado `valor_venta` de los 7 pedidos reales con productos (`PD0050`-`PD0057`) **antes** de aplicar la migración vía `docker exec postgres psql`, corrida la migración (`CREATE FUNCTION`, `COMMENT` confirmados en la salida), reiniciado `lilop-api`, y vuelto a capturar los mismos 7 valores **después** — `diff` idéntico, sin ninguna diferencia. Nota operativa real: el primer intento del dueño usó `sudo -u postgres psql` (falla, Postgres corre en contenedor Docker, no como usuario del SO del host) — la captura "antes" salió vacía y el `diff` dio un falso "IDÉNTICO" comparando dos archivos vacíos; se corrigió a `docker exec postgres psql -U postgres -d lilop` y se repitió la validación completa con datos reales esta vez. | N/A (ya cubierto en #42) | ✅ | `docker exec postgres psql` antes/después con los 7 `id`/`valor_venta` reales, `diff` sin diferencias | ✅ **bloqueante de Fase 6 (entrada #42) cerrado por completo en producción, con datos reales antes/después comparados** |
-| 45 | Agente Rojo | *(sin commit de código)* | Confirmación independiente del cierre de #42 (mismo resultado que #44, corrida en paralelo antes de ver que Agente Verde ya lo había cerrado — se resuelve el conflicto de git dejando ambas, no son contradictorias) + un hallazgo aparte que #44 no menciona | N/A (ya cubierto en #42/#44) | ✅ | Misma comparación que #44 (7 pedidos reales, `sigue_igual = t` en los 7) — resultado idéntico, confirma independientemente lo mismo. **Hallazgo aparte, preexistente, no causado por este cambio:** el producto de `PD0051` tiene `nombre = "Combo Edredon + Juego de Sábanas"` (texto libre, sin tilde, no coincide con ningún nombre real del catálogo — los 4 "Combo Edredón..." reales tienen nombres más largos) — el match por texto exacto nunca resolvió el precio de esa línea, ni con el JOIN legacy ni con el nuevo, mismo resultado `NULL` en ambos por igual (por eso el total agregado del pedido no cambió: esa línea siempre aportó 0). Es deuda de datos existente desde antes de este cambio (probablemente un nombre tecleado a mano en vez de elegido del catálogo, o un producto renombrado/descontinuado después de crear el pedido) — no bloquea nada, queda anotado para revisión aparte del dueño si le interesa | ✅ confirmación redundante-mente cerrada (ver #44 para el registro principal) + hallazgo de deuda de datos anotado para revisión futura |
-| 46 | Agente 2 (orquestador) | `009_fase6_drop_catalogo_precios.sql` | **Inicio de Fase 6 (limpieza), siguiendo el checklist dejado por Agente Negro.** Paso 2 del checklist (`grep -rn "catalogo_precios\|atributo_opciones\|catalogo_atributos" api/src/domains/`) reveló que **el plan original estaba mal for 3 de las 4 tablas**: `atributos`/`atributo_opciones`/`catalogo_atributos` tienen escritores/lectores activos hoy (`AtributoRepository`, `CatalogoRepository` — la feature viva de atributos extra tipo "Plumón"/"Piel de conejo" con sobreprecio, migrada a POO/SOLID pero operando sobre esas mismas tablas, no cruft sin usar). Solo `catalogo_precios` pasó la verificación (cero referencias reales, solo comentarios históricos + un script de backfill de una sola vez ya corrido). **Decisión tomada en base a buenas prácticas para operaciones destructivas: avanzar solo con `catalogo_precios`, dejar las otras 3 explícitamente fuera de Fase 6** — dropearlas sería una decisión de producto (¿la feature de atributos se mantiene para siempre o se migra a `variables`?), no limpieza de deuda técnica. Antes de escribir el `DROP`: confirmado sin referencias en `n8n/` ni en ningún otro servicio del repo; `\d catalogo_precios` en prod real sin "Referenced by" (nada más depende de ella); backup real tomado (`pg_dump --data-only --column-inserts`, 89 filas, `backups/backup_catalogo_precios_20260909.sql` en el servidor). | ✅ | ⏳ pendiente de deploy real | `npm test`: **169/169, 47 suites, 0 fallos** (nada mockea ni depende de esta tabla) | ⏳ código y backup listos; falta correr `009` en prod + confirmar con `\dt` que la tabla desapareció y que el resto de la app sigue funcionando igual |
-
-**Nota sobre la entrada #5 (actualizada):** ya no hay pendiente — Agente 1 corrió el
-curl real de verificación (`/api/public/bot/productos/CAT0032` vía Cloudflare) y el
-dominio `productos` de POO/SOLID responde en producción con el schema exacto de la
-sección 7bis. Se puede depender de `ProductoRepository`/`ProductoService` como
-probado en vivo, no solo en mocks.
-
-**Cómo leer esta tabla:** "Deploy prod" en ✅ significa que el dueño corrió
-`git pull` + `docker compose restart <servicio>` en el servidor real y se confirmó
-con logs/curl reales — no basta con que el commit exista en `origin/main`. Un commit
-sin fila aquí, o con "⏳", significa que el código existe pero **no está confirmado
-funcionando en producción** — tratarlo como no confirmado hasta que aparezca una
-entrada nueva que lo cierre.
-
-**Nota sobre la entrada #12 (proceso, no solo el bug puntual):** al borrar un
-controller/route viejo tras migrar un dominio (paso final del flujo en 7quater),
-verificar SIEMPRE con `grep -rn "controllers/<dominio>\|routes/<dominio>"` sobre
-todo `api/src` — no solo sobre las rutas que uno mismo tocó — antes de dar el
-dominio por cerrado. El import roto de `maestros` no se detectó en su momento
-porque nadie corrió `node -c`/arrancó el servidor completo después de borrar los
-archivos viejos; solo se habría visto en el próximo deploy real. Agregado a la
-sección 9 como regla de conducta.
 
 ## 9. Reglas de conducta que deben seguir aplicando
 
