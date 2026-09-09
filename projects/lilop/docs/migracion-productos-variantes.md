@@ -440,6 +440,21 @@ nueva desde el mismo `require`. `npm test` → 66/66. Ver entrada #32.
   `producto_variables` y en el admin), y poner precio en 0 (debe desaparecer esa
   talla). Documentado como pendiente en la tabla de la sección 8.
 
+- **Agente Negro (cierre de sesión)** — con Fase 5 ya cerrada (entrada #43), el dueño
+  preguntó si alcanzaba el margen de la sesión (93% de uso) para iniciar la Fase 6
+  (limpieza: `DROP TABLE` de `catalogo_precios`/`atributos`/`atributo_opciones`/
+  `catalogo_atributos`, ya sin escritores activos). **Decisión: no se inicia.** Son
+  operaciones destructivas e irreversibles sobre producción — este tipo de trabajo
+  necesita margen completo de sesión para verificar bien antes de tocar nada, no es
+  apto para arrancar con poco margen y quedar a medias. **Antes de que la siguiente
+  sesión arranque Fase 6**, debe: (1) `git pull` + releer esta sección y la tabla de
+  la sección 8 completa; (2) confirmar con consultas de solo lectura que ninguna de
+  esas 4 tablas tiene escritores activos en el código actual (`grep -rn
+  "catalogo_precios\|atributo_opciones\|catalogo_atributos" api/src/domains/` no
+  debería devolver nada — si aparece algo, no está listo para Fase 6 todavía); (3) ir
+  tabla por tabla, no las 4 de una — mismo criterio de "un cambio a la vez" que todo
+  el resto de esta migración.
+
 
 
 ## 1. Rol que debe asumir Claude en este proyecto
