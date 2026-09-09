@@ -403,6 +403,22 @@ nueva desde el mismo `require`. `npm test` → 66/66. Ver entrada #32.
   quedaron completamente vacíos — **backend 100% migrado, 16/16 dominios en POO/SOLID.**
   Ver entrada #41 de la sección 8.
 
+- **Agente Negro (continúa)** — con el bloqueante del trigger legacy ya resuelto por
+  otro agente (`008_desacoplar_valor_venta_de_legacy.sql`), el dueño pide cerrar la
+  Fase 5 del todo: cortar el admin de precios (`domains/catalogo/`) para que gestione
+  `variables`/`variantes` en vez de escribir directo en `catalogo_precios`.
+  **Alcance acotado:** revisé `CatalogoService`/`CatalogoController` — no necesitan
+  ningún cambio, el contrato de salida (`precios: [{tamanio, precio, id}]`) ya es
+  idéntico sea cual sea la fuente. Todo el cambio va en `CatalogoRepository`: el
+  subselect de `precios` en `listar()`/`listarPublicoRaw()`, y `upsertPrecio()`
+  (que además de crear/actualizar la variante debe asegurar que exista el
+  `variable_valor` del tamaño y que el producto lo tenga habilitado en
+  `producto_variables` — la primera vez que se le pone un tamaño nuevo a un
+  producto). Mismo criterio de "variante base" (`atributos_resueltos` con solo la
+  clave `Tamaño`) que ya usa el trigger desacoplado, para que ambos coincidan
+  siempre. **No toco** `categorias`/`disenos`/`atributos` de este dominio — fuera de
+  alcance de "admin de precios". Empiezo ahora.
+
 
 
 ## 1. Rol que debe asumir Claude en este proyecto
