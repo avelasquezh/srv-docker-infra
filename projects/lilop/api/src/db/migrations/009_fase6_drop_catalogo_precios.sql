@@ -1,0 +1,32 @@
+-- ================================================================
+-- 009_fase6_drop_catalogo_precios.sql
+--
+-- Fase 6 (limpieza) — primera y única tabla de las 4 originalmente
+-- planeadas (`catalogo_precios`/`atributos`/`atributo_opciones`/
+-- `catalogo_atributos`) que se dropea en este paso.
+--
+-- Verificación hecha antes de escribir esto (ver sección 0 del MD de
+-- contexto, decisión "Fase 6 — solo catalogo_precios"):
+--   - `grep -rn "catalogo_precios" api/src/domains/` → cero referencias
+--     reales (solo comentarios históricos). El único uso real que quedaba
+--     era `backfill_variables_variantes.js`, script de una sola vez, ya
+--     corrido (sección 6.4), no parte del flujo normal de la app.
+--   - Sin referencias en n8n ni en ningún otro servicio del repo.
+--   - `\d catalogo_precios` en prod: sin "Referenced by" — ninguna otra
+--     tabla depende de ella. Ella sí depende de `catalogo_productos`
+--     (`ON DELETE CASCADE`), en el sentido correcto (no bloquea el drop).
+--   - Backup de datos tomado antes de este drop: 89 filas,
+--     `backups/backup_catalogo_precios_20260909.sql` en el servidor real
+--     (`pg_dump --data-only --column-inserts`, restaurable con un simple
+--     `psql -f` si algún día hace falta).
+--
+-- Las otras 3 tablas (`atributos`/`atributo_opciones`/`catalogo_atributos`)
+-- quedan explícitamente FUERA de este paso: tienen escritores activos hoy
+-- (dominio `atributos`, feature viva del admin — "Plumón"/"Piel de conejo"
+-- con sobreprecio), no son deuda técnica sin usar. Dropearlas es una
+-- decisión de producto (¿se mantiene esa feature para siempre, o se
+-- migra a `variables`/`variantes`?), no una limpieza — no se hace en este
+-- archivo ni se debe asumir que "Fase 6" las incluye automáticamente.
+-- ================================================================
+
+DROP TABLE IF EXISTS catalogo_precios;
