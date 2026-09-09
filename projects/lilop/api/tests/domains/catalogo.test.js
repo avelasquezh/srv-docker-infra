@@ -109,24 +109,33 @@ describe('CatalogoController — precios', () => {
     assert.equal(pool.calls.length, 0);
   });
 
-  test('upsertPrecio() con precio <= 0 elimina la relación en vez de guardar 0', async () => {
+  test('upsertPrecio() con precio <= 0 elimina la variante base de ese tamaño (Fase 5: ya no toca catalogo_precios)', async () => {
     const { controller, pool } = build({
-      'DELETE FROM catalogo_precios': () => ({ rows: [] }),
+      "SELECT id FROM variables WHERE nombre = 'Tamaño'": () => ({ rows: [{ id: 'VAR0001' }] }),
+      'SELECT id FROM variable_valores': () => ({ rows: [{ id: 'VVA0002' }] }),
+      'DELETE FROM variantes': () => ({ rows: [] }),
     });
     const res = fakeRes();
     await controller.upsertPrecio({ params: { catalogo_id: 'CP0001' }, body: { tamanio: 'M', precio: 0 } }, res);
     assert.deepEqual(res._json, { ok: true, eliminado: true });
-    assert.match(pool.calls[0].sql, /DELETE FROM catalogo_precios/);
+    const deleteCall = pool.calls.find((c) => c.sql.includes('DELETE FROM variantes'));
+    assert.ok(deleteCall);
+    assert.ok(!pool.calls.some((c) => c.sql.includes('catalogo_precios')));
   });
 
-  test('upsertPrecio() válido hace INSERT ... ON CONFLICT DO UPDATE', async () => {
+  test('upsertPrecio() válido hace INSERT ... ON CONFLICT DO UPDATE contra variantes (Fase 5)', async () => {
     const { controller, pool } = build({
-      'INSERT INTO catalogo_precios': (p) => ({ rows: [{ catalogo_id: p[0], tamanio: p[1], precio: p[2] }] }),
+      "SELECT id FROM variables WHERE nombre = 'Tamaño'": () => ({ rows: [{ id: 'VAR0001' }] }),
+      'SELECT id FROM variable_valores': () => ({ rows: [{ id: 'VVA0002' }] }),
+      'SELECT valores_permitidos FROM producto_variables': () => ({ rows: [{ valores_permitidos: ['VVA0002'] }] }),
+      'INSERT INTO variantes': () => ({ rows: [{ id: 'VTE0001', producto_id: 'CP0001', atributos_resueltos: { Tamaño: 'M' }, precio: 25000 }] }),
     });
     const res = fakeRes();
     await controller.upsertPrecio({ params: { catalogo_id: 'CP0001' }, body: { tamanio: 'M', precio: 25000 } }, res);
     assert.equal(res._json.precio, 25000);
-    assert.match(pool.calls[0].sql, /ON CONFLICT/);
+    const insertCall = pool.calls.find((c) => c.sql.includes('INSERT INTO variantes'));
+    assert.match(insertCall.sql, /ON CONFLICT/);
+    assert.ok(!pool.calls.some((c) => c.sql.includes('catalogo_precios')));
   });
 });
 
