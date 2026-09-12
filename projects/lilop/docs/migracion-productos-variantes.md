@@ -482,6 +482,14 @@ nueva desde el mismo `require`. `npm test` → 66/66. Ver entrada #32.
   sigue vigente antes de seguir escribiendo sobre información que pudo haberse
   resumido (no borrado, resumido).
 
+- **Agente Negro (retoma)** — el dueño pidió continuar "la migración que dejó
+  pendiente Agente Azul"; no encontré esa identidad en el MD, la más reciente es
+  "Agente 2" — asumo que se refiere al plan de la sección 7quinquies (`atributos`→
+  `variables`), que es el único trabajo de código dejado explícitamente pendiente
+  para otro agente. **Empiezo por el Paso 1 del plan (verificación de datos reales
+  antes de escribir nada)** — le pido al dueño que corra las queries de solo lectura
+  ya definidas en 7quinquies. No toco código todavía.
+
 
 
 ## 1. Rol que debe asumir Claude en este proyecto
