@@ -892,7 +892,8 @@ Sencillo+Plumón) — salida byte a byte igual al contrato de la sección 7bis.
    `catalogo_atributos` quedan **fuera**, tienen escritores activos hoy (feature
    viva de atributos extra con sobreprecio) — dropearlas requiere antes una
    decisión de producto (¿se mantienen para siempre o se migran a `variables`?),
-   no es limpieza de deuda técnica.
+   no es limpieza de deuda técnica. **Ya se decidió migrar** — ver plan completo
+   y accionable en la sección 7quinquies.
 4. **Conectar los endpoints al nodo de IA en n8n** — endpoints, contrato y validación
    en producción ya cerrados (secciones 7bis y 5-Fase 4); falta configurar el nodo
    HTTP en el workflow de n8n y pegar las 7 reglas en el prompt del agente. Explícito:
@@ -910,6 +911,85 @@ Sencillo+Plumón) — salida byte a byte igual al contrato de la sección 7bis.
    podría evaluarse en paralelo si el dueño lo prioriza.
 8. **Limpieza de este mismo MD** — anunciada y en curso (ver sección 0), para
    reducir el costo de tokens de cada sesión nueva.
+
+## 7quinquies. Plan de migración: `atributos` → `variables` (para que otro agente lo ejecute)
+
+**Objetivo:** desacoplar `atributos`/`atributo_opciones`/`catalogo_atributos` del
+esquema legacy, siguiendo el mismo patrón ya probado en `008`/`009`/`010`
+(desacoplar primero, validar con datos reales, dropear al final). Esto es lo que
+falta para poder cerrar Fase 6 por completo.
+
+**No asumir nada de lo de abajo sin verificarlo primero contra la BD real** — las 3
+tablas de origen no están rastreadas en ninguna migración de git (mismo patrón de
+deriva que `medios_pago`/`vista_catalogo_agente`), así que su definición exacta
+solo se conoce por `AtributoRepository.js` y por la vista `vista_catalogo_agente`
+que ya leímos — no hay garantía de que sea 100% completa.
+
+### Mapeo de tablas (equivalencia de diseño, ya prevista en el esquema nuevo)
+
+El comentario de `002_variables_variantes.sql` ya menciona "Tamaño, Plumón, Piel de
+conejo" como ejemplos de `variables` — el esquema nuevo fue diseñado para esto.
+
+| Legacy | → | Nuevo | Notas |
+|---|---|---|---|
+| `atributos` (id, nombre, tipo, sobreprecio, activo) | → | `variables` (mismas columnas, mismo `tipo_variable` enum `lista`/`booleano`) | Mapeo 1:1 directo |
+| `atributo_opciones` (id, atributo_id, nombre, valor) | → | `variable_valores` (id, variable_id, valor, orden) | Solo aplica a atributos `tipo='lista'` — verificar primero si existe alguno (probablemente todos son `booleano` tipo Plumón/Piel de conejo, sin opciones) |
+| `catalogo_atributos` (catalogo_id, atributo_id) | → | `producto_variables` (producto_id, variable_id, valores_permitidos) | `valores_permitidos = NULL` para variables tipo `booleano` (igual que ya hace el esquema nuevo) |
+
+**Importante — no crear filas nuevas en `variantes` para esto.** Los "adicionales"
+(Plumón/Piel de conejo) son sobreprecios independientes del tamaño, no variantes
+combinadas — mantenerlos como una capa aparte (vía `producto_variables` +
+`variables.sobreprecio`), igual que hoy. La tabla `productos` (línea de pedido)
+**no tiene columna para estos extras** — hoy no se pueden vender en un pedido real,
+solo se muestran en el catálogo público/n8n. Confirmar que esto sigue siendo así
+antes de migrar (si cambió, el alcance de esta tarea cambia).
+
+### Pasos concretos
+
+1. **Verificar datos reales antes de escribir nada:**
+   ```sql
+   SELECT DISTINCT tipo FROM atributos;
+   SELECT count(*) FROM atributos;
+   SELECT count(*) FROM atributo_opciones;
+   SELECT count(*) FROM catalogo_atributos;
+   \d atributos
+   \d atributo_opciones
+   \d catalogo_atributos
+   ```
+   Si aparece algo inesperado (un `tipo` que no sea `lista`/`booleano`, o columnas no
+   documentadas aquí), parar y reconsiderar el plan — no asumir.
+
+2. **Script de backfill aditivo** (mismo patrón que `002`/sección 6.4,
+   `scripts/backfill_variables_variantes.js` como referencia de estilo): migrar
+   `atributos` → `variables`, `atributo_opciones` → `variable_valores` (si aplica),
+   `catalogo_atributos` → `producto_variables`. Aditivo — no tocar ni borrar las
+   tablas viejas todavía.
+
+3. **Actualizar `vista_catalogo_agente`** (migración nueva, ej. `011_...`): el campo
+   `adicionales` hoy lee de `catalogo_atributos`/`atributos`/`atributo_opciones` —
+   cambiarlo para leer de `producto_variables`/`variables`/`variable_valores`, mismo
+   criterio que ya se usó para `precios_por_tamanio` en la migración `009`. **Validar
+   con comparación 1:1 antes de aplicar** (mismo query de discrepancias que se usó
+   para esa migración, adaptado a este campo).
+
+4. **Repuntar el dominio `atributos`** (`AtributoRepository.js`) para leer/escribir de
+   `variables`/`variable_valores`/`producto_variables` en vez de las tablas legacy —
+   mismo contrato HTTP hacia el admin, sin cambios de comportamiento para quien lo
+   usa. Actualizar `AtributoService`/`Controller` solo si el cambio de shape de datos
+   lo requiere.
+
+5. **Validar todo con tests + arranque real + curl**, mismo rigor que el resto de
+   dominios migrados (ver sección 8): `npm test`, `node -c`, arranque con env dummy,
+   `curl`/`wget` desde dentro del contenedor.
+
+6. **Deploy + confirmación en producción real** — comparación antes/después de
+   `vista_catalogo_agente` completa (no solo `precios_por_tamanio`, también
+   `adicionales`), confirmar que n8n sigue recibiendo lo mismo.
+
+7. **Solo entonces**, considerar dropear `atributos`/`atributo_opciones`/
+   `catalogo_atributos` (nueva migración, mismo checklist que se usó para
+   `catalogo_precios`: `grep` de escritores activos, backup real, drop guardado).
+   Esto cierra Fase 6 por completo.
 
 ## 8. Registro de verificación por agente (para el orquestador)
 
