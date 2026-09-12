@@ -886,10 +886,9 @@ Sencillo+Plumón) — salida byte a byte igual al contrato de la sección 7bis.
 2. ~~Fase 4-5 (validación en paralelo + corte)~~ — ✅ **Completado (entradas #42/#43).**
    El admin de precios y el cálculo de `valor_venta`/`ganancias` de pedidos ya leen
    del esquema nuevo, no de `catalogo_precios`.
-3. **Fase 6 (limpieza) — en curso.** `catalogo_precios` pendiente de dropear
-   (`010_fase6_drop_catalogo_precios.sql`, corre después de `009` que desacopla
-   `vista_catalogo_agente` — ver entrada #48 de la sección 8 sobre por qué se
-   renumeraron), con backup real tomado antes. `atributos`/`atributo_opciones`/
+3. **Fase 6 (limpieza) — cerrada para `catalogo_precios`.** ✅ Dropeada y
+   confirmada en producción (`009`/`010`, ver entrada #49 de la sección 8).
+   `atributos`/`atributo_opciones`/
    `catalogo_atributos` quedan **fuera**, tienen escritores activos hoy (feature
    viva de atributos extra con sobreprecio) — dropearlas requiere antes una
    decisión de producto (¿se mantienen para siempre o se migran a `variables`?),
@@ -962,6 +961,7 @@ Sencillo+Plumón) — salida byte a byte igual al contrato de la sección 7bis.
 | 46 | Agente 2 (orquestador) | Inicio de Fase 6: verificación reveló que solo `catalogo_precios` tiene cero escritores activos — `atributos`/`atributo_opciones`/`catalogo_atributos` siguen siendo feature viva, quedan **fuera** de la limpieza. Backup real tomado (89 filas) antes de escribir `009_fase6_drop_catalogo_precios.sql` | ⏳ **código y backup listos, falta desplegar `009` en prod y confirmar con `\dt`** |
 | 47 | Agente 2 (orquestador) | 🔴 Al desplegar `009` (numeración original), la migración falló en prod (rollback automático, sin daño): `vista_catalogo_agente` — vista no rastreada en git, creada directo en producción — depende de `catalogo_precios`. Confirmado por el dueño: **n8n la consulta directo contra Postgres** (el catálogo pre-armado para el nodo de IA, pendiente #4). Escrita una migración que actualiza solo `precios_por_tamanio` para leer de `variantes` (mismo criterio que `008`), sin tocar `adicionales`/`categorias`/`disenos_disponibles` (siguen leyendo de tablas vivas). Validado antes de escribir: comparación 1:1 sobre todos los productos activos reales, **0 discrepancias** | ⏳ ver #48 (renumeración) |
 | 48 | Agente 2 (orquestador) | 🔴 **Segundo intento fallido, esta vez por orden de ejecución:** al desplegar ambas migraciones juntas, `node-pg-migrate` las corre en orden alfabético de archivo — intentó `009` (drop) antes que `010` (fix de la vista), fallando de nuevo por la misma razón (`009` nunca quedó registrada en `pgmigrations` al hacer rollback, así que siempre se reintenta primero). **Renumeradas:** el fix de la vista pasa a ser `009_desacoplar_vista_catalogo_agente_de_legacy.sql` (corre primero), el drop pasa a ser `010_fase6_drop_catalogo_precios.sql` (corre después) — mismo contenido de cada archivo, solo se intercambiaron los números para que el orden de ejecución sea el correcto | ⏳ pendiente de desplegar con la numeración correcta |
+| 49 | Agente 2 (orquestador) | Deploy real confirmado con la numeración corregida — `Migrations complete!`, ambas migraciones (`009`/`010`) aplicadas en el orden correcto, sin ningún registro huérfano de los 2 intentos fallidos anteriores en `pgmigrations`. **Fase 6 cerrada para `catalogo_precios`** (única de las 4 tablas legacy originalmente planeadas que se dropeó — las otras 3 quedan fuera por decisión explícita, ver #46) | ✅ | `\dt catalogo_precios` → `Did not find any relation` (tabla eliminada); `vista_catalogo_agente` sigue devolviendo exactamente los mismos precios que antes del drop (comparado línea por línea con la salida pre-deploy); contenedor `healthy` tras restart | ✅ **`catalogo_precios` dropeada y confirmada en producción, sin romper nada — `vista_catalogo_agente` (usada por n8n) sigue funcionando idéntico** |
 
 
 ## 9. Reglas de conducta que deben seguir aplicando
