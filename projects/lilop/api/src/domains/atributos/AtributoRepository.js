@@ -93,22 +93,30 @@ class AtributoRepository extends BaseRepository {
     return rows.map((r) => this._traducirTipoSalida(r));
   }
 
+  /**
+   * Transaccional (hallazgo real: un ID de atributo inválido en
+   * `atributoIds` hacía fallar el INSERT después de que el DELETE ya
+   * había corrido, dejando el producto sin ningún atributo asignado.
+   * Confirmado con una prueba real en producción antes de este fix).
+   */
   async reemplazarAtributosProducto(catalogoId, atributoIds) {
-    // Scoped a variables != Tamaño — ver nota de la clase. Nunca toca la
-    // fila de Tamaño de ese producto (posee/gestiona domains/catalogo).
-    await this.query(
-      `DELETE FROM producto_variables
-       WHERE producto_id = $1
-         AND variable_id IN (SELECT id FROM variables WHERE nombre <> 'Tamaño')`,
-      [catalogoId]
-    );
-    if (atributoIds.length) {
-      const vals = atributoIds.map((_, i) => `($1, $${i + 2}, NULL)`).join(',');
-      await this.query(
-        `INSERT INTO producto_variables (producto_id, variable_id, valores_permitidos) VALUES ${vals}`,
-        [catalogoId, ...atributoIds]
+    return this.transaction(async (client) => {
+      // Scoped a variables != Tamaño — ver nota de la clase. Nunca toca la
+      // fila de Tamaño de ese producto (posee/gestiona domains/catalogo).
+      await client.query(
+        `DELETE FROM producto_variables
+         WHERE producto_id = $1
+           AND variable_id IN (SELECT id FROM variables WHERE nombre <> 'Tamaño')`,
+        [catalogoId]
       );
-    }
+      if (atributoIds.length) {
+        const vals = atributoIds.map((_, i) => `($1, $${i + 2}, NULL)`).join(',');
+        await client.query(
+          `INSERT INTO producto_variables (producto_id, variable_id, valores_permitidos) VALUES ${vals}`,
+          [catalogoId, ...atributoIds]
+        );
+      }
+    });
   }
 
   _traducirTipoSalida(row) {

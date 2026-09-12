@@ -21,12 +21,33 @@ describe('AtributoRepository — repunte a variables/producto_variables (Fase 6)
     assert.match(pool.llamadas[0].sql, /var\.nombre <> 'Tamaño'/);
   });
 
-  test('CRÍTICO: reemplazarAtributosProducto() nunca borra la fila de Tamaño del producto', async () => {
-    const pool = poolEspia();
+  test('CRÍTICO: reemplazarAtributosProducto() nunca borra la fila de Tamaño del producto, y es transaccional', async () => {
+    const llamadas = [];
+    const client = { query: async (sql, params) => { llamadas.push({ sql, params }); }, release: () => {} };
+    const pool = { connect: async () => client };
     await new AtributoRepository(pool).reemplazarAtributosProducto('CAT0032', ['VAR0002']);
-    const deleteCall = pool.llamadas.find((c) => c.sql.includes('DELETE FROM producto_variables'));
+    assert.equal(llamadas[0].sql, 'BEGIN');
+    const deleteCall = llamadas.find((c) => c.sql.includes('DELETE FROM producto_variables'));
     assert.ok(deleteCall, 'debe ejecutar un DELETE');
     assert.match(deleteCall.sql, /variable_id IN \(SELECT id FROM variables WHERE nombre <> 'Tamaño'\)/);
+    assert.ok(llamadas.some((c) => c.sql === 'COMMIT'));
+  });
+
+  test('reemplazarAtributosProducto() con ID inválido hace ROLLBACK completo (no deja el producto a medias)', async () => {
+    const llamadas = [];
+    const client = {
+      query: async (sql) => {
+        llamadas.push(sql);
+        if (sql.startsWith('INSERT')) throw Object.assign(new Error('violates foreign key constraint'), { code: '23503' });
+      },
+      release: () => {},
+    };
+    const pool = { connect: async () => client };
+    await assert.rejects(
+      () => new AtributoRepository(pool).reemplazarAtributosProducto('CAT0032', ['ID_INVALIDO']),
+      /foreign key/
+    );
+    assert.ok(llamadas.includes('ROLLBACK'), 'debe hacer ROLLBACK, no dejar el DELETE sin el INSERT');
   });
 
   test('actualizar()/eliminar() nunca pueden tocar la variable "Tamaño" (guardado en el propio WHERE)', async () => {
