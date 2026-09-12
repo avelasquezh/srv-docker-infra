@@ -1,5 +1,5 @@
 -- ================================================================
--- 010_desacoplar_vista_catalogo_agente_de_legacy.sql
+-- 009_desacoplar_vista_catalogo_agente_de_legacy.sql
 --
 -- Hallazgo (al intentar correr 009): existe una vista `vista_catalogo_agente`
 -- (no rastreada en ninguna migración de git, creada directo en producción)

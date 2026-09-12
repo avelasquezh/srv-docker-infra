@@ -1,5 +1,11 @@
 -- ================================================================
--- 009_fase6_drop_catalogo_precios.sql
+-- 010_fase6_drop_catalogo_precios.sql
+--
+-- NOTA: esta migración depende de que 009 (desacople de vista_catalogo_agente)
+-- ya haya corrido antes — por eso el número 010, no 009 como en el primer
+-- intento fallido (ver historial de git: al intentar dropear primero se
+-- encontró que node-pg-migrate corre en orden de nombre de archivo, y la
+-- vista tenía que desacoplarse ANTES del drop, no después).
 --
 -- Fase 6 (limpieza) — primera y única tabla de las 4 originalmente
 -- planeadas (`catalogo_precios`/`atributos`/`atributo_opciones`/
