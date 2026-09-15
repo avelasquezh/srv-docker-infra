@@ -541,10 +541,17 @@ disciplina. Prioridades en orden:
   otra máquina (`arley2911@serverpc`) donde él corre manualmente `git pull` +
   comandos `docker exec`/`docker compose restart`. Claude debe darle los comandos EXACTOS
   para copiar/pegar, nunca asumir que Claude puede ejecutarlos directo.
-  **Gotcha real:** `docker-compose.yml` de lilop **no vive en la raíz del repo**, vive
-  en `projects/lilop/api/` — `docker compose restart` desde `~/srv/docker` falla con
-  "no configuration file provided". El comando correcto es
-  `cd ~/srv/docker/projects/lilop/api && docker compose restart lilop-api`.
+  **Gotcha real:** cada `docker-compose.yml` vive en la carpeta de su propio proyecto,
+  **no en la raíz del repo** — correr `docker compose` desde `~/srv/docker` falla con
+  "no configuration file provided". Confirmado para 2 proyectos distintos (mismo
+  error, mismo tropiezo, dos incidentes reales separados):
+  - API: `cd ~/srv/docker/projects/lilop/api && docker compose restart api`
+    (el *servicio* se llama `api`, no `lilop-api` — ese es el `container_name`;
+    `docker compose restart` necesita el nombre del servicio).
+  - n8n: `cd ~/srv/docker/projects/lilop/n8n && docker compose restart n8n-lilop`
+    (acá el servicio y el container_name coinciden, sí es `n8n-lilop`).
+  Antes de dar un `docker compose` como comando, confirmar en qué carpeta vive el
+  `docker-compose.yml` del proyecto en cuestión en vez de asumir la raíz.
 - Versionado de assets estáticos del admin (`?v=<hash>` en cada HTML, cache-busting vía
   Cloudflare): existe `projects/lilop/scripts/bump-asset-version.py`, que recalcula un
   hash md5 (8 chars) del contenido real de cada `.js`/`.css` y reescribe automáticamente
