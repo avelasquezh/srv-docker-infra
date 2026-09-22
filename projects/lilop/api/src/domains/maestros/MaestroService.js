@@ -45,8 +45,8 @@ class MaestroService extends BaseService {
 
   /* Categorías */
   listarCategorias() { return this.repos.categorias.listar(); }
-  async crearCategoria(nombre, slug) {
-    try { return await this.repos.categorias.crear(nombre, slug); }
+  async crearCategoria(nombre, slug, tipo) {
+    try { return await this.repos.categorias.crear(nombre, slug, tipo); }
     catch (err) { throw this._traducirDuplicado(err, 'El slug ya existe'); }
   }
   async actualizarCategoria(id, datos) {

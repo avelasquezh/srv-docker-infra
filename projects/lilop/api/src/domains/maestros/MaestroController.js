@@ -75,20 +75,29 @@ class MaestroController extends BaseController {
   /* Categorías */
   async listarCategorias(req, res) { res.json(await this.service.listarCategorias()); }
   async crearCategoria(req, res) {
-    const { nombre, slug } = req.body;
+    const { nombre, slug, tipo } = req.body;
     if (!nombre || !slug) return res.status(400).json({ error: 'nombre y slug son requeridos' });
     const slugNormalizado = slug.trim().toLowerCase().replace(/\s+/g, '-');
+    const TIPOS_VALIDOS = ['linea_producto', 'material', 'target', 'diseno'];
+    if (tipo && !TIPOS_VALIDOS.includes(tipo)) {
+      return res.status(400).json({ error: `tipo inválido, debe ser uno de: ${TIPOS_VALIDOS.join(', ')}` });
+    }
     try {
-      res.status(201).json(await this.service.crearCategoria(nombre.trim(), slugNormalizado));
+      res.status(201).json(await this.service.crearCategoria(nombre.trim(), slugNormalizado, tipo || null));
     } catch (err) { this._duplicadoOThrow(res, err); }
   }
   async actualizarCategoria(req, res) {
-    const { nombre, slug, activo } = req.body;
+    const { nombre, slug, activo, tipo } = req.body;
+    const TIPOS_VALIDOS = ['linea_producto', 'material', 'target', 'diseno'];
+    if (tipo && !TIPOS_VALIDOS.includes(tipo)) {
+      return res.status(400).json({ error: `tipo inválido, debe ser uno de: ${TIPOS_VALIDOS.join(', ')}` });
+    }
     try {
       const categoria = await this.service.actualizarCategoria(req.params.id, {
         nombre: nombre || null,
         slug: slug || null,
         activo: activo ?? null,
+        tipo: tipo || null,
       });
       if (!categoria) return this.notFound(res, 'Categoría no encontrada');
       res.json(categoria);

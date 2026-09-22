@@ -12,22 +12,23 @@ class CategoriaRepository extends BaseRepository {
     return rows;
   }
 
-  async crear(nombre, slug) {
+  async crear(nombre, slug, tipo) {
     const { rows } = await this.query(
-      'INSERT INTO categorias (nombre, slug) VALUES ($1, $2) RETURNING *',
-      [nombre, slug]
+      'INSERT INTO categorias (nombre, slug, tipo) VALUES ($1, $2, $3) RETURNING *',
+      [nombre, slug, tipo || 'linea_producto']
     );
     return rows[0];
   }
 
-  async actualizar(id, { nombre, slug, activo }) {
+  async actualizar(id, { nombre, slug, activo, tipo }) {
     const { rows } = await this.query(
       `UPDATE categorias SET
         nombre = COALESCE($1, nombre),
         slug   = COALESCE($2, slug),
-        activo = COALESCE($3, activo)
-       WHERE id = $4 RETURNING *`,
-      [nombre ?? null, slug ?? null, activo ?? null, id]
+        activo = COALESCE($3, activo),
+        tipo   = COALESCE($4, tipo)
+       WHERE id = $5 RETURNING *`,
+      [nombre ?? null, slug ?? null, activo ?? null, tipo ?? null, id]
     );
     return rows[0] || null;
   }

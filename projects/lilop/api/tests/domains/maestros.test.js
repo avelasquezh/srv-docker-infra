@@ -21,8 +21,8 @@ function poolFalso(escenario = 'ok') {
         return { rows: [{ id: 2, nombre: params[0] }] };
       }
       if (/SELECT \* FROM categorias/.test(sql)) return { rows: [{ id: 1, nombre: 'X', slug: 'x' }] };
-      if (/INSERT INTO categorias/.test(sql)) return { rows: [{ id: 3, nombre: params[0], slug: params[1] }] };
-      if (/UPDATE categorias/.test(sql)) return { rows: [{ id: params[3] }] };
+      if (/INSERT INTO categorias/.test(sql)) return { rows: [{ id: 3, nombre: params[0], slug: params[1], tipo: params[2] }] };
+      if (/UPDATE categorias/.test(sql)) return { rows: [{ id: params[4] }] };
       return { rows: [] };
     },
   };
@@ -84,6 +84,21 @@ describe('MaestroController — validación', () => {
     await c.crearCategoria({ body: { nombre: 'Ropa', slug: '  Ropa De Cama  ' } }, res);
     assert.equal(res._status, 201);
     assert.equal(res._json.slug, 'ropa-de-cama');
+  });
+
+  test('crearCategoria() con tipo inválido responde 400', async () => {
+    const c = buildController('ok');
+    const res = fakeRes();
+    await c.crearCategoria({ body: { nombre: 'Ropa', slug: 'ropa', tipo: 'algo_raro' } }, res);
+    assert.equal(res._status, 400);
+  });
+
+  test('crearCategoria() sin tipo cae a linea_producto por defecto', async () => {
+    const c = buildController('ok');
+    const res = fakeRes();
+    await c.crearCategoria({ body: { nombre: 'Ropa', slug: 'ropa' } }, res);
+    assert.equal(res._status, 201);
+    assert.equal(res._json.tipo, 'linea_producto');
   });
 
   test('crearCategoria() sin slug responde 400', async () => {

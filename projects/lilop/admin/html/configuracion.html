@@ -152,6 +152,12 @@
           <div class="d-flex gap-2 mt-2">
             <input class="form-input" id="nuevaCatNombre" placeholder="Nombre…"/>
             <input class="form-input" id="nuevaCatSlug" placeholder="slug-url…" style="max-width:160px"/>
+            <select class="form-input" id="nuevaCatTipo" style="max-width:150px">
+              <option value="linea_producto">Línea de producto</option>
+              <option value="material">Material</option>
+              <option value="target">Target/segmento</option>
+              <option value="diseno">Diseño</option>
+            </select>
             <button class="btn btn--primary btn--sm shrink-0" id="btnAgregarCategoria">Agregar</button>
           </div>
         </div>
@@ -314,6 +320,15 @@
         <label class="form-label form-label--required">Slug <span class="text-muted text-xs">(usado en URLs)</span></label>
         <input class="form-input" id="editCatMaestroSlug"/>
       </div>
+      <div class="form-group">
+        <label class="form-label form-label--required">Tipo</label>
+        <select class="form-input" id="editCatMaestroTipo">
+          <option value="linea_producto">Línea de producto</option>
+          <option value="material">Material</option>
+          <option value="target">Target/segmento</option>
+          <option value="diseno">Diseño</option>
+        </select>
+      </div>
     </div>
     <div class="modal__footer">
       <button class="btn btn--ghost btn--sm" data-modal-close>Cancelar</button>
@@ -353,6 +368,6 @@
 <script src="/assets/js/admin-api.js?v=dfeefe29"></script>
 <script src="/assets/js/admin-layout.js?v=79fc7f0b"></script>
 <script src="/assets/js/admin-ui.js?v=b1bbcb09"></script>
-<script src="/assets/js/pages/configuracion.js?v=ffa86826"></script>
+<script src="/assets/js/pages/configuracion.js?v=e6ca20f6"></script>
 </body>
 </html>

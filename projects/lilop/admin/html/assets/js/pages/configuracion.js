@@ -467,15 +467,16 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await api.get('/maestros/categorias');
       const lista = document.getElementById('categoriasLista');
       if (!lista) return;
+      const TIPO_LABEL = { linea_producto: 'Línea de producto', material: 'Material', target: 'Target/segmento', diseno: 'Diseño' };
       lista.innerHTML = data.length ? data.map(c => `
         <div class="d-flex items-center justify-between p-2-3 radius-sm" style="background:var(--color-fog)">
           <div class="d-flex flex-col gap-1">
             <span class="text-sm font-medium">${c.nombre}</span>
-            <span class="text-xs text-muted" style="font-family:var(--font-mono)">${c.slug}</span>
+            <span class="text-xs text-muted" style="font-family:var(--font-mono)">${c.slug} · ${TIPO_LABEL[c.tipo] || c.tipo}</span>
           </div>
           <div class="d-flex items-center gap-2">
             <span class="status-badge ${c.activo ? 'badge--success' : 'badge--inactive'} text-xs">${c.activo ? 'Activa' : 'Inactiva'}</span>
-            <button class="btn btn--sm btn--outline btn--icon" data-action="editar-cat-maestro" data-id="${c.id}" data-nombre="${c.nombre}" data-slug="${c.slug}" title="Editar">
+            <button class="btn btn--sm btn--outline btn--icon" data-action="editar-cat-maestro" data-id="${c.id}" data-nombre="${c.nombre}" data-slug="${c.slug}" data-tipo="${c.tipo}" title="Editar">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             </button>
             <button class="btn btn--sm btn--danger btn--icon" data-action="eliminar-cat-maestro" data-id="${c.id}" data-nombre="${c.nombre}" title="Eliminar">
@@ -489,6 +490,7 @@ document.addEventListener('DOMContentLoaded', () => {
           document.getElementById('editCatMaestroId').value    = btn.dataset.id;
           document.getElementById('editCatMaestroNombre').value = btn.dataset.nombre;
           document.getElementById('editCatMaestroSlug').value   = btn.dataset.slug;
+          document.getElementById('editCatMaestroTipo').value   = btn.dataset.tipo;
           window.AdminModal.open('modalEditarCatMaestro');
         });
       });
@@ -514,9 +516,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const nombre = document.getElementById('nuevaCatNombre')?.value.trim();
     const slug   = document.getElementById('nuevaCatSlug')?.value.trim()
       || nombre.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+    const tipo = document.getElementById('nuevaCatTipo')?.value;
     if (!nombre) { window.AdminToast?.error('Campo requerido', 'Ingresa un nombre'); return; }
     try {
-      await api.post('/maestros/categorias', { nombre, slug });
+      await api.post('/maestros/categorias', { nombre, slug, tipo });
       window.AdminToast?.success('Categoría creada');
       document.getElementById('nuevaCatNombre').value = '';
       document.getElementById('nuevaCatSlug').value   = '';
@@ -553,9 +556,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const id     = document.getElementById('editCatMaestroId')?.value;
     const nombre = document.getElementById('editCatMaestroNombre')?.value.trim();
     const slug   = document.getElementById('editCatMaestroSlug')?.value.trim();
+    const tipo   = document.getElementById('editCatMaestroTipo')?.value;
     if (!nombre || !slug) { window.AdminToast?.error('Campos requeridos', 'Nombre y slug son obligatorios'); return; }
     try {
-      await api.put(`/maestros/categorias/${id}`, { nombre, slug });
+      await api.put(`/maestros/categorias/${id}`, { nombre, slug, tipo });
       window.AdminToast?.success('Categoría actualizada');
       window.AdminModal.close('modalEditarCatMaestro');
       await loadCategorias();
